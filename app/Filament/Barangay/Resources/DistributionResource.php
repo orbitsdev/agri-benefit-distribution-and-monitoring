@@ -14,15 +14,16 @@ use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Guava\FilamentNestedResources\Concerns\NestedResource;
 use App\Filament\Barangay\Resources\DistributionResource\Pages;
 use App\Filament\Barangay\Resources\DistributionResource\RelationManagers;
 use App\Filament\Barangay\Resources\DistributionItemResource\Pages\ListDistributionItems;
-
+use Guava\FilamentNestedResources\Concerns\NestedResource;
+use Filament\Resources\Pages\Page;
 class DistributionResource extends Resource
 {
   
-    
+    use NestedResource;
+
     protected static ?string $model = Distribution::class;
 
     protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';  
@@ -82,7 +83,7 @@ class DistributionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\DistributionItemsRelationManager::class,
+            // RelationManagers\DistributionItemsRelationManager::class,
         ];
     }
 
@@ -93,10 +94,24 @@ class DistributionResource extends Resource
             'create' => Pages\CreateDistribution::route('/create'),
             // 'view' => Pages\ViewDistribution::route('/{record}'),
             'edit' => Pages\EditDistribution::route('/{record}/edit'),
+            'distributionItems' => Pages\ManageDistributionDistributionItem::route('/{record}/distributionItems'),
+
+            'distributionItems.create' => Pages\CreateDistributionDistributionItem::route('/{record}/albums/distributionItems'),
 
         
         ];
     }
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationItems([
+            Pages\EditDistribution::class,
+            Pages\ManageDistributionDistributionItem::class,
+            // Pages\ManageBe::class,
+        ]);
+    }
 
-  
+    public static function getAncestor(): ?Ancestor
+    {
+        return null;
+    }
 }

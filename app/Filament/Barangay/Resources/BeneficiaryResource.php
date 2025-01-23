@@ -6,29 +6,22 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\DistributionItem;
+use App\Models\Beneficiary;
 use Filament\Resources\Resource;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Guava\FilamentNestedResources\Concerns\NestedResource;
-use App\Filament\Barangay\Resources\DistributionItemResource\Pages;
-use App\Filament\Barangay\Resources\DistributionItemResource\RelationManagers;
+use App\Filament\Barangay\Resources\BeneficiaryResource\Pages;
+use App\Filament\Barangay\Resources\BeneficiaryResource\RelationManagers;
 
-class DistributionItemResource extends Resource
-{   
+class BeneficiaryResource extends Resource
+{
     use NestedResource;
+    protected static ?string $model = Beneficiary::class;
+
     protected static bool $shouldRegisterNavigation = false;
-   
-    protected static ?string $model = DistributionItem::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-//    public static function getBreadcrumbRecordLabel(Model $record)
-// {
-//     return $record->first_name . ' ' . $record->last_name;
-// }
 
     public static function form(Form $form): Form
     {
@@ -36,13 +29,11 @@ class DistributionItemResource extends Resource
             ->schema([
                 // Forms\Components\TextInput::make('item_id')
                 //     ->numeric(),
-                // Forms\Components\TextInput::make('distribution_id')
+                // Forms\Components\TextInput::make('name')
                 //     ->required()
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('quantity')
-                //     ->required()
-                //     ->numeric()
-                //     ->default(0),
+                //     ->maxLength(191),
+                // Forms\Components\TextInput::make('status')
+                //     ->required(),
             ]);
     }
 
@@ -53,12 +44,9 @@ class DistributionItemResource extends Resource
                 // Tables\Columns\TextColumn::make('item_id')
                 //     ->numeric()
                 //     ->sortable(),
-                // Tables\Columns\TextColumn::make('distribution_id')
-                //     ->numeric()
-                //     ->sortable(),
-                // Tables\Columns\TextColumn::make('quantity')
-                //     ->numeric()
-                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('name')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('status'),
                 // Tables\Columns\TextColumn::make('created_at')
                 //     ->dateTime()
                 //     ->sortable()
@@ -84,26 +72,25 @@ class DistributionItemResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\BeneficiariesRelationManager::class,
+            //
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDistributionItems::route('/'),
-            'create' => Pages\CreateDistributionItem::route('/create'),
-            'edit' => Pages\EditDistributionItem::route('/{record}/edit'),
-            'beneficiaries.create' => Pages\CreateDistributionBeneficiary::route('/{record}/songs/beneficiaries'),
+            'index' => Pages\ListBeneficiaries::route('/'),
+            'create' => Pages\CreateBeneficiary::route('/create'),
+            'edit' => Pages\EditBeneficiary::route('/{record}/edit'),
         ];
     }
+
 
     public static function getAncestor(): ?Ancestor
     {
         return Ancestor::make(
-            'distributionItems',
-            'distribution',
+            'beneficiaries',
+            'distributionItem',
         );
     }
-    
 }
