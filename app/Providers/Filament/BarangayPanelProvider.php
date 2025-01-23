@@ -28,7 +28,7 @@ class BarangayPanelProvider extends PanelProvider
             ->path('barangay')
             ->login()
             ->colors([
-                'primary' => '#142660',
+                'primary' => '#4CAF50',
             ])
             ->discoverResources(in: app_path('Filament/Barangay/Resources'), for: 'App\\Filament\\Barangay\\Resources')
             ->discoverPages(in: app_path('Filament/Barangay/Pages'), for: 'App\\Filament\\Barangay\\Pages')
