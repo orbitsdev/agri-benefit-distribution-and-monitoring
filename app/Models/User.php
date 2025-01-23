@@ -3,17 +3,20 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
+use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
+use Laravel\Jetstream\HasProfilePhoto;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable implements HasMedia {
+class User extends Authenticatable implements FilamentUser, HasMedia {
     use HasApiTokens;
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use HasProfilePhoto;
@@ -26,7 +29,15 @@ class User extends Authenticatable implements HasMedia {
     {
       return self::getImage();
     }
-
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+        // return match($panel->getId()){
+        //     'admin'=> $this->hasAnyRole(['Admin']),
+        //     'clinic'=> $this->hasAnyRole(['Admin','Veterenarian']),
+        //     'client'=> $this->hasAnyRole(['Admin','Client','Veterenarian']),
+        // };
+    }
 
 
     public const SUPER_ADMIN = 'Super Admin';
@@ -35,7 +46,7 @@ class User extends Authenticatable implements HasMedia {
 
 
     public const ROLE_OPTIONS = [
-        self::SUPER_ADMIN => self::SUPER_ADMIN,
+        // self::SUPER_ADMIN => self::SUPER_ADMIN,
         self::ADMIN => self::ADMIN,
         self::MEMBER => self::MEMBER,
     ];
@@ -89,5 +100,19 @@ class User extends Authenticatable implements HasMedia {
     {
         $this->addMediaCollection('image')->singleFile();
 
+    }
+
+    public static function scopeIsNotSuperAdmin($query)
+    {
+        return $query->where('email', '!=', 'superadmin@gmail.com')->where('role', '!=', self::SUPER_ADMIN);
+    }
+
+    public function getImage()
+    {
+        if ($this->hasMedia()) {
+            return $this->getFirstMediaUrl();
+        }
+
+        return asset('images/placeholder-image.jpg');
     }
 }

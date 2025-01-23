@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -12,6 +14,21 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+
+        switch(Auth::user()->role){
+            case User::SUPER_ADMIN:
+                return redirect('/admin');
+                break;
+                // case User::ADMIN:
+                // return redirect()->route('buyer.dashboard',['name'=> Auth::user()->fullNameSlug()]);
+                // break;
+                // case User::MEMBER:
+                // return redirect('/farmer');
+                // break;
+            default:
+              return view('dashboard');
+                break;
+        }
+
     })->name('dashboard');
 });
