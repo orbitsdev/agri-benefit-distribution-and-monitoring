@@ -211,6 +211,7 @@ class FilamentForm extends Controller
         Group::make()
         ->schema([
             Section::make('Distribution Details')
+            ->collapsible()
             ->description('Enter all required distribution information.')
             ->columns([
                 'sm' => 2,
