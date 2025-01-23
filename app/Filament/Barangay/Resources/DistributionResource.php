@@ -2,6 +2,7 @@
 
 namespace App\Filament\Barangay\Resources;
 
+use App\Filament\Barangay\Resources\DistributionItemResource\Pages\CreateDistributionItem;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -11,15 +12,20 @@ use Filament\Resources\Resource;
 use App\Http\Controllers\FilamentForm;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
+use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Guava\FilamentNestedResources\Concerns\NestedResource;
 use App\Filament\Barangay\Resources\DistributionResource\Pages;
 use App\Filament\Barangay\Resources\DistributionResource\RelationManagers;
+use App\Filament\Barangay\Resources\DistributionItemResource\Pages\ListDistributionItems;
 
 class DistributionResource extends Resource
 {
+  
+    
     protected static ?string $model = Distribution::class;
 
-    protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';
+    protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';  
 
     public static function form(Form $form): Form
     {
@@ -76,7 +82,7 @@ class DistributionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\DistributionItemsRelationManager::class,
         ];
     }
 
@@ -87,6 +93,10 @@ class DistributionResource extends Resource
             'create' => Pages\CreateDistribution::route('/create'),
             // 'view' => Pages\ViewDistribution::route('/{record}'),
             'edit' => Pages\EditDistribution::route('/{record}/edit'),
+
+        
         ];
     }
+
+  
 }

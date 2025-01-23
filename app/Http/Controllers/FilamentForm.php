@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Filament\Forms\Get;
 use Illuminate\Http\Request;
+use Filament\Forms\Components\Group;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
+use Awcodes\FilamentTableRepeater\Components\TableRepeater;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class FilamentForm extends Controller
@@ -195,13 +200,17 @@ class FilamentForm extends Controller
                         ->imageEditor()
                        ,
                 ]),
+
+                
         ];
     }
 
     public static function distributionForm(): array
 {
     return [
-        Section::make('Distribution Details')
+        Group::make()
+        ->schema([
+            Section::make('Distribution Details')
             ->description('Enter all required distribution information.')
             ->columns([
                 'sm' => 2,
@@ -218,8 +227,8 @@ class FilamentForm extends Controller
                     ->label('Title')
                     ->required()
                     ->maxLength(191)
-                    ->placeholder('Enter the title of the distribution')
-                    ->helperText('Provide a brief and descriptive title for the distribution.')
+                    // ->placeholder('Enter the title of the distribution')
+                    // ->helperText('Provide a brief and descriptive title for the distribution.')
                     ->columnSpanFull(),
 
                 // Distribution Date Field
@@ -246,7 +255,7 @@ class FilamentForm extends Controller
                     ])
                     ->default('Planned')
                     ->required()
-                    ->helperText('Select the current status of the distribution.')
+                 
                     ->columnSpan([
                         'sm' => 2,
                         'md' => 4,
@@ -258,17 +267,17 @@ class FilamentForm extends Controller
                     ->label('Location')
                     ->required()
                     ->maxLength(191)
-                    ->placeholder('Enter the venue or location of the distribution.')
-                    ->helperText('Specify the exact venue where the distribution will take place.')
+                 
+                   
                     ->columnSpanFull(),
 
                 // Description Field
                 Textarea::make('description')
                     ->label('Description')
-                    ->placeholder('Provide a brief description of the distribution.')
+            
                     ->rows(4)
                     ->maxLength(500)
-                    ->helperText('Add more details about the distribution if needed.')
+                    // ->helperText('Add more details about the distribution if needed.')
                     ->columnSpanFull(),
 
                 // Code Field (Read-only, Auto-generated)
@@ -283,6 +292,59 @@ class FilamentForm extends Controller
                     ->disabled()
                     ->hidden(fn($operation) => $operation === 'create'),
             ]),
+        ])->columnSpan(['lg' => 3]),
+        // Group::make()
+        // ->schema([
+        //     Section::make('To Distribute Item')
+        //     ->description('Manage what Item To Distribute')
+        //     ->columns([
+        //         'sm' => 2,
+        //         'md' => 4,
+        //         'lg' => 6,
+        //         'xl' => 8,
+        //         '2xl' => 12,
+        //     ])  ->columnSpanFull()
+        //     ->schema([
+        //         ...self::distibuteItemForm()
+        //     ])
+        // ])->columnSpan(['lg' => 3]),
+        
+          
+    ];
+}
+
+public static function distibuteItemForm(): array {
+    return [
+        TableRepeater::make('distribution_items_lists')
+                                ->columnWidths([
+                                    'quantity' => '300px',
+                                ])
+                                ->relationship('distributionItems')
+                                ->schema([
+                                    Select::make('item_id')
+                                        ->label('Item')
+                                        ->relationship(
+                                            'item',
+                                            'id',
+                                            modifyQueryUsing: fn(Builder $query) => $query,
+                                        )
+                                        ->distinct()
+                                        ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                        ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->name}")
+                                        ->searchable(['name'])
+                                        ->preload()
+                                        ->required(),
+                                    TextInput::make('quantity')
+                                        ->numeric()
+                                        
+                                        ->minValue(1)
+                                        ->required(),
+                                ])
+                                ->withoutHeader()
+                                ->columnSpan('full')
+                                ->addActionLabel('Add Item')
+                                ->label('Items')
+                                ->maxItems(10),
     ];
 }
 

@@ -8,9 +8,11 @@
     "require": {
         "php": "^8.2",
         "afatmustafa/blade-hugeicons": "^0.0.4",
+        "awcodes/filament-table-repeater": "2.0",
         "codeat3/blade-solar-icons": "^1.1",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-media-library-plugin": "^3.2",
+        "guava/filament-nested-resources": "^1.2",
         "laravel/framework": "^11.31",
         "laravel/jetstream": "^5.3",
         "laravel/reverb": "^1.0",

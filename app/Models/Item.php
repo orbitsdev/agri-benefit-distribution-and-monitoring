@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\DistributionItem;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    //
+    
+    public function distributionItems(){
+        return $this->hasMany(DistributionItem::class);
+    }
 }

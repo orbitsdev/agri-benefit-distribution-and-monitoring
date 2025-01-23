@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Item;
 use App\Models\Barangay;
+use App\Models\DistributionItem;
 use App\Observers\DistributionObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -28,8 +29,7 @@ class Distribution extends Model
         return $this->belongsTo(Barangay::class);
     }
 
-    // has many items
-    // public function items(){
-    //     return $this->hasMany(Item::class);
-    // }
+    public function distributionItems(){
+        return $this->hasMany(DistributionItem::class);
+    }
 }
