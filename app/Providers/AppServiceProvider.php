@@ -30,9 +30,9 @@ class AppServiceProvider extends ServiceProvider
                 return redirect('/admin/dashboard'); // Redirect to admin dashboard
             }
 
-            // if ($request->is('farmer/*')) {
-            //     return redirect('/farmer/dashboard'); // Redirect to farmer dashboard
-            // }
+            if ($request->is('barangay/*')) {
+                return redirect('/barangay/dashboard'); // Redirect to farmer dashboard
+            }
 
             // Default Jetstream redirection
             return redirect('/dashboard');

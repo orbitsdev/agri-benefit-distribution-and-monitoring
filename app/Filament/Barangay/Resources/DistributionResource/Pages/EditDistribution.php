@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\BarangayResource\Pages;
+namespace App\Filament\Barangay\Resources\DistributionResource\Pages;
 
-use App\Filament\Resources\BarangayResource;
+use App\Filament\Barangay\Resources\DistributionResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditBarangay extends EditRecord
+class EditDistribution extends EditRecord
 {
-    protected static string $resource = BarangayResource::class;
+    protected static string $resource = DistributionResource::class;
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

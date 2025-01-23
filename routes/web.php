@@ -24,7 +24,7 @@ Route::middleware([
             //     return view('/dashboard');
             //     break;
                 case User::ADMIN:
-                return redirect('/admin');
+                return redirect('/barangay');
                 break;
                 // case User::MEMBER:
                 // return redirect('/farmer');

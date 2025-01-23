@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class FilamentForm extends Controller
@@ -134,7 +135,7 @@ class FilamentForm extends Controller
 
                     // Barangay Location
                     Textarea::make('location')
-                        ->label('Location')
+                        ->label('Location/Venue')
                         ->maxLength(500)
                         ->rows(3)
                         ->columnSpanFull()
@@ -196,4 +197,93 @@ class FilamentForm extends Controller
                 ]),
         ];
     }
+
+    public static function distributionForm(): array
+{
+    return [
+        Section::make('Distribution Details')
+            ->description('Enter all required distribution information.')
+            ->columns([
+                'sm' => 2,
+                'md' => 4,
+                'lg' => 6,
+                'xl' => 8,
+                '2xl' => 12,
+            ])
+            ->columnSpanFull()
+            ->schema([
+
+                // Title Field
+                TextInput::make('title')
+                    ->label('Title')
+                    ->required()
+                    ->maxLength(191)
+                    ->placeholder('Enter the title of the distribution')
+                    ->helperText('Provide a brief and descriptive title for the distribution.')
+                    ->columnSpanFull(),
+
+                // Distribution Date Field
+                DatePicker::make('distribution_date')
+                    ->label('Distribution Date')
+                    ->required()
+                    ->helperText('Set the date for the distribution.')
+                    ->native(false)
+                    ->minDate(now())
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 6,
+                    ]),
+
+                // Status Field
+                Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'Planned' => 'Planned',
+                        'Ongoing' => 'Ongoing',
+                        'Completed' => 'Completed',
+                        'Canceled' => 'Canceled',
+                    ])
+                    ->default('Planned')
+                    ->required()
+                    ->helperText('Select the current status of the distribution.')
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 6,
+                    ]),
+
+                // Location Field
+                TextInput::make('location')
+                    ->label('Location')
+                    ->required()
+                    ->maxLength(191)
+                    ->placeholder('Enter the venue or location of the distribution.')
+                    ->helperText('Specify the exact venue where the distribution will take place.')
+                    ->columnSpanFull(),
+
+                // Description Field
+                Textarea::make('description')
+                    ->label('Description')
+                    ->placeholder('Provide a brief description of the distribution.')
+                    ->rows(4)
+                    ->maxLength(500)
+                    ->helperText('Add more details about the distribution if needed.')
+                    ->columnSpanFull(),
+
+                // Code Field (Read-only, Auto-generated)
+                TextInput::make('code')
+                    ->label('Distribution Code')
+                    ->helperText('This code is auto-generated and cannot be edited.')
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 6,
+                    ])
+                    ->disabled()
+                    ->hidden(fn($operation) => $operation === 'create'),
+            ]),
+    ];
+}
+
 }

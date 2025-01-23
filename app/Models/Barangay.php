@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Distribution;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
+
 class Barangay extends Model implements HasMedia
 {
     use InteractsWithMedia;
@@ -22,4 +24,12 @@ class Barangay extends Model implements HasMedia
 
         return asset('images/placeholder-image.jpg');
     }
+
+    // has many distributions
+    public function distributions()
+    {
+        return $this->hasMany(Distribution::class);
+    }
+
+
 }
