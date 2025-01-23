@@ -17,7 +17,7 @@ class ItemResource extends Resource
 {
     protected static ?string $model = Item::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-archive-box-arrow-down';
 
     public static function form(Form $form): Form
     {
@@ -52,8 +52,8 @@ class ItemResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                 Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()->color('gray'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
