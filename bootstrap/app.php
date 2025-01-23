@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureIsAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,7 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         ]);
-        
+
+
+        $middleware->alias([
+            'is-admin'=> \App\Http\Middleware\EnsureIsAdmin::class,
+            'is-super-admin'=> \App\Http\Middleware\EnsureIsSuperAdmin::class,
+        ]);
+
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Panel;
+use App\Models\Barangay;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -114,5 +115,9 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
         }
 
         return asset('images/placeholder-image.jpg');
+    }
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
     }
 }

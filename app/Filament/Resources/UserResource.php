@@ -7,13 +7,16 @@ use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Wizard;
+use App\Http\Controllers\FilamentForm;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UserResource\Pages;
@@ -30,83 +33,24 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-
-                Section::make('User Details')
-                ->description('Enter all required user information.')
-                ->columns([
-                    'sm' => 2,
-                    'md' => 4,
-                    'lg' => 6,
-                    'xl' => 8,
-                    '2xl' => 12,
-                ])
-                ->columnSpanFull()
-                ->schema([
-                   TextInput::make('name')
-                    ->required()
-                    ->maxLength(191)
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 4,
-                    ]),
-
-                    TextInput::make('email')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 4,
-                    ]),
-
-                    Select::make('role')
-                    ->default(User::MEMBER)
-                    ->required()
-                    ->options(User::ROLE_OPTIONS)
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 4,
-                    ])
-                    ->searchable()
-                    ->live()
-
-
-
-
-                    ->disabled(fn(string $operation): bool => $operation === 'edit'),
-
-                    TextInput::make('password')
-                    ->password()
-                    ->revealable()
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 4,
-                    ])
-                    ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
-                    ->dehydrated(fn(?string $state): bool => filled($state))
-                    ->required(fn(string $operation): bool => $operation === 'create')
-                    ->label(fn(string $operation) => $operation == 'create' ? 'Password' : 'New Password'),
-                ]),
-
-
-
-
-            ]);
+            ->schema(FilamentForm::userForm());
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-             SpatieMediaLibraryImageColumn::make('image') ->defaultImageUrl(url('/images/placeholder-image.jpg'))->label('Profile'),
+             SpatieMediaLibraryImageColumn::make('image') ->defaultImageUrl(url('/images/placeholder-image.jpg'))->label('Profile')
+             ->toggleable(isToggledHiddenByDefault: true)
+             ,
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable(isIndividual :true),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ,
+
+                    ToggleColumn::make('is_active')->label('Active/Disabled'),
 
                     Tables\Columns\TextColumn::make('role')
                     ->badge()

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\MemberDashboard;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -19,9 +20,12 @@ Route::middleware([
             case User::SUPER_ADMIN:
                 return redirect('/admin');
                 break;
-                // case User::ADMIN:
-                // return redirect()->route('buyer.dashboard',['name'=> Auth::user()->fullNameSlug()]);
-                // break;
+            // case User::MEMBER:
+            //     return view('/dashboard');
+            //     break;
+                case User::ADMIN:
+                return redirect('/admin');
+                break;
                 // case User::MEMBER:
                 // return redirect('/farmer');
                 // break;
@@ -31,4 +35,6 @@ Route::middleware([
         }
 
     })->name('dashboard');
+
+    Route::get('/member-dashboard', MemberDashboard::class )->name('member.dashboard');
 });

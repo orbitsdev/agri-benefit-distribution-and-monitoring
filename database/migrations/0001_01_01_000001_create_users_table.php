@@ -21,6 +21,8 @@ return new class extends Migration
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
             $table->enum('role', ['Super Admin', 'Admin','Member'])->default('Member');
+            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('set null');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
 
