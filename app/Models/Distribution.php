@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Item;
 use App\Models\Barangay;
+use App\Models\ImportFailure;
 use App\Models\DistributionItem;
 use App\Observers\DistributionObserver;
 use Illuminate\Database\Eloquent\Model;
@@ -31,5 +32,10 @@ class Distribution extends Model
 
     public function distributionItems(){
         return $this->hasMany(DistributionItem::class);
+    }
+
+    // has many import failures
+    public function importFailures(){
+        return $this->hasMany(ImportFailure::class);
     }
 }

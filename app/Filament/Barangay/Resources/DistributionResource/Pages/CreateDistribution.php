@@ -12,10 +12,10 @@ class CreateDistribution extends CreateRecord
     use NestedPage;
     protected static string $resource = DistributionResource::class;
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index');
+    // }
     protected function mutateFormDataBeforeCreate(array $data): array
 {
     $barangayId  = Auth::user()->barangay_id;

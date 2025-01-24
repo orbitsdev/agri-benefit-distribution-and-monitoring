@@ -70,7 +70,7 @@ class DistributionResource extends Resource
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\EditAction::make()->label('Manage'),
                     Tables\Actions\DeleteAction::make()->color('gray'),
                 ]),
             ])

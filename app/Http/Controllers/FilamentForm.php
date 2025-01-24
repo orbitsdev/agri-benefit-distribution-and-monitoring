@@ -348,28 +348,54 @@ public static function distibuteItemForm(): array {
                                 ->maxItems(10),
     ];
 }
-
-public static function distributeItems(): array{
+public static function distributeItems(): array
+{
     return [
-        Select::make('item_id')
-        ->label('Item')
-        ->relationship(
-            'item',
-            'id',
-            modifyQueryUsing: fn(Builder $query) => $query,
-        )
-        ->distinct()
-        ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-        ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->name}")
-        ->searchable(['name'])
-        ->preload()
-        ->required(),
-    TextInput::make('quantity')
-        ->numeric()
+        Section::make('Distribution Details')
+            ->collapsible()
+            ->description('Provide all necessary details about the distribution, including the item and quantity to distribute.')
+            ->columns([
+                'sm' => 2,
+                'md' => 4,
+                'lg' => 6,
+                'xl' => 8,
+                '2xl' => 12,
+            ])
+            ->columnSpanFull()
+            ->schema([
+                Select::make('item_id')
+                    ->label('Item')
+                    ->relationship(
+                        'item',
+                        'id',
+                        modifyQueryUsing: fn (Builder $query) => $query
+                    )
+                    ->distinct()
+                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name}")
+                    ->searchable(['name'])
+                    ->preload()
+                    ->required()
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 6,
+                    ]),
 
-        ->minValue(1)
-        ->required(),
+                TextInput::make('quantity')
+                    ->label('Quantity')
+                    ->numeric()
+                    ->minValue(1)
+                    ->required()
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 6,
+                    ]),
+            ]),
     ];
 }
+
+
 
 }

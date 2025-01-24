@@ -7,8 +7,16 @@ use Filament\Tables;
 use Filament\Actions;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\ImportFailure;
+use Filament\Actions\StaticAction;
 use Filament\Tables\Actions\Action;
+use Illuminate\Contracts\View\View;
+use App\Imports\BeneficiariesImport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\FilamentForm;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Facades\Storage;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,12 +39,14 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
-    protected static ?string $navigationLabel = 'Mis Clientes';
+    protected static ?string $navigationLabel = 'Manage Items & Beneficiaries';
 
-    public static function getNavigationLabel(): string
-    {
-        return 'Distribution Items';
-    }
+    protected ?string $heading = 'Manage items & Beneficiaries';
+
+    // public static function getNavigationLabel(): string
+    // {
+    //     return 'Distribution Items';
+    // }
 
 
 
@@ -51,65 +61,120 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
         return $table
             ->recordTitleAttribute('item_id')
             ->columns([
-                Tables\Columns\TextColumn::make('item.name')
+                TextColumn::make('item.name')
                     ->searchable()
                     ->label('Item'),
-                Tables\Columns\TextColumn::make('quantity')
+                  
+                TextColumn::make('quantity')
                     ->searchable()
                     ->label('Quantity'),
+                    TextColumn::make('beneficiaries_count')->counts('beneficiaries')->label('Beneficiaries'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
+                Action::make('Import Failures')
+                    ->modalSubmitAction(false)
+                    ->action(function () {
+                       
+                    })
+                    ->hidden(function(){
+                        return $this->getRecord()->importFailures()->count() === 0;
+                    })
+                    ->modalContent(fn (): View => view(
+                        'livewire.view-import-failure',
+                        [
+                            'importFailures' => $this->getRecord()->importFailures,
+                        ]
+                        
+                    ))
+                    ->outlined()
+                    ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                    ->closeModalByClickingAway(false)->modalWidth('7xl'),
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
 
 
                 Action::make('Import')
-                ->button()
-                ->action(function (array $data): void {
-                    // Uncomment and modify the following lines as needed for import functionality:
+                    ->button()
+                    ->action(function (array $data): void {
+                        $distributionId = $this->getRecord()->id;
 
-                    // $file  = Storage::disk('public')->path($data['file']);
-                    // Excel::import(new BeneficiariesImport, $file);
+                        // Get the file path
+                        $file = Storage::disk('public')->path($data['file']);
 
-                    // if (Storage::disk('public')->exists($data['file'])) {
-                    //     Storage::disk('public')->delete($data['file']);
-                    // }
-                })
-                ->icon('heroicon-o-arrow-down-tray')
-                ->form([
-                    FileUpload::make('file')
-                        ->acceptedFileTypes([
-                            'application/vnd.ms-excel',
-                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            'application/csv',
-                            'text/csv',
-                            'text/plain',
-                        ])
-                        ->disk('public')
-                        ->directory('imports')
-                        ->label('Excel File'),
-                ])
-                ->outlined()
-                ->button()
-                ->label('Import')
-                ->modalHeading('Upload Beneficiary File')
-                ->modalDescription('Follow these instructions to import beneficiaries into the system:
+                        // Validate the headers
+                        $requiredColumns = ['name'];
+                        $fileHeaders = \Maatwebsite\Excel\Facades\Excel::toArray(null, $file)[0][0] ?? [];
 
-            1. Ensure your file is in the correct format (`.xlsx`, `.xls`, or `.csv`).
-            2. The file must include these columns:
-               - **First Name**: The beneficiary\'s first name.
-               - **Middle Name**: The beneficiary\'s middle name (optional).
-               - **Last Name**: The beneficiary\'s last name.
-               - **Unique Beneficiary ID**: This must be unique for each beneficiary.
+                        // Normalize the headers to lowercase for case-insensitivity
+                        $normalizedHeaders = array_map('strtolower', $fileHeaders);
+                        $normalizedRequiredColumns = array_map('strtolower', $requiredColumns);
 
-            3. If updating existing beneficiaries, ensure the "Unique Beneficiary ID" matches records in the system. Otherwise, new beneficiaries will be added.
-            4. Verify your data before uploading to prevent errors.
+                        // Check if all required columns exist
+                        foreach ($normalizedRequiredColumns as $column) {
+                            if (!in_array($column, $normalizedHeaders)) {
+                                Notification::make()
+                                    ->title('Import Failed')
+                                    ->danger()
+                                    ->body("The uploaded file is missing the required column: '$column'.")
+                                    ->send();
 
-            Thank you for your cooperation!'),
+                                // Delete the file and abort the action
+                                if (Storage::disk('public')->exists($data['file'])) {
+                                    Storage::disk('public')->delete($data['file']);
+                                }
+                                return;
+                            }
+                        }
+
+                        // If validation passes, proceed with the import
+                        \Maatwebsite\Excel\Facades\Excel::import(new BeneficiariesImport($distributionId), $file);
+
+                        // Delete the file after import
+                        if (Storage::disk('public')->exists($data['file'])) {
+                            Storage::disk('public')->delete($data['file']);
+                        }
+
+                        // Check for import failures
+                        $failureCount = ImportFailure::where('distribution_id', $distributionId)->count();
+
+                        if ($failureCount > 0) {
+                            Notification::make()
+                                ->title('Import Completed with Errors')
+                                ->danger()
+                                ->body("Import completed, but $failureCount rows failed. Please review the error log.")
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Import Successful')
+                                ->success()
+                                ->body('All rows were imported successfully.')
+                                ->send();
+                        }
+                    })
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->form([
+                        FileUpload::make('file')
+                            ->acceptedFileTypes([
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/csv',
+                                'text/csv',
+                                'text/plain',
+                            ])
+                            ->disk('public')
+                            ->directory('imports')
+                            ->label('Excel File'),
+                    ])
+                    ->outlined()
+                    ->button()
+                    ->label('Upload')
+                    ->modalHeading('Upload Beneficiary File')
+                    ->modalDescription('Upload an Excel file containing beneficiary data. The file should have the column **Name**.'),
+
 
                 ActionGroup::make([
 

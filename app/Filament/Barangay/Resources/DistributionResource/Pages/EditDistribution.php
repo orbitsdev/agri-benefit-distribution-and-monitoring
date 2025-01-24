@@ -9,6 +9,9 @@ use Guava\FilamentNestedResources\Concerns\NestedPage;
 class EditDistribution extends EditRecord
 {
     use NestedPage;
+
+
+    protected ?string $heading = 'Manage Distribution Details';
     protected static string $resource = DistributionResource::class;
     protected function getRedirectUrl(): string
     {
