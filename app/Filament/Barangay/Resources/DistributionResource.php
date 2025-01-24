@@ -2,23 +2,25 @@
 
 namespace App\Filament\Barangay\Resources;
 
-use App\Filament\Barangay\Resources\DistributionItemResource\Pages\CreateDistributionItem;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Distribution;
 use Filament\Resources\Resource;
+use Filament\Resources\Pages\Page;
 use App\Http\Controllers\FilamentForm;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Guava\FilamentNestedResources\Concerns\NestedResource;
 use App\Filament\Barangay\Resources\DistributionResource\Pages;
 use App\Filament\Barangay\Resources\DistributionResource\RelationManagers;
 use App\Filament\Barangay\Resources\DistributionItemResource\Pages\ListDistributionItems;
-use Guava\FilamentNestedResources\Concerns\NestedResource;
-use Filament\Resources\Pages\Page;
+use App\Filament\Barangay\Resources\DistributionItemResource\Pages\CreateDistributionItem;
+
 class DistributionResource extends Resource
 {
 
@@ -28,7 +30,10 @@ class DistributionResource extends Resource
 
     protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';
 
-
+    public static function getBreadcrumb(): string
+    {
+        return 'Desritbution';
+    }
 
     public static function form(Form $form): Form
     {
@@ -53,6 +58,8 @@ class DistributionResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('location')
                     ->searchable()->label('Location/Venue')->wrap()->toggleable(isToggledHiddenByDefault: true),
+
+                    ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries'),
 
                 Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('created_at')

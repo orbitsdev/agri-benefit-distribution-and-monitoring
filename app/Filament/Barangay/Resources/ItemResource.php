@@ -53,8 +53,8 @@ class ItemResource extends Resource
                 //
             ])
             ->actions([
-                 Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()->color('gray'),
+                    Tables\Actions\EditAction::make(),
+                    // Tables\Actions\DeleteAction::make()->color('gray'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

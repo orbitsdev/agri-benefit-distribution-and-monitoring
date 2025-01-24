@@ -34,6 +34,7 @@ class BeneficiariesRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('contact')->searchable(),
                 Tables\Columns\TextColumn::make('status')
                 ->badge()
                 ->color(fn(string $state): string => match ($state) {

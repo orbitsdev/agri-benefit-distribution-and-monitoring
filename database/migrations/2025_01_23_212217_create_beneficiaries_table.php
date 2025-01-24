@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('beneficiaries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('distribution_item_id')->nullable()->constrained('distribution_items')->onDelete('cascade'); // Foreign key constraint
-            $table->string('name'); // Beneficiary name
+            $table->string('name')->nullable(); 
+            $table->string('contact')->nullable(); 
             $table->enum('status', ['Claimed', 'Unclaimed'])->default('Unclaimed'); // Claim status
             $table->timestamps(); // Timestamps for record tracking
 

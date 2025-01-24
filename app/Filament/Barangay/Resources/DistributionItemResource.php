@@ -31,6 +31,7 @@ class DistributionItemResource extends Resource
 //     return $record->first_name . ' ' . $record->last_name;
 // }
 
+
     public static function form(Form $form): Form
     {
         return $form
@@ -85,7 +86,7 @@ class DistributionItemResource extends Resource
             'index' => Pages\ListDistributionItems::route('/'),
             'create' => Pages\CreateDistributionItem::route('/create'),
             'edit' => Pages\EditDistributionItem::route('/{record}/edit'),
-            'beneficiaries.create' => Pages\CreateDistributionBeneficiary::route('/{record}/songs/beneficiaries'),
+            'beneficiaries.create' => Pages\CreateDistributionBeneficiary::route('/{record}/item/beneficiaries'),
         ];
     }
 

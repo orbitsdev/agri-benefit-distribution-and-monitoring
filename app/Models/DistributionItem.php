@@ -73,4 +73,9 @@ class DistributionItem extends Model
             $query->where('status', self::UN_CLAIMED);
         })->count();
     }
+
+    public function getTotalBeneficiaries()
+    {
+        return $this->beneficiaries()->count();
+    }
 }

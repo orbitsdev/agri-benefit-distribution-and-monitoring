@@ -7,9 +7,8 @@ use App\Models\ImportFailure;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 
-class BeneficiariesImport implements ToModel, WithHeadingRow, WithValidation
+class BeneficiariesImport implements ToModel, WithHeadingRow
 {
     private $distributionId;
 
@@ -26,29 +25,42 @@ class BeneficiariesImport implements ToModel, WithHeadingRow, WithValidation
         DB::beginTransaction();
 
         try {
-            // Check for duplicate based on name and distribution_item_id
-            if (Beneficiary::where('name', $row['name'])
-                ->where('distribution_item_id', $this->distributionId)
-                ->exists()) {
-                ImportFailure::create([
-                    'distribution_id' => $this->distributionId,
-                    'row_data' => json_encode($row),
-                    'error_message' => 'Duplicate name found.',
-                ]);
+            // Define valid columns for the Beneficiary model
+            $validColumns = ['name', 'contact'];
 
-                DB::rollBack();
-                return null;
+            // Normalize the headers to lowercase for case-insensitivity
+            $normalizedRow = [];
+            foreach ($row as $header => $value) {
+                $normalizedRow[strtolower($header)] = $value;
             }
 
-            // Insert the beneficiary
-            $beneficiary = Beneficiary::create([
-                'name' => $row['name'],
-                'distribution_item_id' => $this->distributionId,
-            ]);
+            // Prepare the data by filtering only valid columns
+            $filteredData = [];
+            foreach ($validColumns as $column) {
+                // Check if the column exists and is not empty
+                $filteredData[$column] = $normalizedRow[strtolower($column)] ?? null;
+            }
+
+            // Add the distribution_item_id to the filtered data
+            $filteredData['distribution_item_id'] = $this->distributionId;
+
+            // Check for an existing beneficiary record
+            $existingBeneficiary = Beneficiary::where('name', $filteredData['name'])
+                ->where('distribution_item_id', $this->distributionId)
+                ->first();
+
+            if ($existingBeneficiary) {
+                // Update the existing record with new details
+                $existingBeneficiary->update([
+                    'contact' => $filteredData['contact'] ?? $existingBeneficiary->contact,
+                ]);
+            } else {
+                // Insert the new beneficiary
+                Beneficiary::create($filteredData);
+            }
 
             DB::commit();
 
-            return $beneficiary;
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -58,18 +70,6 @@ class BeneficiariesImport implements ToModel, WithHeadingRow, WithValidation
                 'row_data' => json_encode($row),
                 'error_message' => $e->getMessage(),
             ]);
-
-            return null;
         }
-    }
-
-    /**
-     * Define the validation rules for each row
-     */
-    public function rules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-        ];
     }
 }

@@ -108,7 +108,7 @@ class DistributionItemsRelationManager extends RelationManager
 Thank you for your cooperation!'),
 
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->label('Manage'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
