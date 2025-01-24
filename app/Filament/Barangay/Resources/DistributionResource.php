@@ -21,12 +21,14 @@ use Guava\FilamentNestedResources\Concerns\NestedResource;
 use Filament\Resources\Pages\Page;
 class DistributionResource extends Resource
 {
-  
+
     use NestedResource;
 
     protected static ?string $model = Distribution::class;
 
-    protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';  
+    protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';
+
+
 
     public static function form(Form $form): Form
     {
@@ -70,7 +72,6 @@ class DistributionResource extends Resource
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make()->color('gray'),
-
                 ]),
             ])
             ->bulkActions([
@@ -83,7 +84,7 @@ class DistributionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // RelationManagers\DistributionItemsRelationManager::class,
+            //  RelationManagers\DistributionItemsRelationManager::class,
         ];
     }
 
@@ -96,9 +97,9 @@ class DistributionResource extends Resource
             'edit' => Pages\EditDistribution::route('/{record}/edit'),
             'distributionItems' => Pages\ManageDistributionDistributionItem::route('/{record}/distributionItems'),
 
-            'distributionItems.create' => Pages\CreateDistributionDistributionItem::route('/{record}/albums/distributionItems'),
+            'distributionItems.create' => Pages\CreateDistributionDistributionItem::route('/{record}/distribution/distributionItems'),
 
-        
+
         ];
     }
     public static function getRecordSubNavigation(Page $page): array

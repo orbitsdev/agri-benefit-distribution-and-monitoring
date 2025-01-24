@@ -9,4 +9,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDistributionItem extends CreateRecord
 {
     protected static string $resource = DistributionItemResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        dd(static::getModel());
+        return $this->getResource()::getUrl('index');
+    }
 }

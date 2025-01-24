@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\DistributionItem;
 use Filament\Resources\Resource;
+use App\Http\Controllers\FilamentForm;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
@@ -17,10 +18,10 @@ use App\Filament\Barangay\Resources\DistributionItemResource\Pages;
 use App\Filament\Barangay\Resources\DistributionItemResource\RelationManagers;
 
 class DistributionItemResource extends Resource
-{   
+{
     use NestedResource;
     protected static bool $shouldRegisterNavigation = false;
-   
+
     protected static ?string $model = DistributionItem::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -33,17 +34,7 @@ class DistributionItemResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                // Forms\Components\TextInput::make('item_id')
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('distribution_id')
-                //     ->required()
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('quantity')
-                //     ->required()
-                //     ->numeric()
-                //     ->default(0),
-            ]);
+            ->schema(FilamentForm::distributeItems());
     }
 
     public static function table(Table $table): Table
@@ -56,17 +47,17 @@ class DistributionItemResource extends Resource
                 // Tables\Columns\TextColumn::make('distribution_id')
                 //     ->numeric()
                 //     ->sortable(),
-                // Tables\Columns\TextColumn::make('quantity')
-                //     ->numeric()
-                //     ->sortable(),
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('quantity')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -105,5 +96,5 @@ class DistributionItemResource extends Resource
             'distribution',
         );
     }
-    
+
 }

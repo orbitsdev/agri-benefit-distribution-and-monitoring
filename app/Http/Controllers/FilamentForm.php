@@ -201,7 +201,7 @@ class FilamentForm extends Controller
                        ,
                 ]),
 
-                
+
         ];
     }
 
@@ -256,7 +256,7 @@ class FilamentForm extends Controller
                     ])
                     ->default('Planned')
                     ->required()
-                 
+
                     ->columnSpan([
                         'sm' => 2,
                         'md' => 4,
@@ -268,14 +268,14 @@ class FilamentForm extends Controller
                     ->label('Location')
                     ->required()
                     ->maxLength(191)
-                 
-                   
+
+
                     ->columnSpanFull(),
 
                 // Description Field
                 Textarea::make('description')
                     ->label('Description')
-            
+
                     ->rows(4)
                     ->maxLength(500)
                     // ->helperText('Add more details about the distribution if needed.')
@@ -309,8 +309,8 @@ class FilamentForm extends Controller
         //         ...self::distibuteItemForm()
         //     ])
         // ])->columnSpan(['lg' => 3]),
-        
-          
+
+
     ];
 }
 
@@ -337,7 +337,7 @@ public static function distibuteItemForm(): array {
                                         ->required(),
                                     TextInput::make('quantity')
                                         ->numeric()
-                                        
+
                                         ->minValue(1)
                                         ->required(),
                                 ])
@@ -346,6 +346,29 @@ public static function distibuteItemForm(): array {
                                 ->addActionLabel('Add Item')
                                 ->label('Items')
                                 ->maxItems(10),
+    ];
+}
+
+public static function distributeItems(): array{
+    return [
+        Select::make('item_id')
+        ->label('Item')
+        ->relationship(
+            'item',
+            'id',
+            modifyQueryUsing: fn(Builder $query) => $query,
+        )
+        ->distinct()
+        ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+        ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->name}")
+        ->searchable(['name'])
+        ->preload()
+        ->required(),
+    TextInput::make('quantity')
+        ->numeric()
+
+        ->minValue(1)
+        ->required(),
     ];
 }
 

@@ -38,7 +38,7 @@ class DistributionItemsRelationManager extends RelationManager
                                         ->required(),
                                     TextInput::make('quantity')
                                         ->numeric()
-                                        
+
                                         ->minValue(1)
                                         ->required(),
             ]);
@@ -60,7 +60,7 @@ class DistributionItemsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
-                
+
             ])
             ->actions([
                 Action::make('Import')
