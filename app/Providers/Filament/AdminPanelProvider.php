@@ -55,6 +55,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 EnsureIsSuperAdmin::class,
-            ]) ->breadcrumbs(false);
+            ])->breadcrumbs(false);
     }
 }

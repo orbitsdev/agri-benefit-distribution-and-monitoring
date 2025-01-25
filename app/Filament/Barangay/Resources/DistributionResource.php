@@ -35,6 +35,12 @@ class DistributionResource extends Resource
         return 'Desritbution';
     }
 
+    //disabled breadcrumb url
+    public static function getBreadcrumbUrl(): string
+    {
+        return '/distribution';
+    }
+
     public static function form(Form $form): Form
     {
         return $form

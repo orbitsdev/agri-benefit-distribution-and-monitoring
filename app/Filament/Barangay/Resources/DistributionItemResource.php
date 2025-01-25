@@ -87,6 +87,7 @@ class DistributionItemResource extends Resource
             'create' => Pages\CreateDistributionItem::route('/create'),
             'edit' => Pages\EditDistributionItem::route('/{record}/edit'),
             'beneficiaries.create' => Pages\CreateDistributionBeneficiary::route('/{record}/item/beneficiaries'),
+            'beneficiaries' => Pages\ListOfBenificiaries::route('/{record}/beneficiaries'),
         ];
     }
 
