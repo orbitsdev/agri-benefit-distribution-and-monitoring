@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('personnel_id')->constrained('personnels')->onDelete('cascade'); // Link to personnel table
             $table->foreignId('distribution_id')->constrained('distributions')->onDelete('cascade'); // Link to distribution table
             $table->string('type'); // Support role type (e.g., Scanner, Checker, Registrar)
-            $table->string('unique_code')->nullable(); // Unique code for scanners or specific roles
+            $table->string('unique_code')->nullable()->unique(); //specific roles
+            $table->boolean('can_scan_qr')->default(false); // Indicates if they can register beneficiaries
             $table->boolean('can_register')->default(false); // Indicates if they can register beneficiaries
             $table->boolean('can_confirm_claims')->default(false); // Indicates if they can confirm claims
             $table->boolean('can_view_list')->default(false); 

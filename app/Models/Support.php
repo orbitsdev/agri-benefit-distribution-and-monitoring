@@ -5,8 +5,11 @@ namespace App\Models;
 use App\Models\Personnel;
 use App\Models\Transaction;
 use App\Models\Distribution;
+use App\Observers\SupportObserver;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([SupportObserver::class])]
 class Support extends Model
 {
     
