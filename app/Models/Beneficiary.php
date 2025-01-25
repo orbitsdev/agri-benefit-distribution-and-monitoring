@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Transaction;
 use App\Models\DistributionItem;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,5 +22,12 @@ class Beneficiary extends Model
     public function distributionItem()
     {
         return $this->belongsTo(DistributionItem::class);
+    }
+
+    // has many transactions
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

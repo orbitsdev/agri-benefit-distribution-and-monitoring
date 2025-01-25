@@ -5,6 +5,7 @@ namespace App\Models;
 
 use App\Models\Item;
 use App\Models\Beneficiary;
+use App\Models\Transaction;
 use App\Models\Distribution;
 use Illuminate\Database\Eloquent\Model;
 
@@ -77,5 +78,10 @@ class DistributionItem extends Model
     public function getTotalBeneficiaries()
     {
         return $this->beneficiaries()->count();
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

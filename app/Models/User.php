@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Panel;
 use App\Models\Barangay;
+use App\Models\Personnel;
+use App\Models\Transaction;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -120,4 +122,19 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
     public function barangay(){
         return $this->belongsTo(Barangay::class);
     }
+
+    // has many personnels
+
+    public function personnels()
+    {
+        return $this->hasMany(Personnel::class);
+    }
+
+
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class,'admin_id') ;
+    }
+
 }

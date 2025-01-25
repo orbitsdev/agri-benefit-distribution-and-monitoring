@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Item;
+use App\Models\Support;
 use App\Models\Barangay;
+use App\Models\Transaction;
 use App\Models\ImportFailure;
 use App\Models\DistributionItem;
 use App\Observers\DistributionObserver;
@@ -38,4 +40,17 @@ class Distribution extends Model
     public function importFailures(){
         return $this->hasMany(ImportFailure::class);
     }
+
+    // has many supports
+
+    public function supports()
+    {
+        return $this->hasMany(Support::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+    
 }

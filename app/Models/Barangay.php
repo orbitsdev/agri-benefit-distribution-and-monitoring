@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Personnel;
+use App\Models\Transaction;
 use App\Models\Distribution;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
@@ -31,5 +33,16 @@ class Barangay extends Model implements HasMedia
         return $this->hasMany(Distribution::class);
     }
 
+
+    // has many personnel
+    public function personnel()
+    {
+        return $this->hasMany(Personnel::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 
 }

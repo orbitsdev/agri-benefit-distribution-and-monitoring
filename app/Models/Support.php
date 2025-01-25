@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Personnel;
+use App\Models\Transaction;
+use App\Models\Distribution;
+use Illuminate\Database\Eloquent\Model;
+
+class Support extends Model
+{
+    
+
+    // belongs to personnel
+
+    public function personnel()
+    {
+        return $this->belongsTo(Personnel::class);
+    }
+
+    // belonf to destribution
+
+    public function distribution()
+    {
+        return $this->belongsTo(Distribution::class);
+    }
+
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+
+}
