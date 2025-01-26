@@ -18,7 +18,7 @@ return new class extends Migration
             
             $table->string('position')->nullable(); // Position or designation (optional)
             $table->string('contact_number')->nullable(); // Contact information (optional)
-            $table->enum('status', ['Active', 'Inactive'])->default('Active');
+            $table->boolean('is_active')->default(true); // Indicates if the personnel is active
             $table->timestamps();
         });
     }

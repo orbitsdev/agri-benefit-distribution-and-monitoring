@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('distribution_item_id')->nullable()->constrained('distribution_items')->onDelete('cascade'); // Link to distribution items
             $table->foreignId('distribution_id')->nullable()->constrained('distributions')->onDelete('cascade'); // Link to distributions
             $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('cascade'); // Link to barangays
-            $table->foreignId('support_id')->nullable()->constrained('support')->onDelete('set null'); // Link to support personnel
+            $table->foreignId('support_id')->nullable()->constrained('supports')->onDelete('set null'); // Link to support personnel
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null'); // Link to admins
 
             // Snapshot Fields

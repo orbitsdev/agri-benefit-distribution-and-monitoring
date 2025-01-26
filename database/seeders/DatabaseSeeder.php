@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\ItemSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\BarangaySeeder;
+use Database\Seeders\SupportRoleSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,6 +22,7 @@ class DatabaseSeeder extends Seeder
             BarangaySeeder::class,
             UserSeeder::class,
             ItemSeeder::class,
+            SupportRoleSeeder::class,
         ]);
         // User::factory()->create([
         //     'name' => 'Test User',

@@ -2,8 +2,9 @@
 
 namespace App\Observers;
 
-use Dotenv\Util\Str;
+
 use App\Models\Support;
+use Illuminate\Support\Str;
 
 class SupportObserver
 {
@@ -27,7 +28,16 @@ class SupportObserver
      */
     public function updated(Support $support): void
     {
-        //
+        if (is_null($support->unique_code)) {
+            $distributionId = str_pad($support->distribution_id, 2, '0', STR_PAD_LEFT); // Pads Distribution ID to 2 digits
+            $supportId = str_pad($support->id, 3, '0', STR_PAD_LEFT); // Pads Support ID to 3 digits
+            $uuidPart = strtoupper(Str::uuid()); // Generates a unique UUID
+            $shortUuid = substr($uuidPart, 0, 8); // Extracts the first 8 characters of the UUID
+            
+            // Generate the unique code
+            $support->unique_code = "SUP-{$distributionId}-{$supportId}-{$shortUuid}";
+            $support->save();
+        }
     }
 
     /**

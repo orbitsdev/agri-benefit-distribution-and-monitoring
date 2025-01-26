@@ -41,7 +41,7 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
-    protected static ?string $navigationLabel = 'Manage Items & Beneficiaries';
+    protected static ?string $navigationLabel = 'Items & Beneficiaries';
 
     protected ?string $heading = 'Manage items & Beneficiaries';
 

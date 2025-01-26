@@ -29,6 +29,10 @@ class DistributionResource extends Resource
     protected static ?string $model = Distribution::class;
 
     protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';
+     protected static ?string $navigationGroup = 'Transactions';
+
+     //sort
+        protected static ?int $navigationSort = 3;
 
     public static function getBreadcrumb(): string
     {
@@ -109,8 +113,10 @@ class DistributionResource extends Resource
             // 'view' => Pages\ViewDistribution::route('/{record}'),
             'edit' => Pages\EditDistribution::route('/{record}/edit'),
             'distributionItems' => Pages\ManageDistributionDistributionItem::route('/{record}/distributionItems'),
+            'supports' => Pages\ManageDistributionSupports::route('/{record}/supports'),
 
             'distributionItems.create' => Pages\CreateDistributionDistributionItem::route('/{record}/distribution/distributionItems'),
+            'supports.create' => Pages\CreateDistributionSupport::route('/{record}/distribution/supports'),
 
 
         ];
@@ -120,6 +126,7 @@ class DistributionResource extends Resource
         return $page->generateNavigationItems([
             Pages\EditDistribution::class,
             Pages\ManageDistributionDistributionItem::class,
+            Pages\ManageDistributionSupports::class,
             // Pages\ManageBe::class,
         ]);
     }

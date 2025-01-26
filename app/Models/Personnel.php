@@ -49,6 +49,9 @@ public function supports()
 }
 
 
+//scope function where doesnt have the same barnaggau personne l
+
+
 
 
 }

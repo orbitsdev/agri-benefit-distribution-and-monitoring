@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Filament\Forms\Get;
+use App\Models\SupportRole;
 use Illuminate\Http\Request;
 use Filament\Forms\Components\Group;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -396,6 +399,206 @@ public static function distributeItems(): array
     ];
 }
 
+public static function personnelForm(): array
+{
+    return [
+        Section::make('Personnel Details')
+            ->description('Enter all required personnel information.')
+            ->columns([
+                'sm' => 2,
+                'md' => 4,
+                'lg' => 6,
+                'xl' => 8,
+                '2xl' => 12,
+            ])
+            ->columnSpanFull()
+            ->schema([
 
+                // User ID Field
+                Select::make('user_id')
+                    ->label('Account')
+                    ->relationship(
+                        'user', 'name',
+                        modifyQueryUsing: fn(Builder $query) => $query->IsMember()->doesntHaveSameBarangayPersonnel(Auth::user()->barangay_id)
+                        ) 
+                        ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} ({$record->email})")
+                    ->searchable()
+                    ->preload()
+                    ->helperText('Select the user associated with this personnel.')
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 4,
+                    ])->required()
+                    ->hidden(function($operation){
+                        return $operation === 'edit';
+                    })
+                    ,
+
+                // Position Field
+                TextInput::make('position')
+                    ->label('Position/Designation')
+                    // ->required()
+                    ->maxLength(191)
+                    // ->helperText('Specify the position or designation of the personnel.')
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 4,
+                    ])->default('Staff')
+                    
+                    ,
+
+                // Contact Number Field
+                TextInput::make('contact_number')
+                    ->label('Contact Number')
+                    // ->required()
+                    ->maxLength(20)
+                    // ->helperText('Provide a valid contact number for the personnel.')
+                    ->tel()
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 4,
+                    ]),
+
+                // Status Field
+                // Select::make('status')
+                //     ->label('Status')
+                //     ->options([
+                //         'Active' => 'Active',
+                //         'Inactive' => 'Inactive',
+                //     ])
+                //     ->default('Active')
+                //     ->required()
+                //     ->helperText('Select the current status of the personnel.')
+                //     ->columnSpan([
+                //         'sm' => 2,
+                //         'md' => 4,
+                //         'lg' => 4,
+                //     ]),
+            ]),
+    ];
+}
+    
+
+
+public static function supportForm(): array
+    {
+        return [
+            Section::make('Support Details')
+            ->description('Specify the personnel and roles involved in the distribution process.')
+                ->columns([
+                    'sm' => 2,
+                    'md' => 4,
+                    'lg' => 6,
+                    'xl' => 8,
+                    '2xl' => 12,
+                ])
+                ->columnSpanFull()
+                ->schema([
+
+                    // Personnel ID Field
+                    Select::make('personnel_id')
+                    ->relationship(
+                        name: 'personnel',
+                        modifyQueryUsing: fn (Builder $query) => $query,
+                        // titleAttribute : 'name'
+                    )
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => $record?->user->name)
+                   ->searchable()
+                    ->preload()
+                    
+                    ->helperText('Select the assigned personnel.')
+                        ->required()
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 4,
+                        ]),
+
+                    // Type Field
+
+                
+ 
+Select::make('type')
+->label('Support Role')
+    ->options(SupportRole::all()->pluck('name', 'name'))
+    ->searchable()
+    ->helperText('Specify the role (e.g., Scanner, Checker).')
+    ->preload()
+    ->required()
+    ->columnSpan([
+        'sm' => 2,
+        'md' => 4,
+        'lg' => 4,
+    ])
+    ,
+                   
+
+                    // Unique Code Field
+                    TextInput::make('unique_code')
+                        ->label('Unique Code')
+                        ->nullable()
+                        ->maxLength(191)
+                        ->helperText('Enter a unique code for this support role if applicable.')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 4,
+                        ])->hidden(function($operation){
+                            return $operation === 'create';
+                        })
+                        ->disabled(function($operation){
+                            return $operation === 'edit';
+                        })
+                        , 
+
+                    // Can Scan QR Toggle
+                    Toggle::make('can_scan_qr')
+                        ->label('Can Scan QR')
+                        ->default(false)
+                        ->helperText('Enable for QR scanning.')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 'full',
+                        ]),
+
+                    // Can Register Toggle
+                    Toggle::make('can_register')
+                        ->label('Can Register')
+                        ->default(false)
+                        ->helperText('Enable for beneficiary registration.')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 'full',
+                        ]),
+
+                    // Can Confirm Claims Toggle
+                    Toggle::make('can_confirm_claims')
+                        ->label('Can Confirm Claims')
+                        ->default(false)
+                        ->helperText('Enable for claim confirmation.')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 'full',
+                        ]),
+
+                    // Can View List Toggle
+                    Toggle::make('can_view_list')
+                        ->label('Can View List')
+                        ->default(false)
+                        ->helperText('Toggle this on if the support role includes the ability to view the list of beneficiaries.')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 'full',
+                        ]),
+                ]),
+        ];
+    }
 
 }
