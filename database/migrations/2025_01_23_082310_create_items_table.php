@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Name of the item (e.g., Fertilizer, Cash Assistance)
-            $table->string('type')->nullable(); // Flexible type of distribution (e.g., Product, Money, Voucher)
+            $table->string('type')->nullable();
+            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');  
             $table->timestamps();
         });
     }
