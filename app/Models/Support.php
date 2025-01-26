@@ -34,5 +34,13 @@ class Support extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    //scope where not equal to the same distribution and personnel
+
+    public function scopeNotEqual($query, $distributionId, $personnelId)
+    {
+        return $query->where('distribution_id', '!=', $distributionId)
+            ->where('personnel_id', '!=', $personnelId);
+    }
+
 
 }

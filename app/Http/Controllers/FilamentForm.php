@@ -20,6 +20,7 @@ use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Awcodes\FilamentTableRepeater\Components\TableRepeater;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use App\Models\Distribution;
 
 class FilamentForm extends Controller
 {
@@ -324,7 +325,7 @@ public static function distibuteItemForm(): array {
                                     'quantity' => '300px',
                                 ])
                                 ->relationship('distributionItems')
-                                ->schema([
+                            ->schema([
                                     Select::make('item_id')
                                         ->label('Item')
                                         ->relationship(
@@ -419,7 +420,7 @@ public static function personnelForm(): array
                     ->label('Account')
                     ->relationship(
                         'user', 'name',
-                        modifyQueryUsing: fn(Builder $query) => $query->IsMember()->doesntHaveSameBarangayPersonnel(Auth::user()->barangay_id)
+                        modifyQueryUsing: fn(Builder $query) => $query->isMember()->notRegisteredInSameBarangay(Auth::user()->barangay_id)
                         ) 
                         ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} ({$record->email})")
                     ->searchable()
@@ -483,7 +484,7 @@ public static function personnelForm(): array
     
 
 
-public static function supportForm(): array
+public static function supportForm(Model $record): array
     {
         return [
             Section::make('Support Details')
@@ -502,20 +503,21 @@ public static function supportForm(): array
                     Select::make('personnel_id')
                     ->relationship(
                         name: 'personnel',
-                        modifyQueryUsing: fn (Builder $query) => $query,
-                        // titleAttribute : 'name'
+                        modifyQueryUsing: fn (Builder $query) => $query->notRegisteredInSameDistribution($record->id)
                     )
                     ->getOptionLabelFromRecordUsing(fn (Model $record) => $record?->user->name)
-                   ->searchable()
+                    ->searchable()
                     ->preload()
-                    
                     ->helperText('Select the assigned personnel.')
+                    
                         ->required()
                         ->columnSpan([
                             'sm' => 2,
                             'md' => 4,
                             'lg' => 4,
-                        ]),
+                        ])->disabled(function($operation){
+                            return $operation === 'edit';
+                        }),
 
                     // Type Field
 
@@ -538,7 +540,7 @@ Select::make('type')
 
                     // Unique Code Field
                     TextInput::make('unique_code')
-                        ->label('Unique Code')
+                        ->label('Code')
                         ->nullable()
                         ->maxLength(191)
                         ->helperText('Enter a unique code for this support role if applicable.')
@@ -555,48 +557,37 @@ Select::make('type')
                         , 
 
                     // Can Scan QR Toggle
-                    Toggle::make('can_scan_qr')
-                        ->label('Can Scan QR')
-                        ->default(false)
-                        ->helperText('Enable for QR scanning.')
-                        ->columnSpan([
-                            'sm' => 2,
-                            'md' => 4,
-                            'lg' => 'full',
-                        ]),
+                    Toggle::make('enable_item_scanning')
+                    ->label('Enable Item Scanning')
+                    ->default(false)
+                    ->helperText('Enable this for item scanning (e.g., QR codes).')
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 'full',
+                    ]),
 
-                    // Can Register Toggle
-                    Toggle::make('can_register')
-                        ->label('Can Register')
-                        ->default(false)
-                        ->helperText('Enable for beneficiary registration.')
-                        ->columnSpan([
-                            'sm' => 2,
-                            'md' => 4,
-                            'lg' => 'full',
-                        ]),
+                // Enable Beneficiary Management Toggle
+                Toggle::make('enable_beneficiary_management')
+                    ->label('Enable Beneficiary Management')
+                    ->default(false)
+                    ->helperText('Enable this to manage beneficiary records.')
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 'full',
+                    ]),
 
-                    // Can Confirm Claims Toggle
-                    Toggle::make('can_confirm_claims')
-                        ->label('Can Confirm Claims')
-                        ->default(false)
-                        ->helperText('Enable for claim confirmation.')
-                        ->columnSpan([
-                            'sm' => 2,
-                            'md' => 4,
-                            'lg' => 'full',
-                        ]),
-
-                    // Can View List Toggle
-                    Toggle::make('can_view_list')
-                        ->label('Can View List')
-                        ->default(false)
-                        ->helperText('Toggle this on if the support role includes the ability to view the list of beneficiaries.')
-                        ->columnSpan([
-                            'sm' => 2,
-                            'md' => 4,
-                            'lg' => 'full',
-                        ]),
+                // Enable List Access Toggle
+                Toggle::make('enable_list_access')
+                    ->label('Enable List Access')
+                    ->default(false)
+                    ->helperText('Enable this to access beneficiary lists.')
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 'full',
+                    ]),
                 ]),
         ];
     }

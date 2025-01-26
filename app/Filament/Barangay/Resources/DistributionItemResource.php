@@ -10,12 +10,14 @@ use App\Models\DistributionItem;
 use Filament\Resources\Resource;
 use App\Http\Controllers\FilamentForm;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Guava\FilamentNestedResources\Concerns\NestedResource;
 use App\Filament\Barangay\Resources\DistributionItemResource\Pages;
 use App\Filament\Barangay\Resources\DistributionItemResource\RelationManagers;
+use App\Models\Distribution;
 
 class DistributionItemResource extends Resource
 {
@@ -61,7 +63,7 @@ class DistributionItemResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

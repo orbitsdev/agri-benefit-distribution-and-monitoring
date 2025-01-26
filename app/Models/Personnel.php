@@ -49,9 +49,15 @@ public function supports()
 }
 
 
-//scope function where doesnt have the same barnaggau personne l
+//scope barangay
+
+public function scopeNotRegisteredInSameDistribution($query, $distributionId)
+{
+    return $query->whereDoesntHave('supports', function ($query) use ($distributionId) {
+        $query->where('distribution_id', $distributionId);
+    });
 
 
-
+}
 
 }

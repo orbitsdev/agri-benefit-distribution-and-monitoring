@@ -17,10 +17,9 @@ return new class extends Migration
             $table->foreignId('distribution_id')->constrained('distributions')->onDelete('cascade'); // Link to distribution table
             $table->string('type'); // Support role type (e.g., Scanner, Checker, Registrar)
             $table->string('unique_code')->nullable()->unique(); //specific roles
-            $table->boolean('can_scan_qr')->default(false); // Indicates if they can register beneficiaries
-            $table->boolean('can_register')->default(false); // Indicates if they can register beneficiaries
-            $table->boolean('can_confirm_claims')->default(false); // Indicates if they can confirm claims
-            $table->boolean('can_view_list')->default(false); 
+            $table->boolean('enable_item_scanning')->default(false); // Indicates if they can register beneficiaries
+            $table->boolean('enable_beneficiary_management')->default(false); // Indicates if they can register beneficiaries
+            $table->boolean('enable_list_access')->default(false); // Indicates if they can confirm claims
             $table->timestamps();
         });
     }

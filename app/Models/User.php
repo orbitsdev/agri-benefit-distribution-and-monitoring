@@ -132,7 +132,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
 
 
     // scope where doesnt have the same barnaggau personne 
-    public function scopeDoesntHaveSameBarangayPersonnel($query, $barangay_id)
+    public function scopeNotRegisteredInSameBarangay($query, $barangay_id)
     {
         return $query->whereDoesntHave('personnels', function ($query) use ($barangay_id) {
             $query->where('barangay_id', $barangay_id);

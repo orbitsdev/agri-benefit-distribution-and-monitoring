@@ -12,6 +12,7 @@ use Filament\Resources\Pages\Page;
 use App\Http\Controllers\FilamentForm;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -82,7 +83,8 @@ class DistributionResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                ->options(Distribution::STATUS_OPTIONS)->searchable()
             ])
             ->actions([
                 ActionGroup::make([
