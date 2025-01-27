@@ -1,10 +1,13 @@
 <?php
 
-use App\Livewire\MemberDashboard;
+use App\Mail\QrMail;
 use App\Models\User;
+use App\Models\Beneficiary;
+use App\Livewire\MemberDashboard;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Log;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -37,4 +40,23 @@ Route::middleware([
     })->name('dashboard');
 
     Route::get('/member-dashboard', MemberDashboard::class )->name('member.dashboard');
+});
+
+Route::get('/test-qr-mail', function () {
+    try {
+        $beneficiary = Beneficiary::with(['distributionItem.distribution', 'distributionItem.item'])->first();
+
+        if (!$beneficiary) {
+            return "No beneficiary found.";
+        }
+
+        Mail::to($beneficiary->email)->send(new QrMail($beneficiary));
+
+        return "QR email sent to {$beneficiary->email}";
+    } catch (\Exception $e) {
+        // Log the error for debugging
+        Log::error('Error sending QR email: ' . $e->getMessage());
+
+        return "Failed to send email. Check the logs for details.";
+    }
 });

@@ -22,11 +22,11 @@ class Beneficiary extends Model
         self::UN_CLAIMED => 'Unclaimed',
     ];
 
-   // Beneficiary model
-public function distributionItem()
-{
-    return $this->belongsTo(DistributionItem::class, 'distribution_item_id');
-}
+    // Beneficiary model
+    public function distributionItem()
+    {
+        return $this->belongsTo(DistributionItem::class, 'distribution_item_id');
+    }
 
 
     // has many transactions
@@ -35,4 +35,6 @@ public function distributionItem()
     {
         return $this->hasMany(Transaction::class);
     }
+
+    
 }
