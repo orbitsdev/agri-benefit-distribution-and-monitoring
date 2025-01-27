@@ -117,6 +117,9 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->url(function(Model $record) {
                         return route('filament.barangay.resources.distribution-items.beneficiaries', ['record' => $record->id]);
                     },shouldOpenInNewTab : true)
+                    ->hidden(function (Model $record) {
+                        return !$record->hasBeneficiaries();
+                    })
                     
                     ,
 

@@ -90,6 +90,13 @@ class DistributionItem extends Model
     public function scopeByDistribution($query, $distribution_id){
         return $query->where('distribution_id', $distribution_id);
     }
+
+
+    public function hasBeneficiaries(): bool
+    {       
+        return $this->beneficiaries()->exists();
+    }
+    
    
 
 }
