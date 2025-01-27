@@ -12,7 +12,6 @@ class CreateDistributionItem extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        dd(static::getModel());
         return $this->getResource()::getUrl('index');
     }
 }

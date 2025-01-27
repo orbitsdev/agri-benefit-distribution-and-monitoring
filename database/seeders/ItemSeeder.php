@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Barangay;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -13,6 +14,8 @@ class ItemSeeder extends Seeder
      */
     public function run(): void
     {
+        $barangays = Barangay::all(); // Fetch all barangays
+
         $items = [
             ['name' => 'Rice Seeds', 'type' => 'Product'],
             ['name' => 'Corn Seeds', 'type' => 'Product'],
@@ -29,6 +32,16 @@ class ItemSeeder extends Seeder
             ['name' => 'Livestock', 'type' => 'Product'],
         ];
 
-        DB::table('items')->insert($items);
+        foreach ($barangays as $barangay) {
+            foreach ($items as $item) {
+            DB::table('items')->insert([
+                'name' => $item['name'],
+                'type' => $item['type'],
+                'barangay_id' => $barangay->id,
+            ]);
+            }
+        }
+    
+    
     }
 }

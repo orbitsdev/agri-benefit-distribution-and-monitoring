@@ -152,4 +152,16 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
         return $query->where('role', self::MEMBER);
     }
 
+    //scope by barangay
+    public function scopeByBarangay($query, $barangay_id){
+        return $query->where('barangay_id', $barangay_id);
+    }
+
+    //scope is not admin
+    public function scopeIsNotAdmin($query){
+        return $query->where('role', '!=', self::ADMIN);
+    }
+
+    // scope is not admin
+
 }

@@ -97,7 +97,11 @@ class DistributionResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->byBarangay(auth()->user()->barangay_id);
+            })
+            ;
     }
 
     public static function getRelations(): array

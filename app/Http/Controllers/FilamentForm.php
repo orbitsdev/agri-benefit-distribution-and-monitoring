@@ -115,6 +115,97 @@ class FilamentForm extends Controller
 
         ];
     }
+    public static function barangayUserForm():array{
+        return [
+
+            Section::make('User Details')
+            ->description('Enter all required user information.')
+            ->columns([
+                'sm' => 2,
+                'md' => 4,
+                'lg' => 6,
+                'xl' => 8,
+                '2xl' => 12,
+            ])
+            ->columnSpanFull()
+            ->schema([
+
+               TextInput::make('name')
+                ->required()
+                ->maxLength(191)
+                ->columnSpan([
+                    'sm' => 2,
+                    'md' => 4,
+                    'lg' => 4,
+                ]),
+
+                TextInput::make('email')
+                ->required()
+                ->unique(ignoreRecord: true)
+                ->columnSpan([
+                    'sm' => 2,
+                    'md' => 4,
+                    'lg' => 4,
+                ]),
+
+                // Select::make('role')
+                // ->default(User::ADMIN)
+                // ->required()
+                // ->options(User::ROLE_OPTIONS)
+                // ->columnSpan([
+                //     'sm' => 2,
+                //     'md' => 4,
+                //     'lg' => 4,
+                // ])
+                // ->searchable()
+                // ->live()
+                // ->disabled(fn(string $operation): bool => $operation === 'edit'),
+
+                TextInput::make('password')
+                ->password()
+                ->revealable()
+                ->columnSpan([
+                    'sm' => 2,
+                    'md' => 4,
+                    'lg' => 4,
+                ])
+                ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
+                ->dehydrated(fn(?string $state): bool => filled($state))
+                ->required(fn(string $operation): bool => $operation === 'create')
+                ->label(fn(string $operation) => $operation == 'create' ? 'Password' : 'New Password'),
+
+                // Select::make('barangay_id')
+                // ->relationship('barangay', 'name')
+                // ->label('Barangay')
+                // ->required()
+                // ->searchable()
+                // ->preload()
+                // ->helperText('Select the barangay associated with this entry.')
+                // ->columnSpanFull()
+                // ->placeholder('Select a Barangay...')
+                // ->hint('You can search by barangay name.') // Adds a helpful hint below the field
+                // ->validationAttribute('barangay')
+                // ->hidden(function (Get $get) {
+                //     return $get('role') !== User::ADMIN;
+                // })
+                // , // Improves error message readability
+
+
+
+
+                SpatieMediaLibraryFileUpload::make('image')
+                ->columnSpanFull()
+                ->label('Profile')
+                ->image()
+                ->imageEditor()
+                ->required(),
+            ]),
+
+
+
+
+        ];
+    }
 
     public static function barangayForm(): array
     {
@@ -372,7 +463,7 @@ public static function distributeItems(): array
                     ->relationship(
                         'item',
                         'id',
-                        modifyQueryUsing: fn (Builder $query) => $query
+                        modifyQueryUsing: fn (Builder $query) => $query->active()->byBarangay(Auth::user()->barangay_id)
                     )
                     ->distinct()
                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
@@ -481,115 +572,12 @@ public static function personnelForm(): array
             ]),
     ];
 }
-    
+public static function supportForm(): array
+{
+    return [
+        
+    ];
+}
 
-
-public static function supportForm(Model $record): array
-    {
-        return [
-            Section::make('Support Details')
-            ->description('Specify the personnel and roles involved in the distribution process.')
-                ->columns([
-                    'sm' => 2,
-                    'md' => 4,
-                    'lg' => 6,
-                    'xl' => 8,
-                    '2xl' => 12,
-                ])
-                ->columnSpanFull()
-                ->schema([
-
-                    // Personnel ID Field
-                    Select::make('personnel_id')
-                    ->relationship(
-                        name: 'personnel',
-                        modifyQueryUsing: fn (Builder $query) => $query->notRegisteredInSameDistribution($record->id)
-                    )
-                    ->getOptionLabelFromRecordUsing(fn (Model $record) => $record?->user->name)
-                    ->searchable()
-                    ->preload()
-                    ->helperText('Select the assigned personnel.')
-                    
-                        ->required()
-                        ->columnSpan([
-                            'sm' => 2,
-                            'md' => 4,
-                            'lg' => 4,
-                        ])->disabled(function($operation){
-                            return $operation === 'edit';
-                        }),
-
-                    // Type Field
-
-                
- 
-Select::make('type')
-->label('Support Role')
-    ->options(SupportRole::all()->pluck('name', 'name'))
-    ->searchable()
-    ->helperText('Specify the role (e.g., Scanner, Checker).')
-    ->preload()
-    ->required()
-    ->columnSpan([
-        'sm' => 2,
-        'md' => 4,
-        'lg' => 4,
-    ])
-    ,
-                   
-
-                    // Unique Code Field
-                    TextInput::make('unique_code')
-                        ->label('Code')
-                        ->nullable()
-                        ->maxLength(191)
-                        ->helperText('Enter a unique code for this support role if applicable.')
-                        ->columnSpan([
-                            'sm' => 2,
-                            'md' => 4,
-                            'lg' => 4,
-                        ])->hidden(function($operation){
-                            return $operation === 'create';
-                        })
-                        ->disabled(function($operation){
-                            return $operation === 'edit';
-                        })
-                        , 
-
-                    // Can Scan QR Toggle
-                    Toggle::make('enable_item_scanning')
-                    ->label('Enable Item Scanning')
-                    ->default(false)
-                    ->helperText('Enable this for item scanning (e.g., QR codes).')
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 'full',
-                    ]),
-
-                // Enable Beneficiary Management Toggle
-                Toggle::make('enable_beneficiary_management')
-                    ->label('Enable Beneficiary Management')
-                    ->default(false)
-                    ->helperText('Enable this to manage beneficiary records.')
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 'full',
-                    ]),
-
-                // Enable List Access Toggle
-                Toggle::make('enable_list_access')
-                    ->label('Enable List Access')
-                    ->default(false)
-                    ->helperText('Enable this to access beneficiary lists.')
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 'full',
-                    ]),
-                ]),
-        ];
-    }
 
 }

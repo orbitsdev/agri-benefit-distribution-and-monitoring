@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Name of the item (e.g., Fertilizer, Cash Assistance)
             $table->string('type')->nullable();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');  
+            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('cascade');  
+            $table->boolean('is_active')->default(true); 
             $table->timestamps();
         });
     }

@@ -68,7 +68,7 @@ public function table(Table $table): Table
                 ->options(Beneficiary::STATUS_OPTIONS)->searchable()
             ])
             ->headerActions([
-                CreateAction::make(),
+                // CreateAction::make(),
             ])
             ->actions([
                 // add action claim and unclaim hide uncclamed if status is claim and hide claim if status is unclaimed add icon as well and add required conmfirmation
@@ -113,6 +113,10 @@ public function table(Table $table): Table
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
-            ]);
+            ])
+            ->modifyQueryUsing(function($query){
+                return $query->where('distribution_item_id',$this->record->id);
+            });
+            ;
     }
 }

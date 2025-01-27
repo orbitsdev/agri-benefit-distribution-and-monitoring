@@ -19,7 +19,7 @@ class PersonnelResource extends Resource
 {
     protected static ?string $model = Personnel::class;
 
-    protected static ?string $navigationIcon = 'fluentui-person-24';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Management';
 
 
@@ -47,7 +47,7 @@ class PersonnelResource extends Resource
                 Tables\Columns\TextColumn::make('contact_number')
                     ->searchable(),
                  
-                ToggleColumn::make('is_active')->label('Active'),
+                ToggleColumn::make('is_active')->label('Active')->alignCenter(),
                 
             ])
             ->filters([
@@ -61,7 +61,11 @@ class PersonnelResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->byBarangay(auth()->user()->barangay_id);
+            })
+            ;
     }
 
     public static function getRelations(): array

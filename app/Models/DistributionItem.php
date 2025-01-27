@@ -84,4 +84,12 @@ class DistributionItem extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    // scope by distribution
+    
+    public function scopeByDistribution($query, $distribution_id){
+        return $query->where('distribution_id', $distribution_id);
+    }
+   
+
 }

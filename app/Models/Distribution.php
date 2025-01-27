@@ -52,5 +52,10 @@ class Distribution extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    //scope by barangay
+    public function scopeByBarangay($query, $barangay_id){
+        return $query->where('barangay_id', $barangay_id);
+    }
     
 }

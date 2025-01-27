@@ -116,7 +116,9 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
                     ->url(function(Model $record) {
                         return route('filament.barangay.resources.distribution-items.beneficiaries', ['record' => $record->id]);
-                    }),
+                    },shouldOpenInNewTab : true)
+                    
+                    ,
 
                 Action::make('Import')
                     ->button()
@@ -212,6 +214,10 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->byDistribution($this->getRecord()->id);
+            })
+            ;
     }
 }
