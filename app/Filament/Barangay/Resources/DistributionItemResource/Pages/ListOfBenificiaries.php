@@ -6,15 +6,16 @@ use Filament\Tables\Table;
 use App\Models\Beneficiary;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Actions\Action;
+use App\Http\Controllers\FilamentForm;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Actions\ActionGroup;
 
  
 
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Filters\SelectFilter;
@@ -54,6 +55,7 @@ public function table(Table $table): Table
             ->query(Beneficiary::query())
             ->columns([
                 TextColumn::make('name')->searchable(),
+                TextColumn::make('email')->searchable(),
                 TextColumn::make('contact')->searchable(),
                 TextColumn::make('status')
                 ->badge()
@@ -80,7 +82,7 @@ public function table(Table $table): Table
                    
                 })->hidden(function(Model $benificiary){
                     return $benificiary->status === Beneficiary::CLAIMED;
-                })->icon('heroicon-o-check-circle')->color('success'),
+                })->icon('far-hand-back-fist')->color('success'),
 
                 Action::make('Unclaim')
                 ->requiresConfirmation()
@@ -100,7 +102,7 @@ public function table(Table $table): Table
 
 
             ActionGroup::make([
-                EditAction::make(),
+                EditAction::make()->form(FilamentForm::beneficiaryForm()),
                 DeleteAction::make()->color('gray'),
             ]),
 

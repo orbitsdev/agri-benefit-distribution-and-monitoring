@@ -574,12 +574,62 @@ public static function personnelForm(): array
             ]),
     ];
 }
-public static function supportForm(): array
+
+public static function beneficiaryForm(): array
 {
     return [
-        
+        Section::make('Beneficiary Details')
+            ->description('Enter the details of the beneficiary.')
+            ->columns([
+                'sm' => 2,
+                'md' => 4,
+                'lg' => 6,
+                'xl' => 8,
+                '2xl' => 12,
+            ])
+            ->columnSpanFull()
+            ->schema([
+
+                // Name Field
+                TextInput::make('name')
+                    ->label('Full Name')
+                    ->required()
+                    ->maxLength(191)
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 4,
+                    ]),
+
+                // Contact Number Field
+                TextInput::make('contact')
+                    ->label('Contact Number')
+                    ->required()
+                    ->maxLength(15)
+                    ->tel()
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 4,
+                    ]),
+
+                // Email Field
+                TextInput::make('email')
+                    ->label('Email Address')
+                    ->email()
+                    ->maxLength(191)
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->columnSpan([
+                        'sm' => 2,
+                        'md' => 4,
+                        'lg' => 4,
+                    ]),
+
+            ]),
     ];
 }
+
 
 
 }

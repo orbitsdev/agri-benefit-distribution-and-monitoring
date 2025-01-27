@@ -16,10 +16,12 @@ return new class extends Migration
             $table->foreignId('distribution_item_id')->nullable()->constrained('distribution_items')->onDelete('cascade'); // Foreign key constraint
             $table->string('name')->nullable(); 
             $table->string('contact')->nullable(); 
-            $table->enum('status', ['Claimed', 'Unclaimed'])->default('Unclaimed'); // Claim status
+            $table->string('email')->nullable(); 
+            $table->enum('status', ['Claimed', 'Unclaimed'])->default('Unclaimed'); 
+            $table->string('qr_code')->nullable()->unique();
             $table->timestamps(); // Timestamps for record tracking
 
-            // Foreign key constraint
+            // Foreign key constraint11
           
         });
     }

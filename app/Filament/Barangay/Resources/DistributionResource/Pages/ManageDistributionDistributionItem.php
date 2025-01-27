@@ -114,73 +114,66 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->button()
                     ->label('Beneficiaries') // Add label for better UX
                     ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
-                    ->url(function(Model $record) {
+                    ->url(function (Model $record) {
                         return route('filament.barangay.resources.distribution-items.beneficiaries', ['record' => $record->id]);
-                    },shouldOpenInNewTab : true)
+                    }, shouldOpenInNewTab: true)
                     ->hidden(function (Model $record) {
                         return !$record->hasBeneficiaries();
-                    })
-                    
-                    ,
+                    }),
 
-                Action::make('Import')
+
+                    Action::make('Import')
                     ->button()
-                    ->action(function (array $data): void {
-                        $distributionId = $this->getRecord()->id;
-
+                    ->action(function (array $data, Model $record): void {
+                        if (!$record->id || !$record->distribution_id) {
+                            Notification::make()
+                                ->title('Import Failed')
+                                ->danger()
+                                ->body('The selected distribution item is invalid or does not belong to a valid distribution.')
+                                ->send();
+                            return;
+                        }
+                
+                        $distributionItemId = $record->id;
+                        $distributionId = $record->distribution_id;
+                
                         // Get the file path
                         $file = Storage::disk('public')->path($data['file']);
-
-                        // Validate the headers
-                        $requiredColumns = ['name']; // Minimal required columns
-                        $fileHeaders = Excel::toArray(null, $file)[0][0] ?? [];
-
-                        // Normalize the headers to lowercase for case-insensitivity
-                        $normalizedHeaders = array_map('strtolower', $fileHeaders);
-                        $normalizedRequiredColumns = array_map('strtolower', $requiredColumns);
-
-                        // Check if all minimally required columns exist
-                        foreach ($normalizedRequiredColumns as $column) {
-                            if (!in_array($column, $normalizedHeaders)) {
-                                Notification::make()
-                                    ->title('Import Failed')
-                                    ->danger()
-                                    ->body("The uploaded file is missing the required column: '$column'.")
-                                    ->send();
-
-                                // Delete the file and abort the action
-                                if (Storage::disk('public')->exists($data['file'])) {
-                                    Storage::disk('public')->delete($data['file']);
-                                }
-                                return;
+                
+                        // Track failure count directly during import
+                        $failures = 0;
+                
+                        try {
+                            // Use a custom import class with error tracking
+                            Excel::import(new BeneficiariesImport($distributionItemId, $distributionId, $failures), $file);
+                
+                            // Clean up the uploaded file
+                            if (Storage::disk('public')->exists($data['file'])) {
+                                Storage::disk('public')->delete($data['file']);
                             }
-                        }
-
-                        // Proceed with the import
-                        Excel::import(new BeneficiariesImport($distributionId), $file);
-
-                        // Delete the file after import
-                        if (Storage::disk('public')->exists($data['file'])) {
-                            Storage::disk('public')->delete($data['file']);
-                        }
-
-                        // Check for import failures
-                        $failureCount = ImportFailure::where('distribution_id', $distributionId)->count();
-
-                        // Count total uploaded records
-                        $totalUploaded = Beneficiary::where('distribution_item_id', $distributionId)->count();
-
-                        if ($failureCount > 0) {
+                
+                            // Count total uploaded records
+                            $totalUploaded = Beneficiary::where('distribution_item_id', $distributionItemId)->count();
+                
+                            // Show notifications based on failures
+                            if ($failures > 0) {
+                                Notification::make()
+                                    ->title('Import Completed with Errors')
+                                    ->danger()
+                                    ->body("Import completed, but $failures rows failed. Total records uploaded: $totalUploaded.")
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Import Successful')
+                                    ->success()
+                                    ->body("All rows were imported successfully. Total records uploaded: $totalUploaded.")
+                                    ->send();
+                            }
+                        } catch (\Exception $e) {
                             Notification::make()
-                                ->title('Import Completed with Errors')
+                                ->title('Import Failed')
                                 ->danger()
-                                ->body("Import completed, but $failureCount rows failed. Total records uploaded: $totalUploaded. Please review the error log.")
-                                ->send();
-                        } else {
-                            Notification::make()
-                                ->title('Import Successful')
-                                ->success()
-                                ->body("All rows were imported successfully. Total records uploaded: $totalUploaded.")
+                                ->body("An error occurred during import: {$e->getMessage()}")
                                 ->send();
                         }
                     })
@@ -203,6 +196,8 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->label('Upload')
                     ->modalHeading('Upload Beneficiary File')
                     ->modalDescription('Upload an Excel file containing beneficiary data. The file should have the column **Name**.'),
+                
+
 
 
                 ActionGroup::make([
@@ -221,6 +216,6 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
             ->modifyQueryUsing(function (Builder $query) {
                 $query->byDistribution($this->getRecord()->id);
             })
-            ;
+        ;
     }
 }
