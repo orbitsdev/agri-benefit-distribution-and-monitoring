@@ -49,7 +49,7 @@ class UserResource extends Resource
                        ->searchable(),
                    Tables\Columns\TextColumn::make('email')
                        ->searchable()
-                       ->toggleable(isToggledHiddenByDefault: true)
+                       ->toggleable(isToggledHiddenByDefault: false)
                        ,
    
                        

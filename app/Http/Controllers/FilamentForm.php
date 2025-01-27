@@ -334,6 +334,8 @@ class FilamentForm extends Controller
                     ->helperText('Set the date for the distribution.')
                     ->native(false)
                     ->minDate(now())
+                    ->default(now()->addDay())
+                    ->closeOnDateSelection()
                     ->columnSpan([
                         'sm' => 2,
                         'md' => 4,
@@ -511,7 +513,7 @@ public static function personnelForm(): array
                     ->label('Account')
                     ->relationship(
                         'user', 'name',
-                        modifyQueryUsing: fn(Builder $query) => $query->isMember()->notRegisteredInSameBarangay(Auth::user()->barangay_id)
+                        modifyQueryUsing: fn(Builder $query) => $query->isMember()->byBarangay(Auth::user()->barangay_id)->notRegisteredInSameBarangay(Auth::user()->barangay_id)
                         ) 
                         ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} ({$record->email})")
                     ->searchable()

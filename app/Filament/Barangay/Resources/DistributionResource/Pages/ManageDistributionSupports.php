@@ -176,7 +176,9 @@ class ManageDistributionSupports extends ManageRelatedRecords
 
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()->color('gray'),
+                    Tables\Actions\DeleteAction::make()->color('gray')->hidden(function (Model $record) {
+                        return $record->hasTransactions(Auth::user()->barangay_id);
+                    }),
                 ]),
             ])
             ->bulkActions([

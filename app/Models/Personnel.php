@@ -68,5 +68,11 @@ class Personnel extends Model
     }
 
     //scope by barangay
+    
+    public function hasSupportInBarangay($barangayId): bool
+{
+    return $this->wherehas('supports')->where('barangay_id', $barangayId)->exists();
+}
+
    
 }

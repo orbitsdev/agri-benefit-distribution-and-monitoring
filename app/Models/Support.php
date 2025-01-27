@@ -42,5 +42,10 @@ class Support extends Model
             ->where('personnel_id', '!=', $personnelId);
     }
 
+    public function hasTransactions($barangayId): bool
+{
+    return $this->transactions()->where('barangay_id', $barangayId)->exists();
+}
+
 
 }

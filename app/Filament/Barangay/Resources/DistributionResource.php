@@ -72,7 +72,16 @@ class DistributionResource extends Resource
 
                     ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries'),
 
-                Tables\Columns\TextColumn::make('status'),
+                    Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        Distribution::STATUS_PLANNED => 'gray',
+                        Distribution::STATUS_ONGOING => 'success',
+                        Distribution::STATUS_COMPLETED=> 'success',
+                        Distribution::STATUS_CANCELED=> 'danger',
+
+                        default => 'gray'
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

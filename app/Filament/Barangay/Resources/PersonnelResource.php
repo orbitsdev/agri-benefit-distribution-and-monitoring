@@ -7,8 +7,12 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Personnel;
 use Filament\Tables\Table;
+use BaconQrCode\Common\Mode;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FilamentForm;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -54,12 +58,18 @@ class PersonnelResource extends Resource
                 //
             ])
             ->actions([
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()->color('gray')->hidden(function(Model $record){
+                        return $record->hasSupportInBarangay(Auth::user()->barangay_id);
+                    }),
+                ]),
                 // Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+               
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->modifyQueryUsing(function (Builder $query) {

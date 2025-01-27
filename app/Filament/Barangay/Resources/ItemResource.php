@@ -46,6 +46,8 @@ class ItemResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('barangay.name')
+                    ->searchable(),
 
                 ToggleColumn::make('is_active')->label('Active')->alignCenter()->toggleable()
                     ->afterStateUpdated(function ($record, $state) {
