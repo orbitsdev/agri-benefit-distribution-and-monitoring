@@ -10,11 +10,12 @@ use App\Http\Controllers\FilamentForm;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Contracts\HasTable;
-use Illuminate\Database\Eloquent\Model;
 
  
 
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -54,6 +55,7 @@ public function table(Table $table): Table
         return $table
             ->query(Beneficiary::query())
             ->columns([
+                ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable(),
                 TextColumn::make('contact')->searchable(),

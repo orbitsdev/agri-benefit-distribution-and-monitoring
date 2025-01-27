@@ -7,6 +7,7 @@ use App\Models\DistributionItem;
 use App\Observers\BeneficiaryObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+
 #[ObservedBy([BeneficiaryObserver::class])]
 class Beneficiary extends Model
 {

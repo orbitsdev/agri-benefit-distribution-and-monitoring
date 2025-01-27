@@ -12,20 +12,7 @@ class BeneficiaryObserver
      */
     public function created(Beneficiary $beneficiary): void
     {   
-
-       
-        if (!$beneficiary->distribution_item || !$beneficiary->distribution_item->distribution_id) {
-            logger()->warning('Distribution item or distribution ID is missing for beneficiary ID: ' . $beneficiary->id);
-            return; // Skip code generation if data is incomplete
-        }
-
-        $distributionId = str_pad($beneficiary->distribution_item->distribution_id, 3, '0', STR_PAD_LEFT); // Pads Distribution ID to 3 digits
-        $itemId = str_pad($beneficiary->distribution_item_id, 2, '0', STR_PAD_LEFT); // Pads Item ID to 2 digits
-        $beneficiaryId = str_pad($beneficiary->id, 3, '0', STR_PAD_LEFT); // Pads Beneficiary ID to 3 digits
-        $shortUuid = strtoupper(substr(Str::uuid(), 0, 8)); // Generates an 8-character unique string
-
-        $beneficiary->code = "BEN-{$distributionId}-{$itemId}-{$beneficiaryId}-{$shortUuid}";
-        $beneficiary->saveQuietly();
+        $this->generateUniqueCode($beneficiary);
     }
 
     /**
@@ -33,14 +20,28 @@ class BeneficiaryObserver
      */
     public function updated(Beneficiary $beneficiary): void
     {
-        if (is_null($beneficiary->code) && $beneficiary->distribution_item) {
-            $distributionId = str_pad($beneficiary->distribution_item->distribution_id, 3, '0', STR_PAD_LEFT);
-            $itemId = str_pad($beneficiary->distribution_item_id, 2, '0', STR_PAD_LEFT);
-            $beneficiaryId = str_pad($beneficiary->id, 3, '0', STR_PAD_LEFT);
-            $shortUuid = strtoupper(substr(Str::uuid(), 0, 8));
+        if (is_null($beneficiary->code)) {
+            $this->generateUniqueCode($beneficiary);
+        }
 
-            $beneficiary->code = "BEN-{$distributionId}-{$itemId}-{$beneficiaryId}-{$shortUuid}";
-            $beneficiary->saveQuietly();
+    }
+
+
+    private function generateUniqueCode(Beneficiary $beneficiary): void
+    {
+      
+        
+        if (is_null($beneficiary->code)) {
+            $distributionItemId = str_pad($beneficiary->distribution_item_id, 3, '0', STR_PAD_LEFT); // Pads to 3 digits
+            $beneficiaryId = str_pad($beneficiary->id, 5, '0', STR_PAD_LEFT); // Pads to 5 digits
+            $randomPart = strtoupper(Str::random(5)); // Generates a random string of 5 characters
+
+            // Combine parts to create the unique code
+            $uniqueCode = "BEN-{$distributionItemId}-{$beneficiaryId}-{$randomPart}";
+
+            // Save the unique code
+            $beneficiary->code = $uniqueCode;
+            $beneficiary->save();
         }
     }
 

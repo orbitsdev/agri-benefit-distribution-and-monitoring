@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('contact')->nullable(); 
             $table->string('email')->nullable(); 
             $table->enum('status', ['Claimed', 'Unclaimed'])->default('Unclaimed'); 
-            $table->string('qr_code')->nullable()->unique();
+            $table->string('code')->nullable()->unique();
             $table->timestamps(); // Timestamps for record tracking
 
             // Foreign key constraint11

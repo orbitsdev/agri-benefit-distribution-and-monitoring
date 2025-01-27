@@ -9,4 +9,7 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBeneficiary extends CreateRecord
 {
     protected static string $resource = BeneficiaryResource::class;
+
+
+    
 }
