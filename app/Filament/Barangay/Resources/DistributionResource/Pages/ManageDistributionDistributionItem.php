@@ -109,18 +109,7 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
             ->actions([
 
 
-                Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
-                    ->modalWidth('7xl') // Set modal width
-                    ->button()
-                    ->label('Beneficiaries') // Add label for better UX
-                    ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
-                    ->url(function (Model $record) {
-                        return route('filament.barangay.resources.distribution-items.beneficiaries', ['record' => $record->id]);
-                    }, shouldOpenInNewTab: true)
-                    ->hidden(function (Model $record) {
-                        return !$record->hasBeneficiaries();
-                    }),
-
+             
 
                     Action::make('Import')
                     ->button()
@@ -193,10 +182,21 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ])
                     ->outlined()
                     ->button()
-                    ->label('Upload')
-                    ->modalHeading('Upload Beneficiary File')
-                    ->modalDescription('Upload an Excel file containing beneficiary data. The file should have the column **Name**.'),
-                
+                    ->label('Import ')
+                    ->modalHeading('Import Beneficiary File')
+                    ->modalDescription('Import an Excel file containing beneficiary data. The file should have the column **Name**.'),
+                    Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
+                    ->modalWidth('7xl') // Set modal width
+                    ->button()
+                    ->label('View Beneficiaries') // Add label for better UX
+                    ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
+                    ->url(function (Model $record) {
+                        return route('filament.barangay.resources.distribution-items.beneficiaries', ['record' => $record->id]);
+                    }, shouldOpenInNewTab: true)
+                    ->hidden(function (Model $record) {
+                        return !$record->hasBeneficiaries();
+                    }),
+
 
 
 

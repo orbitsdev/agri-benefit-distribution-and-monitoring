@@ -153,8 +153,8 @@ class BeneficiariesRelationManager extends RelationManager
                     ->outlined()
                     ->button()
                     ->label('Import Beneficiaries')
-                    ->modalHeading('Upload Beneficiary File')
-                    ->modalDescription('Upload an Excel file containing beneficiary data. The file should have the column **Name**.'),
+                    ->modalHeading('Import Beneficiary File')
+                    ->modalDescription('Import an Excel file containing beneficiary data. The file should have the column **Name**.'),
 
                 Tables\Actions\CreateAction::make(),
             ])

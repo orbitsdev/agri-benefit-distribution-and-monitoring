@@ -76,6 +76,7 @@ public function table(Table $table): Table
                 // add action claim and unclaim hide uncclamed if status is claim and hide claim if status is unclaimed add icon as well and add required conmfirmation
                 Action::make('Claim')
                 ->requiresConfirmation()
+               
                 ->button()
                 ->action(function(Model $benificiary){
                     $benificiary->update(['status'=>Beneficiary::CLAIMED]);
@@ -88,11 +89,13 @@ public function table(Table $table): Table
                 ->requiresConfirmation()
                 ->button()
                 ->action(function(Model $benificiary){
+                   
                     $benificiary->update(['status'=>Beneficiary::UN_CLAIMED]);
+
                    
                 })->hidden(function(Model $benificiary){
                     return $benificiary->status === Beneficiary::UN_CLAIMED;
-                })->icon('heroicon-o-x-circle')->color('danger'),
+                })->icon('heroicon-o-x-circle')->color('gray')->label('Revert'),
                
 
 
