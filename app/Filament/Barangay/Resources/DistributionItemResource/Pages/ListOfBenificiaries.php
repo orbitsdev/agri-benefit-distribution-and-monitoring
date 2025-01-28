@@ -261,7 +261,7 @@ public function table(Table $table): Table
             ])
             ->modifyQueryUsing(function($query){
                 return $query->where('distribution_item_id',$this->record->id);
-            });
+            })
             ;
     }
 }

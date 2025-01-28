@@ -29,6 +29,7 @@ class CreateTransaction extends CreateRecord
 
 
     //barangay details
+    $data['barangay_id'] = $barangay->id;
     $data['barangay_name'] = $barangay->name;
     $data['barangay_location'] = $barangay->location;
 

@@ -53,7 +53,7 @@ class Transaction extends Model implements HasMedia
         $this->addMediaCollection('image')->singleFile();
 
     }
-    
+
     public function getImage()
     {
         if ($this->hasMedia()) {
@@ -61,5 +61,9 @@ class Transaction extends Model implements HasMedia
         }
 
         return asset('images/placeholder-image.jpg');
+    }
+
+    public function scopeByBarangay($query, $barangay_id){
+        return $query->where('barangay_id', $barangay_id);
     }
 }
