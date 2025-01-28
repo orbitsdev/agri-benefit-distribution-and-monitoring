@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'is-admin'=> \App\Http\Middleware\EnsureIsAdmin::class,
             'is-super-admin'=> \App\Http\Middleware\EnsureIsSuperAdmin::class,
+            // 'distribution-is-not-locked'=> \App\Http\Middleware\EnsureDistributionIsUnlocked::class,
         ]);
 
 

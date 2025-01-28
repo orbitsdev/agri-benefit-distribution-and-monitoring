@@ -19,6 +19,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Http\Middleware\EnsureDistributionIsUnlocked;
 use Guava\FilamentNestedResources\Concerns\NestedResource;
 use App\Filament\Barangay\Resources\DistributionResource\Pages;
 use App\Filament\Barangay\Resources\DistributionResource\RelationManagers;
@@ -116,7 +117,7 @@ class DistributionResource extends Resource
 
 
                 })->requiresConfirmation()->button()->icon('heroicon-o-lock-closed')->label(function(Model $record){
-                    return $record->is_locked ? 'locked' : 'unlocked';
+                    return $record->is_locked ? 'Unlock' : 'Lock';
                 }),
                 ActionGroup::make([
                     Tables\Actions\ViewAction::make(),

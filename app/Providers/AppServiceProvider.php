@@ -2,10 +2,18 @@
 
 namespace App\Providers;
 
-use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Filament\Panel;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+
+use Filament\Support\Facades\FilamentColor;
+use App\Http\Middleware\EnsureDistributionIsUnlocked;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use App\Filament\Barangay\Resources\DistributionResource\Pages\EditDistribution;
+use App\Models\Distribution;
+use App\Policies\DistributionPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,5 +45,8 @@ class AppServiceProvider extends ServiceProvider
             // Default Jetstream redirection
             return redirect('/dashboard');
         });
+
+        Gate::policy(Distribution::class, DistributionPolicy::class);
+
     }
 }

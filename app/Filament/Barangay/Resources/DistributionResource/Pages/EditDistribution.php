@@ -8,6 +8,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Guava\FilamentNestedResources\Concerns\NestedPage;
 use App\Filament\Barangay\Resources\DistributionResource;
+use App\Http\Middleware\EnsureDistributionIsUnlocked;
 
 class EditDistribution extends EditRecord
 {
@@ -16,7 +17,11 @@ class EditDistribution extends EditRecord
 
     protected ?string $heading = 'Manage Distribution Details';
     protected static string $resource = DistributionResource::class;
-
+    //  protected static string | array $routeMiddleware = [EnsureDistributionIsUnlocked::class];
+//     public static function canAccessEdit(): bool
+// {
+//     return true;
+// }
 
     protected function beforeSave(): void
     {
