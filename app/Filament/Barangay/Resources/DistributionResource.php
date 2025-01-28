@@ -30,7 +30,7 @@ class DistributionResource extends Resource
     protected static ?string $model = Distribution::class;
 
     protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';
-     protected static ?string $navigationGroup = 'Transactions';
+     protected static ?string $navigationGroup = 'Operations Management';
 
      //sort
         protected static ?int $navigationSort = 3;
@@ -140,8 +140,8 @@ class DistributionResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\EditDistribution::class,
-            Pages\ManageDistributionDistributionItem::class,
             Pages\ManageDistributionSupports::class,
+            Pages\ManageDistributionDistributionItem::class,
             // Pages\ManageBe::class,
         ]);
     }

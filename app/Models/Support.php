@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 #[ObservedBy([SupportObserver::class])]
 class Support extends Model
 {
-    
+
 
     // belongs to personnel
 
@@ -46,6 +46,16 @@ class Support extends Model
 {
     return $this->transactions()->where('barangay_id', $barangayId)->exists();
 }
+
+//scope where personnel  has barangay where baranhagay is equal
+
+public function scopeByBarangay($query, $barangayId)
+{
+    return $query->whereHas('personnel', function ($q) use ($barangayId) {
+        $q->where('barangay_id', $barangayId);
+    });
+}
+
 
 
 }

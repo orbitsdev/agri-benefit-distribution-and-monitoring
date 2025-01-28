@@ -24,10 +24,10 @@ class PersonnelResource extends Resource
     protected static ?string $model = Personnel::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
-    protected static ?string $navigationGroup = 'Management';
+    protected static ?string $navigationGroup = 'Setup';
 
 
-    //sort 
+    //sort
     protected static ?int $navigationSort = 1;
     public static function form(Form $form): Form
     {
@@ -38,7 +38,7 @@ class PersonnelResource extends Resource
     {
         return $table
             ->columns([
-                
+
                 Tables\Columns\TextColumn::make('user.name')
                     ->searchable()->label('Name'),
                 Tables\Columns\TextColumn::make(name: 'user.email')
@@ -50,9 +50,9 @@ class PersonnelResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_number')
                     ->searchable(),
-                 
+
                 ToggleColumn::make('is_active')->label('Active')->alignCenter(),
-                
+
             ])
             ->filters([
                 //
@@ -65,7 +65,7 @@ class PersonnelResource extends Resource
                     }),
                 ]),
                 // Tables\Actions\ViewAction::make(),
-               
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

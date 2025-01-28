@@ -13,27 +13,42 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id(); // Primary key
+            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('cascade'); // Link to barangays
+            $table->string('barangay_name')->nullable();
+            $table->string('barangay_location')->nullable();
+
+            $table->foreignId('distribution_id')->nullable()->constrained('distributions')->onDelete('cascade');
+            $table->string('distribution_title')->nullable();
+            $table->string('distribution_location')->nullable();
+            $table->string('distribution_date')->nullable();
+            $table->string('distribution_code')->nullable();
+
+            $table->foreignId('distribution_item_id')->nullable()->constrained('distribution_items')->onDelete('cascade');
+            $table->string('distribution_item_name')->nullable();
+
 
             // Foreign Keys
-            $table->foreignId('beneficiary_id')->constrained('beneficiaries')->onDelete('cascade'); // Link to beneficiaries
-            $table->foreignId('distribution_item_id')->nullable()->constrained('distribution_items')->onDelete('cascade'); // Link to distribution items
-            $table->foreignId('distribution_id')->nullable()->constrained('distributions')->onDelete('cascade'); // Link to distributions
-            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('cascade'); // Link to barangays
-            $table->foreignId('support_id')->nullable()->constrained('supports')->onDelete('set null'); // Link to support personnel
+            $table->foreignId('beneficiary_id')->constrained('beneficiaries')->onDelete('cascade');
+            $table->string('beneficiary_name')->nullable();
+            $table->string('beneficiary_contact')->nullable();
+            $table->string('beneficiary_email')->nullable();
+            $table->string('beneficiary_code')->nullable();
+
+
+
+            $table->foreignId('support_id')->nullable()->constrained('supports')->onDelete('set null');
+            $table->string('support_name')->nullable();
+            $table->string('support_type')->nullable();
+            $table->string('support_unique_code')->nullable();
+
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null'); // Link to admins
 
             // Snapshot Fields
-            $table->string('beneficiary_name'); // Snapshot of the beneficiary's name
-            $table->string('support_name'); // Snapshot of the support's name (or admin)
-            $table->string('support_contact')->nullable(); // Snapshot of the support's contact
-            $table->string('distribution_title')->nullable(); // Snapshot of the distribution title
-            $table->string('barangay_name')->nullable(); // Snapshot of the barangay name
-            $table->string('item_name')->nullable(); // Snapshot of the distribution item name
 
             // Action Data
-            $table->enum('action', ['Claimed', 'Unclaimed']); // Action performed
-            $table->string('role')->nullable(); // Role of the person performing the action (e.g., Scanner, Admin)
-            $table->timestamp('performed_at')->nullable(); // Exact time the action was performed
+            $table->enum('action', ['Claimed', 'Unclaimed'])->nullable();
+            $table->string('role')->nullable();
+            $table->timestamp('performed_at')->nullable();
             $table->timestamps();
         });
     }

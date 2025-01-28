@@ -26,7 +26,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static ?string $navigationGroup = 'Management';
+    protected static ?string $navigationGroup = 'Setup';
     protected static ?string $navigationLabel = 'System Account';
 
 
@@ -51,19 +51,19 @@ class UserResource extends Resource
                        ->searchable()
                        ->toggleable(isToggledHiddenByDefault: false)
                        ,
-   
-                       
-   
+
+
+
                        Tables\Columns\TextColumn::make('role')
                        ->badge()
                        ->color(fn(string $state): string => match ($state) {
                            User::SUPER_ADMIN => 'success',
                            User::ADMIN => 'primary',
                            User::MEMBER=> 'primary',
-   
+
                            default => 'gray'
                        }),
-   
+
                        ToggleColumn::make('is_active')->label('Active/Disabled')->alignCenter(),
             ])
             ->filters([
@@ -98,7 +98,7 @@ class UserResource extends Resource
             ])
             ->defaultGroup('barangay.name')
             ;
-            
+
     }
 
     public static function getRelations(): array

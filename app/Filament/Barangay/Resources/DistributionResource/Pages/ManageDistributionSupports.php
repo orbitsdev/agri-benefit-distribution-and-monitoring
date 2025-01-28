@@ -32,10 +32,11 @@ class ManageDistributionSupports extends ManageRelatedRecords
 
     // use NestedPage;
     // use NestedRelationManager;
-    protected static string $resource = DistributionResource::class;
+protected static string $resource = DistributionResource::class;
 
     protected static string $relationship = 'supports';
 
+    // protected static ?string $navigationIcon = 'herp';
     protected static ?string $navigationIcon = 'fluentui-people-team-24';
 
     protected ?string $heading = 'Manage Supports';
@@ -45,7 +46,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
         return 'Supports';
     }
 
-    
+
 
     public function form(Form $form): Form
     {
@@ -67,20 +68,21 @@ class ManageDistributionSupports extends ManageRelatedRecords
                     ->relationship(
                         name: 'personnel',
                         modifyQueryUsing: fn (Builder $query) => $query->byBarangay(Auth::user()->barangay_id)->notRegisteredInSameDistribution($this->getRecord(),)->active()
-                           
+
                     )
                     ->getOptionLabelFromRecordUsing(fn (Model $personnel) => $personnel->user?->name.' ('.$personnel->user?->email.')')
                     ->searchable()
                     ->preload()
+                    ->required()
                     ->helperText('Select the assigned personnel.')
                     // ->hidden(fn ($operation) => $operation === 'create')
-                    
+
                     ->columnSpan([
                         'sm' => 2,
                         'md' => 4,
                         'lg' => 4,
                     ])
-                    ->disabled(fn ($operation) => $operation === 'edit'),
+                    ->hidden(fn ($operation) => $operation === 'edit'),
 
                 // Support Role Field
                 Select::make('type')

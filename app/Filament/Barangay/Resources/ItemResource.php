@@ -22,7 +22,7 @@ class ItemResource extends Resource
     protected static ?string $navigationLabel = 'Registered Items';
     protected static ?string $navigationIcon = 'heroicon-s-archive-box-arrow-down';
     protected static ?int $navigationSort = 2;
-    protected static ?string $navigationGroup = 'Management';
+    protected static ?string $navigationGroup = 'Setup';
 
 
 
