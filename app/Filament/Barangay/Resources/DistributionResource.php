@@ -9,8 +9,11 @@ use Filament\Tables\Table;
 use App\Models\Distribution;
 use Filament\Resources\Resource;
 use Filament\Resources\Pages\Page;
+use Filament\Tables\Actions\Action;
 use App\Http\Controllers\FilamentForm;
 use Filament\Tables\Columns\ViewColumn;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -96,6 +99,25 @@ class DistributionResource extends Resource
                 ->options(Distribution::STATUS_OPTIONS)->searchable()
             ])
             ->actions([
+              Action::make('Lock and Unlock')->action(function(Model $record){
+
+                $record->is_locked =!$record->is_locked;
+                $record->save();
+                //show filament notification
+                Notification::make()
+                                    ->title('Lock/Unlock Status')
+                                    ->success()
+                                    ->body("Status of distribution '{$record->title}' has been updated to ". ($record->is_locked? 'Locked' : 'Unlocked'). ".")
+                                    ->send();
+
+
+
+
+
+
+                })->requiresConfirmation()->button()->icon('heroicon-o-lock-closed')->label(function(Model $record){
+                    return $record->is_locked ? 'locked' : 'unlocked';
+                }),
                 ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()->label('Manage'),

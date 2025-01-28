@@ -191,7 +191,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
             ])
             ->actions([
                 ActionGroup::make([
-
+                   
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()->disabled(fn (Model $record) => $this->getDistribution()->is_locked) // Disable if distribution is locked
                     ->tooltip(function (Model $record) {
