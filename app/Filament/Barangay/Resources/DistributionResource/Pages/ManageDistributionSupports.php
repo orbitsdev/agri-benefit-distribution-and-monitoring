@@ -17,6 +17,7 @@ use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,7 +33,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
 
     // use NestedPage;
     // use NestedRelationManager;
-protected static string $resource = DistributionResource::class;
+    protected static string $resource = DistributionResource::class;
 
     protected static string $relationship = 'supports';
 
@@ -47,104 +48,108 @@ protected static string $resource = DistributionResource::class;
     }
 
 
+    protected function getDistribution(): Model
+    {
+        return $this->getOwnerRecord();
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make('Support Details')
-            ->description('Specify the personnel and roles involved in the distribution process.')
-            ->columns([
-                'sm' => 2,
-                'md' => 4,
-                'lg' => 6,
-                'xl' => 8,
-                '2xl' => 12,
-            ])
-            ->columnSpanFull()
-            ->schema([
-                // Personnel ID Field
-                Select::make('personnel_id')
-                    ->relationship(
-                        name: 'personnel',
-                        modifyQueryUsing: fn (Builder $query) => $query->byBarangay(Auth::user()->barangay_id)->notRegisteredInSameDistribution($this->getRecord(),)->active()
-
-                    )
-                    ->getOptionLabelFromRecordUsing(fn (Model $personnel) => $personnel->user?->name.' ('.$personnel->user?->email.')')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->helperText('Select the assigned personnel.')
-                    // ->hidden(fn ($operation) => $operation === 'create')
-
-                    ->columnSpan([
+                    ->description('Specify the personnel and roles involved in the distribution process.')
+                    ->columns([
                         'sm' => 2,
                         'md' => 4,
-                        'lg' => 4,
+                        'lg' => 6,
+                        'xl' => 8,
+                        '2xl' => 12,
                     ])
-                    ->hidden(fn ($operation) => $operation === 'edit'),
+                    ->columnSpanFull()
+                    ->schema([
+                        // Personnel ID Field
+                        Select::make('personnel_id')
+                            ->relationship(
+                                name: 'personnel',
+                                modifyQueryUsing: fn(Builder $query) => $query->byBarangay(Auth::user()->barangay_id)->notRegisteredInSameDistribution($this->getRecord(),)->active()
 
-                // Support Role Field
-                Select::make('type')
-                    ->label('Support Role')
-                    ->options(SupportRole::all()->pluck('name', 'name'))
-                    ->searchable()
-                    ->helperText('Specify the role (e.g., Scanner, Checker).')
-                    ->preload()
-                    ->required()
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 4,
+                            )
+                            ->getOptionLabelFromRecordUsing(fn(Model $personnel) => $personnel->user?->name . ' (' . $personnel->user?->email . ')')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->helperText('Select the assigned personnel.')
+                            // ->hidden(fn ($operation) => $operation === 'create')
+
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 4,
+                                'lg' => 4,
+                            ])
+                            ->hidden(fn($operation) => $operation === 'edit'),
+
+                        // Support Role Field
+                        Select::make('type')
+                            ->label('Support Role')
+                            ->options(SupportRole::all()->pluck('name', 'name'))
+                            ->searchable()
+                            ->helperText('Specify the role (e.g., Scanner, Checker).')
+                            ->preload()
+                            ->required()
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 4,
+                                'lg' => 4,
+                            ]),
+
+                        // Unique Code Field
+                        TextInput::make('unique_code')
+                            ->label('Code')
+                            ->nullable()
+                            ->maxLength(191)
+                            ->helperText('Enter a unique code for this support role if applicable.')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 4,
+                                'lg' => 4,
+                            ])
+                            ->hidden(fn($operation) => $operation === 'create')
+                            ->disabled(fn($operation) => $operation === 'edit'),
+
+                        // Enable Item Scanning Toggle
+                        Toggle::make('enable_item_scanning')
+                            ->label('Enable Item Scanning')
+                            ->default(false)
+                            ->helperText('Enable this for item scanning (e.g., QR codes).')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 4,
+                                'lg' => 'full',
+                            ]),
+
+                        // Enable Beneficiary Management Toggle
+                        Toggle::make('enable_beneficiary_management')
+                            ->label('Enable Beneficiary Management')
+                            ->default(false)
+                            ->helperText('Enable this to manage beneficiary records.')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 4,
+                                'lg' => 'full',
+                            ]),
+
+                        // Enable List Access Toggle
+                        Toggle::make('enable_list_access')
+                            ->label('Enable List Access')
+                            ->default(false)
+                            ->helperText('Enable this to access beneficiary lists.')
+                            ->columnSpan([
+                                'sm' => 2,
+                                'md' => 4,
+                                'lg' => 'full',
+                            ])->default(true),
                     ]),
-
-                // Unique Code Field
-                TextInput::make('unique_code')
-                    ->label('Code')
-                    ->nullable()
-                    ->maxLength(191)
-                    ->helperText('Enter a unique code for this support role if applicable.')
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 4,
-                    ])
-                    ->hidden(fn ($operation) => $operation === 'create')
-                    ->disabled(fn ($operation) => $operation === 'edit'),
-
-                // Enable Item Scanning Toggle
-                Toggle::make('enable_item_scanning')
-                    ->label('Enable Item Scanning')
-                    ->default(false)
-                    ->helperText('Enable this for item scanning (e.g., QR codes).')
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 'full',
-                    ]),
-
-                // Enable Beneficiary Management Toggle
-                Toggle::make('enable_beneficiary_management')
-                    ->label('Enable Beneficiary Management')
-                    ->default(false)
-                    ->helperText('Enable this to manage beneficiary records.')
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 'full',
-                    ]),
-
-                // Enable List Access Toggle
-                Toggle::make('enable_list_access')
-                    ->label('Enable List Access')
-                    ->default(false)
-                    ->helperText('Enable this to access beneficiary lists.')
-                    ->columnSpan([
-                        'sm' => 2,
-                        'md' => 4,
-                        'lg' => 'full',
-                    ])->default(true),
-            ]),
             ]);
     }
 
@@ -170,16 +175,40 @@ protected static string $resource = DistributionResource::class;
                     ->searchable(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->modalWidth('7xl'),
+                Tables\Actions\CreateAction::make()
+                    ->modalWidth('7xl')
+                    ->disabled(fn() => $this->getDistribution()->is_locked)
+                    ->before(function () {
+                        if ($this->getDistribution()->is_locked) {
+                            Notification::make()
+                                ->title('Distribution is locked')
+                                ->body('You cannot create support for a locked distribution.')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
                 // Tables\Actions\AssociateAction::make(),
             ])
             ->actions([
                 ActionGroup::make([
 
                     Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()->color('gray')->hidden(function (Model $record) {
-                        return $record->hasTransactions(Auth::user()->barangay_id);
+                    Tables\Actions\EditAction::make()->disabled(fn (Model $record) => $this->getDistribution()->is_locked) // Disable if distribution is locked
+                    ->tooltip(function (Model $record) {
+                        if ($this->getDistribution()->is_locked) {
+                            return 'Cannot edit support for a locked distribution.';
+                        }
+                        return null;
+                    }),
+                    Tables\Actions\DeleteAction::make()
+                    ->color('gray')
+                    ->hidden(fn (Model $record) => $record->hasTransactions(Auth::user()->barangay_id))
+                    ->disabled(fn (Model $record) => $this->getDistribution()->is_locked) // Disable if distribution is locked
+                    ->tooltip(function (Model $record) {
+                        if ($this->getDistribution()->is_locked) {
+                            return 'Cannot delete support for a locked distribution.';
+                        }
+                        return null;
                     }),
                 ]),
             ])

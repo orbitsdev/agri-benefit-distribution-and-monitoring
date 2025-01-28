@@ -110,7 +110,7 @@ class FilamentForm extends Controller
                         ->label('Profile')
                         ->image()
                         ->imageEditor()
-                        ->required(),
+                        // ->required(),
                 ]),
 
 
@@ -202,7 +202,7 @@ class FilamentForm extends Controller
                         ->label('Profile')
                         ->image()
                         ->imageEditor()
-                        ->required(),
+                        // ->required(),
                 ]),
 
 

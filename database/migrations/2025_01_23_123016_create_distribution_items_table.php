@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('distribution_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->nullable()->constrained('items')->onDelete('set null'); 
-            $table->foreignId('distribution_id')->constrained('distributions')->onDelete('cascade'); 
+            $table->foreignId('item_id')->nullable()->constrained('items')->onDelete('set null');
+            $table->foreignId('distribution_id')->constrained('distributions')->onDelete('cascade');
             $table->bigInteger('quantity')->default(0);
+            $table->bigInteger('original_quantity')->default(0);
+            $table->boolean('is_locked')->default(false); // L
             $table->timestamps();
         });
     }

@@ -8,13 +8,14 @@ use App\Models\Beneficiary;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Actions\Action;
 use App\Imports\BeneficiariesImport;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\FilamentForm;
 use Filament\Forms\Contracts\HasForms;
+
+
+
 use Filament\Tables\Actions\EditAction;
-
-
-
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -213,29 +214,89 @@ public function table(Table $table): Table
                 })->form(FilamentForm::beneficiaryForm()),
             ])
             ->actions([
-                // add action claim and unclaim hide uncclamed if status is claim and hide claim if status is unclaimed add icon as well and add required conmfirmation
                 Action::make('Claim')
                 ->requiresConfirmation()
-
                 ->button()
-                ->action(function(Model $benificiary){
-                    $benificiary->update(['status'=>Beneficiary::CLAIMED]);
+                ->action(function (Model $beneficiary) {
+                    // Update beneficiary status to 'Claimed'
+                    $beneficiary->update(['status' => Beneficiary::CLAIMED]);
 
-                })->hidden(function(Model $benificiary){
-                    return $benificiary->status === Beneficiary::CLAIMED;
-                })->icon('far-hand-back-fist')->color('success'),
+                    // Decrease the quantity in the associated distribution item
+                    $distributionItem = $beneficiary->distributionItem;
+                    if ($distributionItem->quantity > 0) {
+                        $distributionItem->decrement('quantity');
+                    }
+                    $adminId = Auth::user()->role === 'admin' ? Auth::user()->id : null;
+                    // Create a transaction record
+                    $beneficiary->transactions()->create([
+                        'barangay_id' => $distributionItem->distribution->barangay_id,
+                        'barangay_name' => $distributionItem->distribution->barangay->name,
+                        'barangay_location' => $distributionItem->distribution->barangay->location,
 
+                        'distribution_id' => $distributionItem->distribution_id,
+                        'distribution_title' => $distributionItem->distribution->title,
+                        'distribution_location' => $distributionItem->distribution->location,
+                        'distribution_date' => $distributionItem->distribution->distribution_date,
+                        'distribution_code' => $distributionItem->distribution->code,
+
+                        'distribution_item_id' => $distributionItem->id,
+                        'distribution_item_name' => $distributionItem->item->name,
+
+                        'beneficiary_id' => $beneficiary->id,
+                        'beneficiary_name' => $beneficiary->name,
+                        'beneficiary_contact' => $beneficiary->contact,
+                        'beneficiary_email' => $beneficiary->email,
+                        'beneficiary_code' => $beneficiary->code,
+                       'admin_id' => $adminId,
+
+                        // 'support_id' => $distributionItem->distribution->support_id,
+                        // 'support_name' => $distributionItem->distribution->support->personnel->user->name ?? null,
+                        // 'support_type' => $distributionItem->distribution->support->type ?? null,
+                        // 'support_unique_code' => $distributionItem->distribution->support->unique_code ?? null,
+
+                        'action' => 'Claimed',
+                        'performed_at' => now(),
+                    ]);
+
+                    Notification::make()
+                        ->title('Beneficiary Claimed Successfully')
+                        ->success()
+                        ->send();
+                })
+                ->hidden(function (Model $beneficiary) {
+                    return $beneficiary->status === Beneficiary::CLAIMED;
+                })
+                ->icon('far-hand-back-fist')
+                ->color('success'),
                 Action::make('Unclaim')
                 ->requiresConfirmation()
                 ->button()
-                ->action(function(Model $benificiary){
+                ->action(function (Model $beneficiary) {
+                    // Update beneficiary status to 'Unclaimed'
+                    $beneficiary->update(['status' => Beneficiary::UN_CLAIMED]);
 
-                    $benificiary->update(['status'=>Beneficiary::UN_CLAIMED]);
+                    // Increase the quantity in the associated distribution item
+                    $distributionItem = $beneficiary->distributionItem;
+                    $distributionItem->increment('quantity');
 
+                    // Delete the associated transaction for this beneficiary
+                    $beneficiary->transactions()
+                        ->where('action', 'Claimed')
+                        ->where('beneficiary_id', $beneficiary->id)
+                        ->delete();
 
-                })->hidden(function(Model $benificiary){
-                    return $benificiary->status === Beneficiary::UN_CLAIMED;
-                })->icon('heroicon-o-x-circle')->color('gray')->label('Revert'),
+                    Notification::make()
+                        ->title('Beneficiary Unclaimed Successfully')
+                        ->success()
+                        ->send();
+                })
+                ->hidden(function (Model $beneficiary) {
+                    return $beneficiary->status === Beneficiary::UN_CLAIMED;
+                })
+                ->icon('heroicon-o-x-circle')
+                ->color('gray')
+                ->label('Revert'),
+
 
 
 
