@@ -32,61 +32,81 @@
             </div>
         </div>
     
-        <!-- Section: Distribution Items -->
-        <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+   
+        {{-- <div class="bg-white shadow-md rounded-lg p-6 mb-8">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Distribution Items</h2>
             <div class="divide-y divide-gray-200">
 
                 @foreach ($record->distributionItems as $distributionItem)
                     
-                <!-- Item 1 -->
+          
                 <div class="">
                     <div class="flex justify-between items-center">
                         <p class="text-gray-800 font-medium">{{$distributionItem->item->name}}</p>
                         <span class="text-sm text-gray-500">{{$distributionItem->original_quantity}}</span>
                     </div>
-                    {{-- <div class="mt-2">
-                        <p class="text-sm text-gray-500">Beneficiaries</p>
-                        <ul class="text-gray-700 text-sm mt-1">
-                            <li>Juan Dela Cruz - Claimed</li>
-                            <li>Maria Santos - Unclaimed</li>
-                        </ul>
-                    </div> --}}
+                   
                 </div>
                 @endforeach
-                <!-- Item 2 -->
+              
             
             </div>
-        </div>
+        </div> --}}
     
         <!-- Section: Support -->
         <div class="bg-white shadow-md rounded-lg p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">Support</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Items</h2>
             <table class="w-full table-auto border-collapse">
                 <thead>
                     <tr class="text-left text-sm text-gray-500 bg-gray-100">
                         <th class="px-4 py-2">Name</th>
-                        <th class="px-4 py-2">Position</th>
-                        <th class="px-4 py-2">Type</th>
-                        <th class="px-4 py-2">Permissions</th>
+                        <th class="px-4 py-2">Quantity</th>
+                        <th class="px-4 py-2">Beneficiaries</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
+                    @forelse ($record->distributionItems as $distributionItem)
                     <tr>
-                        <td class="border-t px-4 py-2">John Smith</td>
-                        <td class="border-t px-4 py-2">Scanner</td>
-                        <td class="border-t px-4 py-2">Logistics</td>
-                        <td class="border-t px-4 py-2">Item Scanning, List Access</td>
+                        <td class="border-t px-4 py-2">{{ $distributionItem->item->name }}</td>
+                        <td class="border-t px-4 py-2">{{ $distributionItem->original_quantity }}</td>
+                        <td class="border-t px-4 py-2">{{ $distributionItem->getTotalBeneficiaries() }}</td>
                     </tr>
+                @empty
                     <tr>
-                        <td class="border-t px-4 py-2">Jane Doe</td>
-                        <td class="border-t px-4 py-2">Registrar</td>
-                        <td class="border-t px-4 py-2">Support</td>
-                        <td class="border-t px-4 py-2">Beneficiary Management</td>
+                        <td colspan="3" class="border-t px-4 py-2 text-center text-gray-500">
+                            No distribution items available.
+                        </td>
                     </tr>
+                @endforelse
+                
+                    
                 </tbody>
             </table>
         </div>
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Supports</h2>
+            <ul role="list" class="divide-y divide-gray-100">
+                @forelse ($record->supports as $support)
+                    <li class="flex justify-between gap-x-6 py-5">
+                        <div class="flex min-w-0 gap-x-4">
+                            <img class="w-10 h-10 flex-none rounded-full bg-gray-50" src="{{$support->personnel->user->getImage()}}" alt="{{$support->personnel->user->name }}">
+                            <div class="min-w-0 flex-auto">
+                                <p class="text-sm font-semibold text-gray-900">{{ $support->personnel->user->name }}</p>
+                                <p class="mt-1 truncate text-xs text-gray-500">{{ $support->personnel->user->email }} / {{ $support->personnel->contact_number }}</p>
+                            </div>
+                        </div>
+                        <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                            <p class="text-sm text-gray-900">{{ $support->type }}</p>
+                        </div>
+                    </li>
+                @empty
+                    <li class="py-5 text-center text-gray-500">
+                        No supports available.
+                    </li>
+                @endforelse
+            </ul>
+        </div>
+        
     </div>
     
 </div>
