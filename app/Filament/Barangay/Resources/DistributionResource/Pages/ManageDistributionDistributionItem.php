@@ -247,7 +247,11 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->button()
                     ->label('Import ')
                     ->modalHeading('Import Beneficiary File')
-                    ->modalDescription('Import an Excel file containing beneficiary data. The file should have the column **Name**.'),
+                    ->modalDescription('Import an Excel file containing beneficiary data. The file should have the column **Name**.')
+                    ->hidden(function(Model $record){
+                        return $record->is_locked;
+                    })
+                    ,
                   
 
                     Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
@@ -274,9 +278,10 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make()
+                //     ,
+                // ]),
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $query->byDistribution($this->getRecord()->id);

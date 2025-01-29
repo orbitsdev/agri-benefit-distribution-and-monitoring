@@ -13,6 +13,8 @@ use App\Http\Middleware\EnsureDistributionIsUnlocked;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use App\Filament\Barangay\Resources\DistributionResource\Pages\EditDistribution;
 use App\Models\Distribution;
+use App\Models\DistributionItem;
+use App\Policies\DistributionItemPolicy;
 use App\Policies\DistributionPolicy;
 
 class AppServiceProvider extends ServiceProvider
@@ -47,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::policy(Distribution::class, DistributionPolicy::class);
+        Gate::policy(DistributionItem::class, DistributionItemPolicy::class);
 
     }
 }
