@@ -71,10 +71,10 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
 
                 TextColumn::make('quantity')
                     ->searchable()
-                    ->label('Qty'),
+                    ->label('Qty')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('original_quantity')
-                    ->label('Original Qty')->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('beneficiaries_count')->counts('beneficiaries')->label('Beneficiaries'),
+                    ->label('Original Qty')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('beneficiaries_count')->counts('beneficiaries')->label('Beneficiaries')->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('is_locked')
     ->label('Lock Status')
