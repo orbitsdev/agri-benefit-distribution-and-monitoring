@@ -47,7 +47,7 @@ class DistributionPolicy
      */
     public function delete(User $user, Distribution $distribution): bool
     {
-        return true;
+        return  $distribution->is_locked ? false : true;
     }
 
     /**

@@ -27,6 +27,12 @@ class Distribution extends Model
         self::STATUS_CANCELED => 'Canceled',
     ];
 
+    protected function casts():array{
+        return [
+            'is_locked'=> 'boolean'
+        ];
+
+    }
 
     public function barangay(){
         return $this->belongsTo(Barangay::class);

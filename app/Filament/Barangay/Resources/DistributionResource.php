@@ -8,8 +8,10 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Distribution;
 use Filament\Resources\Resource;
+use Filament\Actions\StaticAction;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Actions\Action;
+use Illuminate\Contracts\View\View;
 use App\Http\Controllers\FilamentForm;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -86,6 +88,23 @@ class DistributionResource extends Resource
 
                         default => 'gray'
                     }),
+                    Tables\Columns\TextColumn::make('is_locked')
+    ->label('Lock Status')
+    ->formatStateUsing(function ($state) {
+        return $state ? 'Locked' : 'Unlocked';
+    })
+    ->icon(function ($state) {
+        return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
+    })
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        0 => 'gray',
+                        1=> 'success',
+                        default=> 'gray'
+                        
+                    }),
+                    
+                
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -100,27 +119,54 @@ class DistributionResource extends Resource
                 ->options(Distribution::STATUS_OPTIONS)->searchable()
             ])
             ->actions([
-              Action::make('Lock and Unlock')->action(function(Model $record){
+                Action::make('Lock and Unlock')->action(function(Model $record){
 
-                $record->is_locked =!$record->is_locked;
-                $record->save();
-                //show filament notification
-                Notification::make()
-                                    ->title('Lock/Unlock Status')
-                                    ->success()
-                                    ->body("Status of distribution '{$record->title}' has been updated to ". ($record->is_locked? 'Locked' : 'Unlocked'). ".")
-                                    ->send();
-
-
-
-
-
-
-                })->requiresConfirmation()->button()->icon('heroicon-o-lock-closed')->label(function(Model $record){
-                    return $record->is_locked ? 'Unlock' : 'Lock';
-                }),
+                    $record->is_locked = !$record->is_locked;
+                    $record->save();
+                
+                   
+                    Notification::make()
+                        ->title('Lock/Unlock Status')
+                        ->success()
+                        ->body("Status of distribution '{$record->title}' has been updated to " . ($record->is_locked ? 'Locked' : 'Unlocked') . ".")
+                        ->send();
+                
+                })->requiresConfirmation()
+                  ->button()
+                  ->outlined(function(Model $record){
+                    return !$record->is_locked;
+                  })
+                  ->icon('heroicon-o-lock-closed')
+                  ->color(function(Model $record){
+                    return $record->is_locked ? 'danger' : 'primary';
+                  })
+                  ->label(function(Model $record){
+                      return $record->is_locked ? 'Unlock' : 'Lock ';
+                  })
+                  ->modalDescription(function (Model $record) {
+                    return $record->is_locked 
+                        ? "Are you sure you want to unlock this item? Unlocking will allow modifications. Be careful with your decision." 
+                        : "Are you sure you want to lock this item? Locking will prevent further modifications. Be careful with your decision.";
+                })
+                  ->tooltip(function(Model $record){
+                    return $record->is_locked 
+                    ? 'This item is currently locked and cannot be modified. Be careful with your decision. Click to unlock and enable editing.' 
+                    : 'This item is currently unlocked. Be careful with your decision. Click to lock and prevent modifications.';
+                  }),
+                
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
+                    
+                    Action::make('View')
+                    ->color('gray')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->modalSubmitAction(false)
+                    ->modalContent(fn(Model $record): View => view(
+                        'livewire.view-distribution',
+                        ['record' => $record],
+                    ))
+                    ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                    ->closeModalByClickingAway(false)->modalWidth('7xl'),
                     Tables\Actions\EditAction::make()->label('Manage'),
                     Tables\Actions\DeleteAction::make()->color('gray'),
                 ]),
