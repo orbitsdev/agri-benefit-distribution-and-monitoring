@@ -59,7 +59,11 @@ class DistributionItemsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make() ->mutateFormDataUsing(function (array $data): array {
+                    
+             
+                    return $data;
+                }),
 
             ])
             ->actions([

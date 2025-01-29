@@ -22,6 +22,7 @@ class CreateDistribution extends CreateRecord
 
     $data['barangay_id'] = $barangayId;
 
+    // dd('data');
 
     return $data;
 }

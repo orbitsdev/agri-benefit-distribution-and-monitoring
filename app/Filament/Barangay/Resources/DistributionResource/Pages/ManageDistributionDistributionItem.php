@@ -15,6 +15,7 @@ use Illuminate\Contracts\View\View;
 use App\Imports\BeneficiariesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\FilamentForm;
+use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -49,7 +50,8 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
     // {
     //     return 'Distribution Items';
     // }
-
+    
+    
 
 
     public function form(Form $form): Form
@@ -69,8 +71,26 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
 
                 TextColumn::make('quantity')
                     ->searchable()
-                    ->label('Quantity'),
+                    ->label('Qty'),
+                TextColumn::make('original_quantity')
+                    ->label('Original Qty')->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('beneficiaries_count')->counts('beneficiaries')->label('Beneficiaries'),
+
+                Tables\Columns\TextColumn::make('is_locked')
+    ->label('Lock Status')
+    ->formatStateUsing(function ($state) {
+        return $state ? 'Locked' : 'Unlocked';
+    })
+    ->icon(function ($state) {
+        return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
+    })
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        0 => 'gray',
+                        1=> 'success',
+                        default=> 'gray'
+                        
+                    }),
             ])
             ->filters([
                 //
@@ -108,10 +128,53 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
             ])
             ->actions([
 
+              
+                Action::make('Lock and Unlock')->action(function(Model $record){
 
-             
+
+
+
+                    $record->is_locked = !$record->is_locked;
+
+                    if($record->is_locked){
+                        $record->original_quantity = $record->quantity;
+                    }
+
+                    $record->save();
+                
+                   
+                    Notification::make()
+                        ->title('Lock/Unlock Status')
+                        ->success()
+                        ->body("Status of distribution '{$record->title}' has been updated to " . ($record->is_locked ? 'Locked' : 'Unlocked') . ".")
+                        ->send();
+                
+                })->requiresConfirmation()
+                  ->button()
+                  ->outlined(function(Model $record){
+                    return !$record->is_locked;
+                  })
+                  ->icon('heroicon-o-lock-closed')
+                  ->color(function(Model $record){
+                    return $record->is_locked ? 'danger' : 'primary';
+                  })
+                  ->label(function(Model $record){
+                      return $record->is_locked ? 'Unlock' : 'Lock ';
+                  })
+                  ->modalDescription(function (Model $record) {
+                    return $record->is_locked 
+                        ? "Are you sure you want to unlock this item? Unlocking will allow modifications. Be careful with your decision." 
+                        : "Are you sure you want to lock this item? Locking will prevent further modifications. Be careful with your decision.";
+                })
+                  ->tooltip(function(Model $record){
+                    return $record->is_locked 
+                    ? 'This item is currently locked and cannot be modified. Be careful with your decision. Click to unlock and enable editing.' 
+                    : 'This item is currently unlocked. Be careful with your decision. Click to lock and prevent modifications.';
+                  })  
+                  ->size(ActionSize::ExtraSmall),
 
                     Action::make('Import')
+                    ->size(ActionSize::ExtraSmall)
                     ->button()
                     ->action(function (array $data, Model $record): void {
                         if (!$record->id || !$record->distribution_id) {
@@ -185,10 +248,14 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->label('Import ')
                     ->modalHeading('Import Beneficiary File')
                     ->modalDescription('Import an Excel file containing beneficiary data. The file should have the column **Name**.'),
+                  
+
                     Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
-                    ->modalWidth('7xl') // Set modal width
+                    ->modalWidth('7xl')
+                    ->size(ActionSize::ExtraSmall) // Set modal width
                     ->button()
-                    ->label('View Beneficiaries') // Add label for better UX
+                    
+                    ->label('Beneficiaries') // Add label for better UX
                     ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
                     ->url(function (Model $record) {
                         return route('filament.barangay.resources.distribution-items.beneficiaries', ['record' => $record->id]);
@@ -196,8 +263,6 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->hidden(function (Model $record) {
                         return !$record->hasBeneficiaries();
                     }),
-
-
 
 
                 ActionGroup::make([

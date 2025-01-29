@@ -29,10 +29,8 @@ class CreateDistributionDistributionItem extends CreateRelatedRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
 {
-    // $data['user_id'] = auth()->id();
+    $data['original_quantity'] = $data['quantity'];
 
-    // dd($this->getRecord());
-    // dd($data);
     return $data;
 }
 
