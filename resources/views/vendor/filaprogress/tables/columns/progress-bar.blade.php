@@ -1,43 +1,47 @@
 @php
     $total = $getState()['total'];
-    $progress = $getState()['progress'];
-    $progress = $total > 0 ? ($progress / $total) * 100 : 0;
+    $claimed = $getState()['progress'];
+    $remaining = $getState()['remaining'];
 
-    if($progress == 100){
-        $progressColor = '#2980b9';
-    } else if($progress > 50){
-        $progressColor = '#27ae60';
-    } else if($progress > 25){
-        $progressColor = '#f39c12';
+    // Calculate the percentage
+    $progressPercent = $total > 0 ? round(($claimed / $total) * 100, 2) : 0;
+
+    // Dynamic color based on progress
+    if ($progressPercent == 100) {
+        $progressColor = '#2980b9'; // Blue (Completed)
+    } elseif ($progressPercent > 50) {
+        $progressColor = '#27ae60'; // Green (>50% completed)
+    } elseif ($progressPercent > 25) {
+        $progressColor = '#f39c12'; // Orange (>25% completed)
     } else {
-        $progressColor = '#e74c3c';
+        $progressColor = '#e74c3c'; // Red (<25% completed)
     }
-
-    $displayProgress = $progress == 100 ? number_format($progress, 0) : number_format($progress, 2);
 @endphp
 
-<div class="progress-container">
-    <div class="progress-bar" style="width: {{ $displayProgress }}%; background-color: {{ $progressColor }};"></div>
-    <div class="progress-text">
-        @if($column instanceof \IbrahimBougaoua\FilaProgress\Tables\Columns\ProgressBar && $column->getCanShow())
-            <small @class([
-                'text-gray-700' => $displayProgress != 100,
-                'text-white' => $displayProgress == 100
-                ])>
-                {{ $displayProgress }}%
+
+<div class="parent">
+    <div class="progress-container">
+        <div class="progress-bar" style="width: {{ $progressPercent }}%; background-color: {{ $progressColor }};"></div>
+        <div class="progress-text">
+            <small>
+                {{ $progressPercent }}%
             </small>
-        @endif
+        </div>
     </div>
 
-    {{-- <div class="progress-summary">
+    <!-- Show exact claimed vs remaining values below -->
+    <div class="progress-summary">
         <span class="progress-current">
-            Claimed: {{ $progress }} / {{ $total }}
+             {{ $claimed }} / {{ $total }}  Remaining
         </span>
-    </div> --}}
+    </div>
 
 </div>
 
 <style>
+    .parent{
+        width: 100%;
+    }
     .progress-container {
         width: 100%;
         background-color: #e5e7eb;
@@ -55,7 +59,7 @@
     }
     .progress-text {
         text-align: center;
-        font-size: 0.875rem;
+        font-size: 0.775rem;
         position: absolute;
         width: 100%;
         height: 100%;
@@ -68,6 +72,14 @@
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
+    .progress-summary {
+        position: relative;
+        text-align: right;
+        font-size: 0.8rem;
+        margin-top: 4px;
+        color: #555;
+        font-weight: bold;
+    }
 
     /* .progress-bar::after {
         content: '';
@@ -79,7 +91,7 @@
         animation: progress-bar-stripes 1s linear infinite;
     } */
 
-    
+
     @keyframes progress-bar-stripes {
         from {
             background-position: 40px 0;

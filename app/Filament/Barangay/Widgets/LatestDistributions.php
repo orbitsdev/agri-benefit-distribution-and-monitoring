@@ -48,8 +48,9 @@ class LatestDistributions extends BaseWidget
                     ->label('Progress')
                 ->getStateUsing(function (Model $record) {
                     return [
-                        'total' => $record->total_beneficiaries, // Get total beneficiaries from model
-                        'progress' => $record->claimed_beneficiaries, // Get claimed beneficiaries from model
+                        'total' => $record->total_beneficiaries,
+                        'progress' => $record->claimed_beneficiaries,
+                        'remaining' => $record->total_beneficiaries - $record->claimed_beneficiaries,
                     ];
                 })
                 ->hideProgressValue(true),
