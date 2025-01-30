@@ -26,13 +26,13 @@ class LatestDistributions extends BaseWidget
                     ->searchable()->wrap(),
                     Tables\Columns\TextColumn::make('code')
                     ->copyable()
-                    ->searchable()->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable()->toggleable(isToggledHiddenByDefault: false),
                     Tables\Columns\TextColumn::make('distribution_date')
                     ->date()
                     ->label('Date')
-                    ->sortable()->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable()->toggleable(),
                     Tables\Columns\TextColumn::make('location')
-                    ->searchable()->label('Location/Venue')->wrap()->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable()->label('Location/Venue')->wrap()->toggleable(),
                     Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {

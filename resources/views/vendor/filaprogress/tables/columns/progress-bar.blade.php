@@ -78,6 +78,8 @@
         background-size: 40px 40px;
         animation: progress-bar-stripes 1s linear infinite;
     } */
+
+    
     @keyframes progress-bar-stripes {
         from {
             background-position: 40px 0;
