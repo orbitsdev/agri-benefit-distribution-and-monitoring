@@ -2,12 +2,14 @@
 
 use App\Mail\QrMail;
 use App\Models\User;
+use App\Livewire\Test;
 use App\Models\Beneficiary;
 use App\Livewire\MemberDashboard;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Log;
+use App\Filament\Barangay\Pages\ListOfBeneficiaries;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -40,6 +42,8 @@ Route::middleware([
     })->name('dashboard');
 
     Route::get('/member-dashboard', MemberDashboard::class )->name('member.dashboard');
+
+    // Route::get('chat/', ListOfBeneficiaries::class);
 });
 
 Route::get('/test-qr-mail', function () {

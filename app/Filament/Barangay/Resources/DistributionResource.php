@@ -23,12 +23,15 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use App\Filament\Barangay\Pages\ListOfBeneficiaries;
 use App\Http\Middleware\EnsureDistributionIsUnlocked;
 use Guava\FilamentNestedResources\Concerns\NestedResource;
 use App\Filament\Barangay\Resources\DistributionResource\Pages;
 use App\Filament\Barangay\Resources\DistributionResource\RelationManagers;
 use App\Filament\Barangay\Resources\DistributionItemResource\Pages\ListDistributionItems;
 use App\Filament\Barangay\Resources\DistributionItemResource\Pages\CreateDistributionItem;
+use App\Filament\Barangay\Resources\DistributionResource\Pages\ListOfDistributionBeneficiaries;
 
 class DistributionResource extends Resource
 {
@@ -157,39 +160,53 @@ class DistributionResource extends Resource
                     : 'This item is currently unlocked. Be careful with your decision. Click to lock and prevent modifications.';
                   }),
 
-                  Action::make('update_status')
-                  ->label('Change Status')
-                  ->button()
-                  ->size(ActionSize::ExtraSmall)
-                  ->outlined()
-    ->form([
-        Select::make('status')
-            ->label('Status')
-            ->options(Distribution::STATUS_OPTIONS)
-            ->required(),
-    ])
-    ->action(function (array $data, Model $record): void {
-        $record->update($data);
-    })->hidden(function(Model $record){
-        return !$record->is_locked;
-    }),
-                  Action::make('View')
-                  ->size(ActionSize::ExtraSmall)
-                  ->color('primary')
-                  ->label('View')
-                  ->icon('heroicon-o-eye')
-                  ->modalSubmitAction(false)
+
+                  Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
+                  ->modalWidth('7xl')
+                  ->size(ActionSize::ExtraSmall) // Set modal width
                   ->button()
 
-                  ->modalContent(fn(Model $record): View => view(
-                      'livewire.view-distribution',
-                      ['record' => $record],
-                  ))
-                  ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
-                  ->closeModalByClickingAway(false)->modalWidth('7xl'),
+                  ->label('Beneficiaries') // Add label for better UX
+                  ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
+                  ->url(function (Model $record) {
+
+                    return DistributionResource::getUrl('distribution-beneficiaries',['record'=>$record->id]);
+
+                  }, shouldOpenInNewTab: true)
+                ,
+
 
                 ActionGroup::make([
+                    Action::make('update_status')
+                    ->label('Change Status')
+                    ->button()
+                    ->size(ActionSize::ExtraSmall)
+                    ->outlined()
+      ->form([
+          Select::make('status')
+              ->label('Status')
+              ->options(Distribution::STATUS_OPTIONS)
+              ->required(),
+      ])
+      ->action(function (array $data, Model $record): void {
+          $record->update($data);
+      })->hidden(function(Model $record){
+          return !$record->is_locked;
+      }),
+                    Action::make('View')
+                    ->size(ActionSize::ExtraSmall)
+                    ->color('primary')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->modalSubmitAction(false)
+                    // ->button()
 
+                    ->modalContent(fn(Model $record): View => view(
+                        'livewire.view-distribution',
+                        ['record' => $record],
+                    ))
+                    ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                    ->closeModalByClickingAway(false)->modalWidth('7xl'),
 
                     Tables\Actions\EditAction::make()->label('Manage'),
                     Tables\Actions\DeleteAction::make()->color('gray'),
@@ -216,10 +233,12 @@ class DistributionResource extends Resource
     public static function getPages(): array
     {
         return [
+
             'index' => Pages\ListDistributions::route('/'),
             'create' => Pages\CreateDistribution::route('/create'),
             // 'view' => Pages\ViewDistribution::route('/{record}'),
             'edit' => Pages\EditDistribution::route('/{record}/edit'),
+            'distribution-beneficiaries' => Pages\ListOfDistributionBeneficiaries::route('/{record}/distribution-beneficiaries'),
             'distributionItems' => Pages\ManageDistributionDistributionItem::route('/{record}/distributionItems'),
             'supports' => Pages\ManageDistributionSupports::route('/{record}/supports'),
 
@@ -229,6 +248,8 @@ class DistributionResource extends Resource
 
         ];
     }
+
+
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([

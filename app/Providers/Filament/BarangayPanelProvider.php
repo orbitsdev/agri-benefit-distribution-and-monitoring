@@ -8,6 +8,7 @@ use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use App\Http\Middleware\EnsureIsAdmin;
+use Filament\Navigation\NavigationItem;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -31,7 +32,7 @@ class BarangayPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#4CAF50',
             ])
-            
+
             ->discoverResources(in: app_path('Filament/Barangay/Resources'), for: 'App\\Filament\\Barangay\\Resources')
             ->discoverPages(in: app_path('Filament/Barangay/Pages'), for: 'App\\Filament\\Barangay\\Pages')
             ->pages([
@@ -55,6 +56,17 @@ class BarangayPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 EnsureIsAdmin::class
-            ]);
+            ])
+            ->navigationItems([
+
+
+                NavigationItem::make('Chat')
+        ->url(fn (): string => url('/chats'),shouldOpenInNewTab: true) // Link to the chat page
+        ->icon('heroicon-o-chat-bubble-left-right') // Chat icon
+        ->group('Communication') // Optional: Group
+       
+        ->sort(1), ])
+
+            ;
     }
 }
