@@ -12,7 +12,9 @@ use Filament\Actions\StaticAction;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\View\View;
+use Filament\Forms\Components\Select;
 use App\Http\Controllers\FilamentForm;
+use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
@@ -133,6 +135,7 @@ class DistributionResource extends Resource
 
                 })->requiresConfirmation()
                   ->button()
+                  ->size(ActionSize::ExtraSmall)
                   ->outlined(function(Model $record){
                     return !$record->is_locked;
                   })
@@ -154,7 +157,24 @@ class DistributionResource extends Resource
                     : 'This item is currently unlocked. Be careful with your decision. Click to lock and prevent modifications.';
                   }),
 
+                  Action::make('update_status')
+                  ->label('Change Status')
+                  ->button()
+                  ->size(ActionSize::ExtraSmall)
+                  ->outlined()
+    ->form([
+        Select::make('status')
+            ->label('Status')
+            ->options(Distribution::STATUS_OPTIONS)
+            ->required(),
+    ])
+    ->action(function (array $data, Model $record): void {
+        $record->update($data);
+    })->hidden(function(Model $record){
+        return !$record->is_locked;
+    }),
                   Action::make('View')
+                  ->size(ActionSize::ExtraSmall)
                   ->color('primary')
                   ->label('View')
                   ->icon('heroicon-o-eye')

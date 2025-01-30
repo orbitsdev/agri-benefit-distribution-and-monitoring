@@ -17,7 +17,10 @@ class SupportRoleResource extends Resource
 {
     protected static ?string $model = SupportRole::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'vaadin-handshake';
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Setup';
+
 
     public static function form(Form $form): Form
     {
@@ -52,13 +55,13 @@ class SupportRoleResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 

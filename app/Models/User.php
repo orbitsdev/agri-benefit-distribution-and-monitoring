@@ -131,7 +131,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
     }
 
 
-    // scope where doesnt have the same barnaggau personne 
+    // scope where doesnt have the same barnaggau personne
     public function scopeNotRegisteredInSameBarangay($query, $barangay_id)
     {
         return $query->whereDoesntHave('personnels', function ($query) use ($barangay_id) {
@@ -145,7 +145,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
         return $this->hasMany(Transaction::class,'admin_id') ;
     }
 
-  
+
 
     public function scopeIsMember($query)
     {
@@ -162,6 +162,18 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
         return $query->where('role', '!=', self::ADMIN);
     }
 
-    // scope is not admin
+
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    // Scope for inactive users
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
+    }
+
 
 }

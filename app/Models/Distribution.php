@@ -63,5 +63,100 @@ class Distribution extends Model
     public function scopeByBarangay($query, $barangay_id){
         return $query->where('barangay_id', $barangay_id);
     }
-    
+
+    public function scopeNotCanceled($query)
+    {
+        return $query->where('status', '!=', self::STATUS_CANCELED);
+    }
+
+    public function scopePlanned($query)
+    {
+        return $query->where('status', self::STATUS_PLANNED);
+    }
+
+    public function scopeOngoing($query)
+    {
+        return $query->where('status', self::STATUS_ONGOING);
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', self::STATUS_COMPLETED);
+    }
+
+    public function scopeCanceled($query)
+    {
+        return $query->where('status', self::STATUS_CANCELED);
+    }
+    public function scopeLocked($query)
+    {
+        return $query->where('is_locked', true);
+    }
+
+
+    public function scopeOngoingOrCompleted($query)
+{
+    return $query->whereIn('status', [self::STATUS_ONGOING, self::STATUS_COMPLETED]);
+}
+
+
+
+// public function getProgressPercentageAttribute()
+// {
+//     // Get total number of beneficiaries
+//     $totalBeneficiaries = $this->distributionItems()
+//         ->withCount('beneficiaries')
+//         ->get()
+//         ->sum('beneficiaries_count');
+
+//     // Get total number of claimed beneficiaries
+//     $claimedBeneficiaries = $this->distributionItems()
+//         ->withCount(['beneficiaries as claimed_count' => function ($query) {
+//             $query->where('status', 'Claimed');
+//         }])
+//         ->get()
+//         ->sum('claimed_count');
+
+//     // Avoid division by zero
+//     if ($totalBeneficiaries === 0) {
+//         return 0;
+//     }
+
+//     // Calculate the percentage
+//     return round(($claimedBeneficiaries / $totalBeneficiaries) * 100, 2);
+// }
+
+
+
+public function getTotalBeneficiariesAttribute()
+{
+    return $this->distributionItems()
+        ->withCount('beneficiaries')
+        ->get()
+        ->sum('beneficiaries_count');
+}
+
+public function getClaimedBeneficiariesAttribute()
+{
+    return $this->distributionItems()
+        ->withCount(['beneficiaries as claimed_count' => function ($query) {
+            $query->where('status', 'Claimed');
+        }])
+        ->get()
+        ->sum('claimed_count');
+}
+
+public function getProgressPercentageAttribute()
+{
+    $total = $this->total_beneficiaries;
+    $claimed = $this->claimed_beneficiaries;
+
+    if ($total === 0) {
+        return 0;
+    }
+
+    return round(($claimed / $total) * 100, 2);
+}
+
+
 }
