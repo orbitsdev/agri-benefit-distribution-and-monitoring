@@ -24,23 +24,23 @@ class DistributionItemsRelationManager extends RelationManager
         return $form
             ->schema([
                 Select::make('item_id')
-                                        ->label('Item')
-                                        ->relationship(
-                                            'item',
-                                            'id',
-                                            modifyQueryUsing: fn(Builder $query) => $query,
-                                        )
-                                        ->distinct()
-                                        ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                        ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->name}")
-                                        ->searchable(['name'])
-                                        ->preload()
-                                        ->required(),
-                                    TextInput::make('quantity')
-                                        ->numeric()
+                    ->label('Item')
+                    ->relationship(
+                        'item',
+                        'id',
+                        modifyQueryUsing: fn(Builder $query) => $query,
+                    )
+                    ->distinct()
+                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                    ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->name}")
+                    ->searchable(['name'])
+                    ->preload()
+                    ->required(),
+                TextInput::make('quantity')
+                    ->numeric()
 
-                                        ->minValue(1)
-                                        ->required(),
+                    ->minValue(1)
+                    ->required(),
             ]);
     }
 
@@ -59,45 +59,45 @@ class DistributionItemsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make() ->mutateFormDataUsing(function (array $data): array {
-                    
-             
+                Tables\Actions\CreateAction::make()->mutateFormDataUsing(function (array $data): array {
+
+
                     return $data;
                 }),
 
             ])
             ->actions([
                 Action::make('Import')
-    ->button()
-    ->action(function (array $data): void {
-        // Uncomment and modify the following lines as needed for import functionality:
+                    ->button()
+                    ->action(function (array $data): void {
+                        // Uncomment and modify the following lines as needed for import functionality:
 
-        // $file  = Storage::disk('public')->path($data['file']);
-        // Excel::import(new BeneficiariesImport, $file);
+                        // $file  = Storage::disk('public')->path($data['file']);
+                        // Excel::import(new BeneficiariesImport, $file);
 
-        // if (Storage::disk('public')->exists($data['file'])) {
-        //     Storage::disk('public')->delete($data['file']);
-        // }
-    })
-    ->icon('heroicon-o-arrow-up-tray')
-    ->form([
-        FileUpload::make('file')
-            ->acceptedFileTypes([
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/csv',
-                'text/csv',
-                'text/plain',
-            ])
-            ->disk('public')
-            ->directory('imports')
-            ->label('Excel File'),
-    ])
-    ->outlined()
-    ->button()
-    ->label('Import Beneficiaries')
-    ->modalHeading('Upload Beneficiary File')
-    ->modalDescription('Follow these instructions to import beneficiaries into the system:
+                        // if (Storage::disk('public')->exists($data['file'])) {
+                        //     Storage::disk('public')->delete($data['file']);
+                        // }
+                    })
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->form([
+                        FileUpload::make('file')
+                            ->acceptedFileTypes([
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/csv',
+                                'text/csv',
+                                'text/plain',
+                            ])
+                            ->disk('public')
+                            ->directory('imports')
+                            ->label('Excel File'),
+                    ])
+                    ->outlined()
+                    ->button()
+                    ->label('Import Beneficiaries')
+                    ->modalHeading('Upload Beneficiary File')
+                    ->modalDescription('Follow these instructions to import beneficiaries into the system:
 
 1. Ensure your file is in the correct format (`.xlsx`, `.xls`, or `.csv`).
 2. The file must include these columns:

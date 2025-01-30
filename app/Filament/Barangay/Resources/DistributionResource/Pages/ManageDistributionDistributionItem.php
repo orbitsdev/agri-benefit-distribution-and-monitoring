@@ -50,8 +50,8 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
     // {
     //     return 'Distribution Items';
     // }
-    
-    
+
+
 
 
     public function form(Form $form): Form
@@ -71,25 +71,24 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
 
                 TextColumn::make('quantity')
                     ->searchable()
-                    ->label('Qty')->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Qty')->toggleable(),
                 TextColumn::make('original_quantity')
-                    ->label('Original Qty')->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('beneficiaries_count')->counts('beneficiaries')->label('Beneficiaries')->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Original Qty')->toggleable(),
+                TextColumn::make('beneficiaries_count')->counts('beneficiaries')->label('Beneficiaries')->toggleable(isToggledHiddenByDefault:true),
 
                 Tables\Columns\TextColumn::make('is_locked')
-    ->label('Lock Status')
-    ->formatStateUsing(function ($state) {
-        return $state ? 'Locked' : 'Unlocked';
-    })
-    ->icon(function ($state) {
-        return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
-    })
+                    ->label('Lock Status')
+                    ->formatStateUsing(function ($state) {
+                        return $state ? 'Locked' : 'Unlocked';
+                    })
+                    ->icon(function ($state) {
+                        return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
+                    })
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         0 => 'gray',
-                        1=> 'success',
-                        default=> 'gray'
-                        
+                        1 => 'success',
+                        default => 'gray'
                     }),
             ])
             ->filters([
@@ -128,52 +127,51 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
             ])
             ->actions([
 
-              
-                Action::make('Lock and Unlock')->action(function(Model $record){
+
+                Action::make('Lock and Unlock')->action(function (Model $record) {
 
 
 
 
                     $record->is_locked = !$record->is_locked;
 
-                    if($record->is_locked){
-                        $record->original_quantity = $record->quantity;
-                    }
+                    // if ($record->is_locked) {
+                    //     $record->original_quantity = $record->quantity;
+                    // }
 
                     $record->save();
-                
-                   
+
+
                     Notification::make()
                         ->title('Lock/Unlock Status')
                         ->success()
                         ->body("Status of distribution '{$record->title}' has been updated to " . ($record->is_locked ? 'Locked' : 'Unlocked') . ".")
                         ->send();
-                
                 })->requiresConfirmation()
-                  ->button()
-                  ->outlined(function(Model $record){
-                    return !$record->is_locked;
-                  })
-                  ->icon('heroicon-o-lock-closed')
-                  ->color(function(Model $record){
-                    return $record->is_locked ? 'danger' : 'primary';
-                  })
-                  ->label(function(Model $record){
-                      return $record->is_locked ? 'Unlock' : 'Lock ';
-                  })
-                  ->modalDescription(function (Model $record) {
-                    return $record->is_locked 
-                        ? "Are you sure you want to unlock this item? Unlocking will allow modifications. Be careful with your decision." 
-                        : "Are you sure you want to lock this item? Locking will prevent further modifications. Be careful with your decision.";
-                })
-                  ->tooltip(function(Model $record){
-                    return $record->is_locked 
-                    ? 'This item is currently locked and cannot be modified. Be careful with your decision. Click to unlock and enable editing.' 
-                    : 'This item is currently unlocked. Be careful with your decision. Click to lock and prevent modifications.';
-                  })  
-                  ->size(ActionSize::ExtraSmall),
+                    ->button()
+                    ->outlined(function (Model $record) {
+                        return !$record->is_locked;
+                    })
+                    ->icon('heroicon-o-lock-closed')
+                    ->color(function (Model $record) {
+                        return $record->is_locked ? 'danger' : 'primary';
+                    })
+                    ->label(function (Model $record) {
+                        return $record->is_locked ? 'Unlock' : 'Lock ';
+                    })
+                    ->modalDescription(function (Model $record) {
+                        return $record->is_locked
+                            ? "Are you sure you want to unlock this item? Unlocking will allow modifications. Be careful with your decision."
+                            : "Are you sure you want to lock this item? Locking will prevent further modifications. Be careful with your decision.";
+                    })
+                    ->tooltip(function (Model $record) {
+                        return $record->is_locked
+                            ? 'This item is currently locked and cannot be modified. Be careful with your decision. Click to unlock and enable editing.'
+                            : 'This item is currently unlocked. Be careful with your decision. Click to lock and prevent modifications.';
+                    })
+                    ->size(ActionSize::ExtraSmall),
 
-                    Action::make('Import')
+                Action::make('Import')
                     ->size(ActionSize::ExtraSmall)
                     ->button()
                     ->action(function (array $data, Model $record): void {
@@ -185,28 +183,28 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                                 ->send();
                             return;
                         }
-                
+
                         $distributionItemId = $record->id;
                         $distributionId = $record->distribution_id;
-                
+
                         // Get the file path
                         $file = Storage::disk('public')->path($data['file']);
-                
+
                         // Track failure count directly during import
                         $failures = 0;
-                
+
                         try {
                             // Use a custom import class with error tracking
                             Excel::import(new BeneficiariesImport($distributionItemId, $distributionId, $failures), $file);
-                
+
                             // Clean up the uploaded file
                             if (Storage::disk('public')->exists($data['file'])) {
                                 Storage::disk('public')->delete($data['file']);
                             }
-                
+
                             // Count total uploaded records
                             $totalUploaded = Beneficiary::where('distribution_item_id', $distributionItemId)->count();
-                
+
                             // Show notifications based on failures
                             if ($failures > 0) {
                                 Notification::make()
@@ -248,17 +246,16 @@ class ManageDistributionDistributionItem extends ManageRelatedRecords
                     ->label('Import ')
                     ->modalHeading('Import Beneficiary File')
                     ->modalDescription('Import an Excel file containing beneficiary data. The file should have the column **Name**.')
-                    ->hidden(function(Model $record){
+                    ->hidden(function (Model $record) {
                         return $record->is_locked;
-                    })
-                    ,
-                  
+                    }),
 
-                    Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
+
+                Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
                     ->modalWidth('7xl')
                     ->size(ActionSize::ExtraSmall) // Set modal width
                     ->button()
-                    
+
                     ->label('Beneficiaries') // Add label for better UX
                     ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
                     ->url(function (Model $record) {

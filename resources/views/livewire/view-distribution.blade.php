@@ -1,7 +1,7 @@
 <div>
     <div class="container ">
-       
-    
+
+
         <!-- Section: Distribution Details -->
         <div class="bg-white shadow-md rounded-lg p-6 mb-8">
             <div class="flex items-start justify-between">
@@ -31,28 +31,28 @@
                 </div> --}}
             </div>
         </div>
-    
-   
+
+
         {{-- <div class="bg-white shadow-md rounded-lg p-6 mb-8">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Distribution Items</h2>
             <div class="divide-y divide-gray-200">
 
                 @foreach ($record->distributionItems as $distributionItem)
-                    
-          
+
+
                 <div class="">
                     <div class="flex justify-between items-center">
                         <p class="text-gray-800 font-medium">{{$distributionItem->item->name}}</p>
                         <span class="text-sm text-gray-500">{{$distributionItem->original_quantity}}</span>
                     </div>
-                   
+
                 </div>
                 @endforeach
-              
-            
+
+
             </div>
         </div> --}}
-    
+
         <!-- Section: Support -->
         <div class="bg-white shadow-md rounded-lg p-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Items</h2>
@@ -78,8 +78,8 @@
                         </td>
                     </tr>
                 @endforelse
-                
-                    
+
+
                 </tbody>
             </table>
         </div>
@@ -95,8 +95,27 @@
                                 <p class="mt-1 truncate text-xs text-gray-500">{{ $support->personnel->user->email }} / {{ $support->personnel->contact_number }}</p>
                             </div>
                         </div>
-                        <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                            <p class="text-sm text-gray-900">{{ $support->type }}</p>
+
+                        <div>
+
+                            <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end items-center justify-center">
+                                <p class="text-sm text-success-900 px-4">{{ $support->type }}</p>
+
+                                <div class="text-sm ">
+                                    <ul>
+                                        @if ($support->enable_item_scanning)
+                                        <li>- Item Scanning</li>
+                                        @endif
+                                        @if ($support->enable_beneficiary_management)
+                                        <li>- Manage Beneficiaries</li>
+                                        @endif
+                                        @if ($support->enable_list_access)
+                                        <li>- Access Beneficiaries Record</li>
+                                        @endif
+                                    </ul>
+                                </div>
+                            </div>
+
                         </div>
                     </li>
                 @empty
@@ -106,7 +125,7 @@
                 @endforelse
             </ul>
         </div>
-        
+
     </div>
-    
+
 </div>

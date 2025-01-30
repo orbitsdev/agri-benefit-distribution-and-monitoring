@@ -14,8 +14,11 @@ use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use App\Filament\Barangay\Resources\DistributionResource\Pages\EditDistribution;
 use App\Models\Distribution;
 use App\Models\DistributionItem;
+use App\Models\Support;
 use App\Policies\DistributionItemPolicy;
 use App\Policies\DistributionPolicy;
+use App\Policies\SupportPolicy;
+use Filament\Support\Colors\Color;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,8 +51,10 @@ class AppServiceProvider extends ServiceProvider
             return redirect('/dashboard');
         });
 
+
         Gate::policy(Distribution::class, DistributionPolicy::class);
         Gate::policy(DistributionItem::class, DistributionItemPolicy::class);
+        Gate::policy(Support::class, SupportPolicy::class);
 
     }
 }

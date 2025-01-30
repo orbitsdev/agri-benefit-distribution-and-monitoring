@@ -46,7 +46,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
     {
         return 'Supports';
     }
-
+    
 
     protected function getDistribution(): Model
     {
@@ -101,7 +101,18 @@ class ManageDistributionSupports extends ManageRelatedRecords
                                 'sm' => 2,
                                 'md' => 4,
                                 'lg' => 4,
-                            ]),
+                            ])->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->required(),
+                                Forms\Components\Textarea::make('description')
+                                    ->required(),
+
+                            ])
+                            ->createOptionUsing(function (array $data) {
+                              return SupportRole::create($data)->name;
+
+                            }),
+
 
                         // Unique Code Field
                         TextInput::make('unique_code')
@@ -191,7 +202,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
             ])
             ->actions([
                 ActionGroup::make([
-                   
+
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()->disabled(fn (Model $record) => $this->getDistribution()->is_locked) // Disable if distribution is locked
                     ->tooltip(function (Model $record) {

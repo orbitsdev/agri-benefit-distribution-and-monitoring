@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('support_roles', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Name of the support role (e.g., Scanner, Checker)
-            $table->string('description')->nullable(); 
+            $table->string('description')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
     }
