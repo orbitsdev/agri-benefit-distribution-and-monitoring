@@ -60,13 +60,16 @@ class BarangayPanelProvider extends PanelProvider
             ->navigationItems([
 
 
-                NavigationItem::make('Chat')
-        ->url(fn (): string => url('/chats'),shouldOpenInNewTab: true) // Link to the chat page
-        ->icon('heroicon-o-chat-bubble-left-right') // Chat icon
-        ->group('Communication') // Optional: Group
-       
-        ->sort(1), ])
+                // NavigationItem::make('Chat')
+                //     ->url(fn(): string => url('/chats'), shouldOpenInNewTab: true) // Link to the chat page
+                //     ->icon('heroicon-o-chat-bubble-left-right') // Chat icon
+                //     ->group('Communication') // Optional: Group
 
-            ;
+                //     ->sort(1),
+
+
+            ])
+
+        ;
     }
 }

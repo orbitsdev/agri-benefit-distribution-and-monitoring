@@ -34,8 +34,15 @@ class StatsOverview extends BaseWidget
 
         return [
             Stat::make('Total Distributions', $totalDistributions)
-                ->description("Planned: $plannedDistributions | Ongoing: $ongoingDistributions | Completed: $completedDistributions | Canceled: $canceledDistributions")
-                ->descriptionIcon('heroicon-m-arrow-trending-up'),
+            ->description("Planned: $plannedDistributions | Ongoing: $ongoingDistributions | Completed: $completedDistributions | Canceled: $canceledDistributions")
+            ->descriptionIcon('heroicon-m-arrow-trending-up')
+            ->icon('heroicon-o-arrow-down-tray') // This adds a download icon
+            ->color('primary')
+            ->extraAttributes([
+                "class" => "cursor-pointer",
+                "wire:click" => "goto('reports.barangay-distributions')",
+            ]),
+
 
                 Stat::make('Total Beneficiaries', $totalBeneficiaries)
                 ->description("Claimed: $claimedBeneficiaries | Unclaimed: $unclaimedBeneficiaries")
@@ -46,5 +53,10 @@ class StatsOverview extends BaseWidget
                 ->description("Active: $activeUsers | Inactive: $inactiveUsers")
                 ->descriptionIcon('heroicon-m-user-group'),
         ];
+    }
+
+    public function goto($routeName)
+    {
+        return redirect()->route($routeName);
     }
 }

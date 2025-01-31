@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReportController;
 use App\Filament\Barangay\Pages\ListOfBeneficiaries;
 Route::get('/', function () {
     return view('welcome');
@@ -43,6 +44,9 @@ Route::middleware([
 
     Route::get('/member-dashboard', MemberDashboard::class )->name('member.dashboard');
 
+    Route::get('/reports/barangay-distributions', [ReportController::class, 'exportBarangayDistributions'])
+    ->name('reports.barangay-distributions');
+
     // Route::get('chat/', ListOfBeneficiaries::class);
 });
 
@@ -64,3 +68,6 @@ Route::get('/test-qr-mail', function () {
         return "Failed to send email. Check the logs for details.";
     }
 });
+
+
+
