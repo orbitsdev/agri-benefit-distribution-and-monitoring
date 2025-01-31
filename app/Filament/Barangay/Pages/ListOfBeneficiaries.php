@@ -14,5 +14,6 @@ class ListOfBeneficiaries extends Page
 
     protected static string $view = 'filament.barangay.pages.list-of-beneficiaries';
 
-  
+    protected static bool $shouldRegisterNavigation = false;
+
 }

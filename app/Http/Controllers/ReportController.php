@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Exports\SystemUsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BarangayDistributionExport;
 
@@ -15,5 +16,13 @@ class ReportController extends Controller
         $filename = 'Barangay_Distributions_' . now()->format('Y-m-d') . '.xlsx';
 
         return Excel::download(new BarangayDistributionExport($barangayId), $filename);
+    }
+
+    public function exportSystemUsers(Request $request)
+    {
+        $barangayId = auth()->user()->barangay_id; // Get the authenticated user's barangay
+        $filename = 'System_Users_' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(new SystemUsersExport($barangayId), $filename);
     }
 }

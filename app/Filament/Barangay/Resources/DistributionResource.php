@@ -68,20 +68,23 @@ class DistributionResource extends Resource
         return $table
             ->columns([
                 // Tables\Columns\TextColumn::make('barangay.name')->searchable(),
+                Tables\Columns\TextColumn::make('is_locked')
+                ->label('Lock Status')
+                ->formatStateUsing(function ($state) {
+                    return $state ? 'Locked' : 'Unlocked';
+                })
+                ->icon(function ($state) {
+                    return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
+                })
+                                ->badge()
+                                ->color(fn(string $state): string => match ($state) {
+                                    0 => 'gray',
+                                    1=> 'success',
+                                    default=> 'gray'
 
+                                }),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()->wrap(),
-                Tables\Columns\TextColumn::make('distribution_date')
-                    ->date()
-                    ->label('Date')
-                    ->sortable(),
-                    Tables\Columns\TextColumn::make('code')
-                    ->copyable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('location')
-                    ->searchable()->label('Location/Venue')->wrap()->toggleable(isToggledHiddenByDefault: true),
-
-                    ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries'),
 
                     Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -93,22 +96,22 @@ class DistributionResource extends Resource
 
                         default => 'gray'
                     }),
-                    Tables\Columns\TextColumn::make('is_locked')
-    ->label('Lock Status')
-    ->formatStateUsing(function ($state) {
-        return $state ? 'Locked' : 'Unlocked';
-    })
-    ->icon(function ($state) {
-        return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
-    })
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        0 => 'gray',
-                        1=> 'success',
-                        default=> 'gray'
 
-                    }),
 
+
+                Tables\Columns\TextColumn::make('location')
+                    ->searchable()->label('Location/Venue')->wrap()->toggleable(isToggledHiddenByDefault: true),
+
+                    ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries'),
+
+
+                    Tables\Columns\TextColumn::make('code')
+                    ->copyable()
+                    ->searchable(),
+                    Tables\Columns\TextColumn::make('distribution_date')
+                    ->date()
+                    ->label('Date')
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -138,6 +141,7 @@ class DistributionResource extends Resource
 
                 })->requiresConfirmation()
                   ->button()
+
                   ->size(ActionSize::ExtraSmall)
                   ->outlined(function(Model $record){
                     return !$record->is_locked;
@@ -165,6 +169,7 @@ class DistributionResource extends Resource
                   ->modalWidth('7xl')
                   ->size(ActionSize::ExtraSmall) // Set modal width
                   ->button()
+                  ->outlined()
 
                   ->label('Beneficiaries') // Add label for better UX
                   ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
@@ -179,7 +184,8 @@ class DistributionResource extends Resource
                 ActionGroup::make([
                     Action::make('update_status')
                     ->label('Change Status')
-                    ->button()
+                    // ->button()
+                    ->icon('heroicon-o-pencil-square')
                     ->size(ActionSize::ExtraSmall)
                     ->outlined()
       ->form([

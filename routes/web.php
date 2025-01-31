@@ -47,6 +47,10 @@ Route::middleware([
     Route::get('/reports/barangay-distributions', [ReportController::class, 'exportBarangayDistributions'])
     ->name('reports.barangay-distributions');
 
+    Route::get('/reports/system-users', [ReportController::class, 'exportSystemUsers'])
+    ->name('reports.system-users');
+
+
     // Route::get('chat/', ListOfBeneficiaries::class);
 });
 

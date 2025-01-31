@@ -24,15 +24,6 @@ class LatestDistributions extends BaseWidget
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()->wrap(),
-                    Tables\Columns\TextColumn::make('code')
-                    ->copyable()
-                    ->searchable()->toggleable(isToggledHiddenByDefault: false),
-                    Tables\Columns\TextColumn::make('distribution_date')
-                    ->date()
-                    ->label('Date')
-                    ->sortable()->toggleable(),
-                    Tables\Columns\TextColumn::make('location')
-                    ->searchable()->label('Location/Venue')->wrap()->toggleable(),
                     Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -43,9 +34,21 @@ class LatestDistributions extends BaseWidget
 
                         default => 'gray'
                     }),
+                    Tables\Columns\TextColumn::make('code')
+                    ->copyable()
+                    ->searchable()->toggleable(isToggledHiddenByDefault: false),
+                    Tables\Columns\TextColumn::make('distribution_date')
+                    ->date()
+                    ->label('Date')
+                    ->sortable()->toggleable(),
+
+                    Tables\Columns\TextColumn::make('location')
+                    ->searchable()->label('Location/Venue')->wrap()->toggleable(),
+
 
                     ProgressBar::make('progress_percentage')
                     ->label('Progress')
+                    ->tooltip('This progress bar represents the completion status of beneficiary distribution. It helps monitor how many beneficiaries have claimed their items and how much remains to be completed.')
                 ->getStateUsing(function (Model $record) {
                     return [
                         'total' => $record->total_beneficiaries,
