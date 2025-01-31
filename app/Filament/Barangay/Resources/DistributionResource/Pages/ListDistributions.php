@@ -25,6 +25,9 @@ class ListDistributions extends ListRecords
       return [
         'all' => Tab::make('All customers'),
         'Planned'=> Tab::make('Planned')->modifyQueryUsing(fn (Builder $query) => $query->planned()),
+        'Ongoing'=> Tab::make('Ongoing')->modifyQueryUsing(fn (Builder $query) => $query->ongoing()),
+        'Completed'=> Tab::make('Completed')->modifyQueryUsing(fn (Builder $query) => $query->completed()),
+        'Canceled'=> Tab::make('Canceled')->modifyQueryUsing(fn (Builder $query) => $query->canceled()),
       ];
     }
 }

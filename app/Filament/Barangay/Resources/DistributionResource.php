@@ -68,41 +68,18 @@ class DistributionResource extends Resource
         return $table
             ->columns([
                 // Tables\Columns\TextColumn::make('barangay.name')->searchable(),
-                Tables\Columns\TextColumn::make('is_locked')
-                ->label('Lock Status')
-                ->formatStateUsing(function ($state) {
-                    return $state ? 'Locked' : 'Unlocked';
-                })
-                ->icon(function ($state) {
-                    return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
-                })
-                                ->badge()
-                                ->color(fn(string $state): string => match ($state) {
-                                    0 => 'gray',
-                                    1=> 'success',
-                                    default=> 'gray'
-
-                                }),
+              
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()->wrap(),
 
-                    Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        Distribution::STATUS_PLANNED => 'gray',
-                        Distribution::STATUS_ONGOING => 'success',
-                        Distribution::STATUS_COMPLETED=> 'success',
-                        Distribution::STATUS_CANCELED=> 'danger',
-
-                        default => 'gray'
-                    }),
+                 
 
 
 
                 Tables\Columns\TextColumn::make('location')
                     ->searchable()->label('Location/Venue')->wrap()->toggleable(isToggledHiddenByDefault: true),
 
-                    ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries'),
+                   
 
 
                     Tables\Columns\TextColumn::make('code')
@@ -121,6 +98,31 @@ class DistributionResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                    ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        Distribution::STATUS_PLANNED => 'gray',
+                        Distribution::STATUS_ONGOING => 'success',
+                        Distribution::STATUS_COMPLETED=> 'success',
+                        Distribution::STATUS_CANCELED=> 'danger',
+
+                        default => 'gray'
+                    }),
+                    Tables\Columns\TextColumn::make('is_locked')
+                    ->label('Lock Status')
+                    ->formatStateUsing(function ($state) {
+                        return $state ? 'Locked' : 'Unlocked';
+                    })
+                    ->icon(function ($state) {
+                        return $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open';
+                    })
+                                    ->color(fn(string $state): string => match ($state) {
+                                        0 => 'gray',
+                                        1=> 'success',
+                                        default=> 'gray'
+    
+                                    }),
             ])
             ->filters([
                 SelectFilter::make('status')
