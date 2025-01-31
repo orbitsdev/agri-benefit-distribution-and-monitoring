@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportController;
 use App\Filament\Barangay\Pages\ListOfBeneficiaries;
+use App\Livewire\CodeFormPage;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -22,27 +24,38 @@ Route::middleware([
 ])->group(function () {
     Route::get('/dashboard', function () {
 
-        switch(Auth::user()->role){
+        $user = Auth::user();
+
+        switch ($user->role) {
             case User::SUPER_ADMIN:
                 return redirect('/admin');
                 break;
-            // case User::MEMBER:
-            //     return view('/dashboard');
-            //     break;
-                case User::ADMIN:
+            case User::ADMIN:
                 return redirect('/barangay');
                 break;
-                // case User::MEMBER:
-                // return redirect('/farmer');
-                // break;
+            case User::MEMBER:
+                // Check if the user has a code
+                if (!empty($user->code)) {
+                    return redirect()->route('member.dashboard'); // Redirect to Member Dashboard
+                } else {
+                    return redirect()->route('support-login'); // Redirect to Support Login
+                }
+                break;
             default:
-              return view('dashboard');
+                return view('dashboard');
                 break;
         }
 
     })->name('dashboard');
 
-    Route::get('/member-dashboard', MemberDashboard::class )->name('member.dashboard');
+    Route::middleware([ 'check.support.code'])->group(function () {
+        Route::get('/member-dashboard', MemberDashboard::class)->name('member.dashboard');
+    });
+    
+    Route::middleware([ 'redirect.if.has.code'])->group(function () {
+        Route::get('/support/login', CodeFormPage::class)->name('support-login');
+    });
+
 
     Route::get('/reports/barangay-distributions', [ReportController::class, 'exportBarangayDistributions'])
     ->name('reports.barangay-distributions');
@@ -72,6 +85,8 @@ Route::get('/test-qr-mail', function () {
         return "Failed to send email. Check the logs for details.";
     }
 });
+
+
 
 
 

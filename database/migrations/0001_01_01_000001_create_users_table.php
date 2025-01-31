@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('role', ['Super Admin', 'Admin','Member'])->default('Member');
             $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('set null');
             $table->boolean('is_active')->default(true);
+            $table->string('code')->nullable();
             $table->timestamps();
         });
 

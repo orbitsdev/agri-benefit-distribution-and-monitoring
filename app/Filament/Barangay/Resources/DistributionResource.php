@@ -221,9 +221,9 @@ class DistributionResource extends Resource
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $query->byBarangay(auth()->user()->barangay_id);

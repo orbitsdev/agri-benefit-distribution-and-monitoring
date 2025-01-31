@@ -130,36 +130,36 @@ class ManageDistributionSupports extends ManageRelatedRecords
 
                         // Enable Item Scanning Toggle
                         Toggle::make('enable_item_scanning')
-                            ->label('Enable Item Scanning')
-                            ->default(false)
-                            ->helperText('Enable this for item scanning (e.g., QR codes).')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 4,
-                                'lg' => 'full',
-                            ]),
-
-                        // Enable Beneficiary Management Toggle
-                        Toggle::make('enable_beneficiary_management')
-                            ->label('Enable Beneficiary Management')
-                            ->default(false)
-                            ->helperText('Enable this to manage beneficiary records.')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 4,
-                                'lg' => 'full',
-                            ]),
+                        ->label('Item Scanning')
+                        ->default(false)
+                        ->helperText('Allow this person to scan items using QR codes.')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 'full',
+                        ]),
+                    
+                    Toggle::make('enable_beneficiary_management')
+                        ->label('Beneficiary Management')
+                        ->default(false)
+                        ->helperText('Allow this person to manage beneficiary records.')
+                        ->columnSpan([
+                            'sm' => 2,
+                            'md' => 4,
+                            'lg' => 'full',
+                        ]),
+                    
 
                         // Enable List Access Toggle
-                        Toggle::make('enable_list_access')
-                            ->label('Enable List Access')
-                            ->default(false)
-                            ->helperText('Enable this to access beneficiary lists.')
-                            ->columnSpan([
-                                'sm' => 2,
-                                'md' => 4,
-                                'lg' => 'full',
-                            ])->default(true),
+                        // Toggle::make('enable_list_access')
+                        //     ->label('Enable List Access')
+                        //     ->default(false)
+                        //     ->helperText('Enable this to access beneficiary lists.')
+                        //     ->columnSpan([
+                        //         'sm' => 2,
+                        //         'md' => 4,
+                        //         'lg' => 'full',
+                        //     ])->default(true),
                     ]),
             ]);
     }
@@ -169,10 +169,10 @@ class ManageDistributionSupports extends ManageRelatedRecords
         return $table
             ->recordTitleAttribute('personnel.user.name')
             ->columns([
-                Tables\Columns\TextColumn::make('personnel.user.name')->searchable(),
+                Tables\Columns\TextColumn::make('personnel.user.name')->searchable()->label('Personnel'),
                 // Tables\Columns\TextColumn::make('personnel.user.email')->searchable(),
                 // Tables\Columns\TextColumn::make('personnel.contact_number'),
-                Tables\Columns\TextColumn::make('unique_code')->searchable()->label('Code')->tooltip('This will be use for scanning QR code'),
+                Tables\Columns\TextColumn::make('unique_code')->searchable()->label('Code')->tooltip('This will be use for scanning QR code')->copyable(),
                 Tables\Columns\TextColumn::make('type')->badge()->color('gray')->label('Support Role'),
 
                 ViewColumn::make('Capabilities')->view('tables.columns.support-capability'),
@@ -224,10 +224,10 @@ class ManageDistributionSupports extends ManageRelatedRecords
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DissociateBulkAction::make(),
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     // Tables\Actions\DissociateBulkAction::make(),
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 }

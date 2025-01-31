@@ -158,5 +158,10 @@ public function getProgressPercentageAttribute()
     return round(($claimed / $total) * 100, 2);
 }
 
+public function hasUnlockedItems(): bool
+{
+    return $this->distributionItems()->where('is_locked', false)->exists();
+}
+
 
 }
