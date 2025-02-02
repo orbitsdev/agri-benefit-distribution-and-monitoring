@@ -4,51 +4,56 @@ namespace App\Livewire;
 
 use App\Models\Support;
 use Illuminate\Support\Facades\Auth;
-use Filament\Notifications\Notification;
 use Livewire\Component;
+use WireUi\Traits\WireUiActions;
 
 class CodeFormPage extends Component
-{
+{   
+    use WireUiActions;
+
     public string $code = '';
 
     public function submitCode()
     {
-        // Validate input
-        if (empty($this->code)) {
-            Notification::make()
-                ->title('Code is required')
-                ->danger()
-                ->send();
-            return;
-        }
+        // ✅ Validate the form
+        // $this->validate([
+        //     'code' => 'required',
+        // ], [
+        //     'code.required' => 'Code is required!',
+        //     'code.min' => 'Code must be at least 3 characters.',
+        // ]);
 
-        $user = Auth::user();
+        // $user = Auth::user();
 
-        // Check if the code exists in the supports table for the same barangay
-        $support = Support::where('unique_code', $this->code)
-            ->whereHas('distribution', function ($query) use ($user) {
-                $query->where('barangay_id', $user->barangay_id);
-            })
-            ->first();
+        // // Check if the code exists in the supports table for the same barangay
+        // $support = Support::where('unique_code', $this->code)
+        //     ->whereHas('distribution', function ($query) use ($user) {
+        //         $query->where('barangay_id', $user->barangay_id);
+        //     })
+        //     ->first();
 
-        if ($support) {
-            // Save the code to the user's record
-            $user->update(['code' => $this->code]);
+        // if ($support) {
+        //     // Save the code to the user's record
+        //     $user->update(['code' => $this->code]);
 
-            // Success notification
-            Notification::make()
-                ->title('Login Successful')
-                ->success()
-                ->send();
+        //     $this->dialog()->error(
+        //         title: 'Insufficient Stock!',
+        //         description: 'The selected item is currently out of stock.',
+        //     );
 
-            return redirect()->route('member.dashboard');
-        }
+        //     // Success notification
+        //     $this->notification()->success(
+        //         'Login Successful',
+        //         'You have successfully logged in!'
+        //     );
 
-        // If the code is invalid, show an error notification
-        Notification::make()
-            ->title('Invalid Code')
-            ->danger()
-            ->send();
+        //     return redirect()->route('member.dashboard');
+        // }
+
+        $this->dialog()->error(
+            title: 'Invalid Code',
+            description: 'The code entered is not valid. Please try again.',
+        );
     }
 
     public function render()

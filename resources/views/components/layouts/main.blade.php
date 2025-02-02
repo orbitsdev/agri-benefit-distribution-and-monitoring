@@ -30,6 +30,7 @@
     <script src="https://fastly.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script> --}}
 
     {{-- <wireui:scripts /> --}}
+    <wireui:scripts />
     </head>
     <body class="">
 
@@ -40,6 +41,6 @@
         @livewireScripts
         @filamentScripts
         @vite('resources/js/app.js')
-        {{-- <x-dialog z-index="z-50" blur="md" align="center" /> --}}
+        <x-dialog z-index="z-50" blur="md" align="center" />
     </body>
 </html>
