@@ -19,26 +19,27 @@ class CheckSupportCode
     {
         $user = Auth::user();
 
-        // Ensure the user has a barangay
+
         if (!$user->barangay_id) {
             return redirect()->route('support-login')->with('error', 'Access denied. No assigned barangay.');
         }
 
-        // Check if the user's code exists in the supports table and belongs to the same barangay
+       
         $support = Support::where('unique_code', $user->code)
             ->whereHas('distribution', function ($query) use ($user) {
                 $query->where('barangay_id', $user->barangay_id);
             })
+            ->where('enable_beneficiary_management', true)
             ->first();
 
-        // If the code is valid, allow access
+   
         if ($support) {
             return $next($request);
         }
 
-        // If the code is invalid, remove it and redirect to support login
+    
         $user->update(['code' => null]);
-
-        return redirect()->route('support-login')->with('error', 'Invalid code. Please enter a valid code.');
+        return redirect()->route('support-login')->with('error', 'Access denied. Beneficiary management is not enabled.');
+    
     }
 }

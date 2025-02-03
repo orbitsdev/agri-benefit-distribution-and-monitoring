@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('code')->unique()->nullable(); // Unique and nullable distribution code
             $table->enum('status', ['Planned', 'Ongoing', 'Completed', 'Canceled'])->default('Planned');
             $table->boolean('is_locked')->default(false);
-
             $table->timestamps();
         });
     }

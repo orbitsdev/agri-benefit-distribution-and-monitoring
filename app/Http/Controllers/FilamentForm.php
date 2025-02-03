@@ -614,12 +614,11 @@ class FilamentForm extends Controller
                         ]),
 
                     // Email Field
-                    TextInput::make('email')
-                        ->label('Email Address')
-                        ->email()
+                    TextInput::make('address')
+                        ->label('Address')
                         ->maxLength(191)
-                        ->required()
-                        ->unique(ignoreRecord: true)
+                        // ->required()
+                        
                         ->columnSpan([
                             'sm' => 2,
                             'md' => 4,
