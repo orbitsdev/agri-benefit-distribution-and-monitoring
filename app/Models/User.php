@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Panel;
+use App\Models\Support;
 use App\Models\Barangay;
 use App\Models\Personnel;
 use App\Models\Transaction;
@@ -173,6 +174,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
     public function scopeInactive($query)
     {
         return $query->where('is_active', false);
+    }
+
+    public function  support(){
+        return Support::where('unique_code', $this->code)->first();
     }
 
 

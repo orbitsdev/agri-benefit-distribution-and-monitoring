@@ -5,13 +5,13 @@
 
 <div class="relative flex items-center justify-center min-h-screen bg-cover bg-center px-6 py-12"
      style="background-image: url('{{ $barangay ? $barangay->getImage() : asset('images/placeholder-image.jpg') }}');">
-    
+
     <!-- 🔳 Dark Overlay for Better Readability -->
     <div class="absolute inset-0 bg-black bg-opacity-60"></div>
 
     <!-- 🔴 Logout Button (Top-Right) -->
     <div class="absolute top-4 right-4 z-20">
-        <a href="{{ route('logout') }}" 
+        <a href="{{ route('logout') }}"
            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
            class="text-white bg-red-600 px-4 py-2 rounded-md shadow-md hover:bg-red-700 flex items-center gap-2">
             <i class="fa-solid fa-right-from-bracket"></i> Logout
@@ -26,8 +26,8 @@
     <!-- 🏠 Code Entry Form -->
     <div class="relative z-10 w-full max-w-sm bg-white bg-opacity-90 p-6 rounded-lg shadow-md backdrop-blur-md">
         <div class="text-center">
-            <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company">
-            
+            Support Code
+
             <!-- 📌 Display Barangay Name -->
             @if($barangay)
                 <h2 class="mt-4 text-xl font-bold text-indigo-700">{{ $barangay->name }}</h2>
@@ -41,8 +41,8 @@
             <div>
                 <label for="code" class="block text-sm font-medium text-gray-900">Code</label>
                 <div class="mt-2">
-                    <input type="text" wire:model="code" id="code" required 
-                           class="block w-full rounded-md border-gray-300 px-3 py-2 text-gray-900 shadow-sm 
+                    <input type="text" wire:model="code" id="code" required
+                           class="block w-full rounded-md border-gray-300 px-3 py-2 text-gray-900 shadow-sm
                                   focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 </div>
                 <!-- ❌ Show Validation Error -->

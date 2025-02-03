@@ -110,10 +110,7 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                             'beneficiary_code' => $beneficiary->code,
                             'admin_id' => $adminId,
 
-                            // 'support_id' => $distributionItem->distribution->support_id,
-                            // 'support_name' => $distributionItem->distribution->support->personnel->user->name ?? null,
-                            // 'support_type' => $distributionItem->distribution->support->type ?? null,
-                            // 'support_unique_code' => $distributionItem->distribution->support->unique_code ?? null,
+
 
                             'action' => 'Claimed',
                             'performed_at' => now(),
@@ -157,7 +154,6 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                     ->icon('heroicon-o-x-circle')
                     ->color('gray')
                     ->label('Revert'),
-
 
 
 

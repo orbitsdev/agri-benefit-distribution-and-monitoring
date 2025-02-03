@@ -6,3 +6,8 @@
 [x-cloak] {
     display: none;
 }
+
+
+body p {
+ color: '#33333';
+}

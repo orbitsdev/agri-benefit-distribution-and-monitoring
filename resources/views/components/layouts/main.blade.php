@@ -32,7 +32,7 @@
     {{-- <wireui:scripts /> --}}
     <wireui:scripts />
     </head>
-    <body class="">
+    <body class="bg-[#F1F4F4]">
 
         {{ $slot }}
 

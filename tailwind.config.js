@@ -9,7 +9,7 @@ export default {
     presets: [
         preset,
         require("./vendor/wireui/wireui/tailwind.config.js")
-    
+
     ],
     content: [
 
