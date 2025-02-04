@@ -15,9 +15,9 @@ class CodeFormPage extends Component
 
     public function submitCode()
     {
-
+        // Validate Input
         $this->validate([
-            'code' => 'required',
+            'code' => 'required|min:3',
         ], [
             'code.required' => 'Code is required!',
             'code.min' => 'Code must be at least 3 characters.',
@@ -25,7 +25,7 @@ class CodeFormPage extends Component
 
         $user = Auth::user();
 
-        // Check if the code exists in the supports table for the same barangay
+        // Check if the code exists in the `supports` table for the same barangay
         $support = Support::where('unique_code', $this->code)
             ->whereHas('distribution', function ($query) use ($user) {
                 $query->where('barangay_id', $user->barangay_id);
@@ -33,19 +33,26 @@ class CodeFormPage extends Component
             ->first();
 
         if ($support) {
-            // Save the code to the user's record
+            // Save the valid code to the user's record
             $user->update(['code' => $this->code]);
 
-            // Success notification
-            $this->notification()->success(
-                'Login Successful',
-                'You have successfully logged in!'
+            // Display Success Dialog (Using WireUI)
+            $this->dialog()->success(
+                title: 'Login Successful',
+                description: 'You have successfully logged in!',
             );
 
-            return redirect()->route('member.dashboard');
+            return redirect()->route('support.dashboard'); // Redirect to support dashboard
+        } else {
+            // Display Error Dialog (Using WireUI)
+            $this->dialog()->error(
+                title: 'Invalid Code',
+                description: 'The code entered is not valid. Please try again.',
+            );
+
+            // Clear Input Field
+            $this->reset('code');
         }
-
-
     }
 
     public function render()

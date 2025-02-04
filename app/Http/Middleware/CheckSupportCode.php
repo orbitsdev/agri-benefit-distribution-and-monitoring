@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Models\Support;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,26 +21,24 @@ class CheckSupportCode
         $user = Auth::user();
 
 
-        if (!$user->barangay_id) {
-            return redirect()->route('support-login')->with('error', 'Access denied. No assigned barangay.');
+        if (!$user->code) {
+            return redirect()->route('support-login')->with('error', 'Please enter a valid support code.');
         }
-
        
+
         $support = Support::where('unique_code', $user->code)
             ->whereHas('distribution', function ($query) use ($user) {
                 $query->where('barangay_id', $user->barangay_id);
             })
-            ->where('enable_beneficiary_management', true)
             ->first();
 
-   
-        if ($support) {
-            return $next($request);
+
+        if (!$support) {
+            $user->update(['code' => null]);
+            return redirect()->route('support-login')->with('error', 'Invalid support code.');
         }
 
-    
-        $user->update(['code' => null]);
-        return redirect()->route('support-login')->with('error', 'Access denied. Beneficiary management is not enabled.');
-    
+        return $next($request);
+
     }
 }

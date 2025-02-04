@@ -19,26 +19,29 @@ class RedirectIfHasCode
     {
         $user = Auth::user();
 
-        // Check if the user has a code
         if (!empty($user->code)) {
-            // Validate the code in the supports table
             $support = Support::where('unique_code', $user->code)
                 ->whereHas('distribution', function ($query) use ($user) {
                     $query->where('barangay_id', $user->barangay_id);
                 })
                 ->first();
 
-            // If the code exists, redirect to member dashboard
             if ($support) {
-                return redirect()->route('member.dashboard');
+                // Redirect based on permissions
+                if ($support->enable_beneficiary_management) {
+                    return redirect()->route('member.dashboard');
+                }
+
+                if ($support->enable_item_scanning) {
+                    return redirect()->route('qr-scan');
+                }
             }
 
-            // If the code is invalid, remove it
+            // If code is invalid, remove it
             $user->update(['code' => null]);
         }
 
-        // Allow access to support login page
         return $next($request);
-      
+
     }
 }

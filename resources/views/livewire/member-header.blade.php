@@ -1,4 +1,5 @@
 <header class="relative bg-white">
+   
     <div class="h-1 bg-primary-600"></div>
     <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="">
@@ -28,7 +29,20 @@
                             x-transition:leave-end="transform opacity-0 scale-95"
                         >
                             <div class="py-1">
-                                <!-- Logout Button -->
+                                <!-- Show Exit Support Mode Only If the User Has a Support Code -->
+
+                                    <form method="POST" action="{{ route('support.logout') }}">
+                                        @csrf
+                                        <button
+                                            type="submit"
+                                            class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                            title="Exit Support Mode">
+                                            {{ __('Exit Support Mode') }}
+                                        </button>
+                                    </form>
+
+
+                                <!-- Normal Logout Button -->
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button

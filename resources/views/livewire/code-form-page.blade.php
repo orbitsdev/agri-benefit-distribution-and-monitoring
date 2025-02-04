@@ -30,7 +30,7 @@
 
             <!-- 📌 Display Barangay Name -->
             @if($barangay)
-                <h2 class="mt-4 text-xl font-bold text-indigo-700">{{ $barangay->name }}</h2>
+                <h2 class="mt-4 text-xl font-bold text-primary-700">{{ $barangay->name }}</h2>
             @endif
 
             <h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">Enter Code</h2>
@@ -43,7 +43,7 @@
                 <div class="mt-2">
                     <input type="text" wire:model="code" id="code" required
                            class="block w-full rounded-md border-gray-300 px-3 py-2 text-gray-900 shadow-sm
-                                  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                  focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
                 </div>
                 <!-- ❌ Show Validation Error -->
                 @error('code')
@@ -54,7 +54,7 @@
             <!-- ✅ Submit Button with Spinner -->
             <div class="relative">
                 <button wire:click="submitCode"
-                        class="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 flex items-center justify-center">
+                        class="w-full rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700 flex items-center justify-center">
                     <span wire:loading.remove wire:target="submitCode">Submit</span>
                     <span wire:loading wire:target="submitCode" class="flex items-center">
                         <svg class="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

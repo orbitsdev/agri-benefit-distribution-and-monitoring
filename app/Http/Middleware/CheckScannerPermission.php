@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckMemberPermissions
+class CheckScannerPermission
 {
     /**
      * Handle an incoming request.
@@ -19,18 +19,17 @@ class CheckMemberPermissions
     {
         $user = Auth::user();
 
-
+        // Ensure the user has permission for QR Scanning
         $support = Support::where('unique_code', $user->code)
             ->whereHas('distribution', function ($query) use ($user) {
                 $query->where('barangay_id', $user->barangay_id);
             })
-            ->where('enable_beneficiary_management', true)
+            ->where('enable_item_scanning', true)
             ->first();
 
         if (!$support) {
             abort(403, 'Unauthorized action.');
         }
-
 
         return $next($request);
     }

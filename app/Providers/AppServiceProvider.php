@@ -57,7 +57,24 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DistributionItem::class, DistributionItemPolicy::class);
         Gate::policy(Support::class, SupportPolicy::class);
 
-      
+        Gate::define('view-member-dashboard', function ($user) {
+
+            return $user->support() && $user->support()->enable_beneficiary_management;
+
+        });
+
+        // Gate for QR Scanner
+        Gate::define('view-qr-scanner', function ($user) {
+            return $user->support() && $user->support()->enable_item_scanning;
+        });
+        Gate::define('view-qr-scanner', function ($user) {
+            return $user->support() && $user->support()->enable_item_scanning;
+        });
+        Gate::define('is-member', function ($user) {
+            return $user->isAccountIsMember();
+        });
+
+
 
     }
 }

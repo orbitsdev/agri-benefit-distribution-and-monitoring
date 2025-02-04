@@ -15,8 +15,11 @@ class QrScannerPage extends Component
     {
         $this->scannedCode = $code;
 
-        // Perform actions such as marking the beneficiary as claimed or saving the transaction
-        $this->notification()->success('QR Code Scanned', 'Code: ' . $code);
+        // Display success notification using WireUI
+        $this->notification()->success(
+            'QR Code Scanned',
+            'Scanned Code: ' . $code
+        );
     }
 
     public function render()
