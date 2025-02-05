@@ -101,8 +101,17 @@ class ManageDistributionSupports extends ManageRelatedRecords
                                 'sm' => 2,
                                 'md' => 4,
                                 'lg' => 4,
+                            ])->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->required(),
+                                Forms\Components\Textarea::make('description')
+                                    ->required(),
+
                             ])
-                            ,
+                            ->createOptionUsing(function (array $data) {
+                              return SupportRole::create($data)->name;
+
+                            }),
 
 
                         // Unique Code Field
