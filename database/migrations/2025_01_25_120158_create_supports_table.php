@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('supports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('personnel_id')->constrained('personnels')->onDelete('cascade'); // Link to personnel table
-            $table->foreignId('distribution_id')->constrained('distributions')->onDelete('cascade'); // Link to distribution table
-            $table->string('type'); // Support role type (e.g., Scanner, Checker, Registrar)
-            $table->string('unique_code')->nullable()->unique(); //specific roles
-            $table->boolean('enable_item_scanning')->default(false); // Indicates if they can register beneficiaries
-            $table->boolean('enable_beneficiary_management')->default(false); // Indicates if they can register beneficiaries
-            $table->boolean('enable_list_access')->default(false); // Indicates if they can confirm claims
+            $table->foreignId('personnel_id')->constrained('personnels')->onDelete('cascade'); 
+            $table->foreignId('distribution_id')->constrained('distributions')->onDelete('cascade');
+            $table->string('type');
+            $table->string('unique_code')->nullable()->unique();
+            $table->boolean('enable_item_scanning')->default(false);
+            $table->boolean('enable_beneficiary_management')->default(false);
+            $table->boolean('enable_list_access')->default(false);
             $table->timestamps();
         });
     }

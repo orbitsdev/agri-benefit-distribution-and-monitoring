@@ -26,8 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'is-admin'=> \App\Http\Middleware\EnsureIsAdmin::class,
             'is-super-admin'=> \App\Http\Middleware\EnsureIsSuperAdmin::class,
+            'check.support.login' => \App\Http\Middleware\CheckSupportLogin::class,
             'check.support.code' => \App\Http\Middleware\CheckSupportCode::class,
-            'redirect.if.has.code' => \App\Http\Middleware\RedirectIfHasCode::class,
+            'check.member.permissions' => \App\Http\Middleware\CheckMemberPermissions::class,
+            'check.scanner.permissions' => \App\Http\Middleware\CheckScannerPermission::class,
             // 'distribution-is-not-locked'=> \App\Http\Middleware\EnsureDistributionIsUnlocked::class,
         ]);
 
