@@ -46,7 +46,7 @@ class PersonnelResource extends Resource
                 Tables\Columns\TextColumn::make(name: 'contact_number')
                     ->searchable()->label('Contact Number'),
                 Tables\Columns\TextColumn::make('position')
-                ->toggleable(isToggledHiddenByDefault: true)
+                ->toggleable(isToggledHiddenByDefault: false)
                 ->wrap()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_number')

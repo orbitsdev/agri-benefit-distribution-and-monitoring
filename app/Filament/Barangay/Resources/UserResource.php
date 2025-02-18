@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FilamentForm;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -40,9 +41,18 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                SpatieMediaLibraryImageColumn::make('image') ->defaultImageUrl(url('/images/placeholder-image.jpg'))->label('Profile')
-                ->toggleable(isToggledHiddenByDefault: true)
-                ,
+                SpatieMediaLibraryImageColumn::make('image')
+                ->defaultImageUrl(url('/images/placeholder-image.jpg'))
+                ->label('Profile')
+                ->toggleable(isToggledHiddenByDefault: false)
+                ->getStateUsing(function (Book $record): string {
+                    return  $record->getFirstMediaUrl('image');
+                })
+                ->extraImgAttributes([
+                    'img' => 'src'
+                ])
+                ->openUrlInNewTab(),
+
                    Tables\Columns\TextColumn::make('name')
                        ->searchable(isIndividual:true),
                    Tables\Columns\TextColumn::make('barangay.name')
@@ -50,6 +60,7 @@ class UserResource extends Resource
                    Tables\Columns\TextColumn::make('email')
                        ->searchable()
                        ->toggleable(isToggledHiddenByDefault: false)
+
                        ,
 
 
@@ -97,6 +108,9 @@ class UserResource extends Resource
                     ,
             ])
             ->defaultGroup('barangay.name')
+            ->recordUrl(
+                fn (Model $record) => null,
+            )
             ;
 
     }
@@ -113,7 +127,7 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
+            // 'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }

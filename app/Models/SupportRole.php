@@ -11,4 +11,7 @@ class SupportRole extends Model
     public function scopeActive($query){
         return $query->where('status', true);
     }
+
+
+    
 }

@@ -2,16 +2,17 @@
 
 namespace App\Filament\Barangay\Resources;
 
-use App\Filament\Barangay\Resources\SupportRoleResource\Pages;
-use App\Filament\Barangay\Resources\SupportRoleResource\RelationManagers;
-use App\Models\SupportRole;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\SupportRole;
+use Filament\Resources\Resource;
+use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Barangay\Resources\SupportRoleResource\Pages;
+use App\Filament\Barangay\Resources\SupportRoleResource\RelationManagers;
 
 class SupportRoleResource extends Resource
 {
@@ -42,6 +43,9 @@ class SupportRoleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
                     ->searchable(),
+
+                    ToggleColumn::make('is_active')->label('Active/Disabled')->alignCenter(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

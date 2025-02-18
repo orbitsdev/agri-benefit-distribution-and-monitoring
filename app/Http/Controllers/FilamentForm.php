@@ -373,7 +373,6 @@ class FilamentForm extends Controller
                             // Description Field
                             Textarea::make('description')
                                 ->label('Description')
-
                                 ->rows(4)
                                 ->maxLength(500)
                                 // ->helperText('Add more details about the distribution if needed.')
@@ -550,11 +549,12 @@ class FilamentForm extends Controller
                         ->maxLength(20)
                         // ->helperText('Provide a valid contact number for the personnel.')
                         ->tel()
+                        ->prefix('+63')
                         ->columnSpan([
                             'sm' => 2,
                             'md' => 4,
                             'lg' => 4,
-                        ]),
+                        ])->mask('9999999999'),
 
                     // Status Field
                     // Select::make('status')
@@ -607,6 +607,8 @@ class FilamentForm extends Controller
                         ->required()
                         ->maxLength(15)
                         ->tel()
+                ->prefix('+63')
+                ->mask('9999999999')
                         ->columnSpan([
                             'sm' => 2,
                             'md' => 4,
@@ -618,7 +620,7 @@ class FilamentForm extends Controller
                         ->label('Address')
                         ->maxLength(191)
                         // ->required()
-                        
+
                         ->columnSpan([
                             'sm' => 2,
                             'md' => 4,

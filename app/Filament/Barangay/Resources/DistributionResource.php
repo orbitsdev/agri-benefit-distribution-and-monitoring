@@ -68,18 +68,18 @@ class DistributionResource extends Resource
         return $table
             ->columns([
                 // Tables\Columns\TextColumn::make('barangay.name')->searchable(),
-              
+
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()->wrap(),
 
-                 
+
 
 
 
                 Tables\Columns\TextColumn::make('location')
                     ->searchable()->label('Location/Venue')->wrap()->toggleable(isToggledHiddenByDefault: true),
 
-                   
+
 
 
                     Tables\Columns\TextColumn::make('code')
@@ -121,7 +121,7 @@ class DistributionResource extends Resource
                                         0 => 'gray',
                                         1=> 'success',
                                         default=> 'gray'
-    
+
                                     }),
             ])
             ->filters([
@@ -203,7 +203,7 @@ class DistributionResource extends Resource
       }),
                     Action::make('View')
                     ->size(ActionSize::ExtraSmall)
-                    ->color('primary')
+
                     ->label('View')
                     ->icon('heroicon-o-eye')
                     ->modalSubmitAction(false)
@@ -218,6 +218,14 @@ class DistributionResource extends Resource
 
                     Tables\Actions\EditAction::make()->label('Manage'),
                     Tables\Actions\DeleteAction::make()->color('gray'),
+
+                    Action::make('Transaction')
+                    ->size(ActionSize::ExtraSmall)
+
+                    ->label('Transaction History')
+                    ->icon('heroicon-s-clock')
+
+                    ,
                 ]),
             ])
             ->bulkActions([
