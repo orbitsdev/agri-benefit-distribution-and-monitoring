@@ -66,4 +66,7 @@ class Transaction extends Model implements HasMedia
     public function scopeByBarangay($query, $barangay_id){
         return $query->where('barangay_id', $barangay_id);
     }
+    public function scopeByDistribution($query, $distribution_id){
+        return $query->where('distribution_id', $distribution_id);
+    }
 }

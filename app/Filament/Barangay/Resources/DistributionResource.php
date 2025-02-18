@@ -219,13 +219,23 @@ class DistributionResource extends Resource
                     Tables\Actions\EditAction::make()->label('Manage'),
                     Tables\Actions\DeleteAction::make()->color('gray'),
 
-                    Action::make('Transaction')
-                    ->size(ActionSize::ExtraSmall)
 
-                    ->label('Transaction History')
+                    Action::make('Transaction') // Disable closing the modal by clicking outside
+
+                    ->size(ActionSize::ExtraSmall) // Set modal width
+                    // ->button()
+                    // ->outlined()
+
+                    ->label('Transaction History') // Add label for better UX
                     ->icon('heroicon-s-clock')
+                    ->url(function (Model $record) {
 
-                    ,
+                      return DistributionResource::getUrl('distribution-transaction-history',['record'=>$record->id]);
+
+                    }, shouldOpenInNewTab: true)
+                  ,
+
+
                 ]),
             ])
             ->bulkActions([
@@ -255,6 +265,7 @@ class DistributionResource extends Resource
             // 'view' => Pages\ViewDistribution::route('/{record}'),
             'edit' => Pages\EditDistribution::route('/{record}/edit'),
             'distribution-beneficiaries' => Pages\ListOfDistributionBeneficiaries::route('/{record}/distribution-beneficiaries'),
+            'distribution-transaction-history' => Pages\TransactionHistory::route('/{record}/transaction-history'),
             'distributionItems' => Pages\ManageDistributionDistributionItem::route('/{record}/distributionItems'),
             'supports' => Pages\ManageDistributionSupports::route('/{record}/supports'),
 

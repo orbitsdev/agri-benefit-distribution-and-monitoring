@@ -36,7 +36,9 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
 
     public $record;
 
-    public function mount(Distribution $record): void {}
+    public function mount(Distribution $record): void {
+        $this->record = $record;
+    }
 
     public function getHeading(): string
     {
@@ -161,7 +163,9 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
             ])
             ->bulkActions([])
             ->modifyQueryUsing(function ($query) {
-                return $query;
+                return $query->whereHas('distributionItem', function($q){
+                    return $q->where('distribution_item_id', $this->record->id);
+                } );
             })
         ;
     }
