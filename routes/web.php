@@ -1,5 +1,4 @@
 <?php
-
 use App\Mail\QrMail;
 use App\Models\User;
 use App\Livewire\Test;
@@ -18,7 +17,7 @@ use App\Livewire\ScannerSupportEnterCodePage;
 use App\Filament\Barangay\Pages\ListOfBeneficiaries;
 
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return view('welcome');
 });
 
 Route::middleware([

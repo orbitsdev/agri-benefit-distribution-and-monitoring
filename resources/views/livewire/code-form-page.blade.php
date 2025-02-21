@@ -23,35 +23,32 @@
         </form>
     </div>
 
-    <!-- 🏠 Code Entry Form -->
+
     <div class="relative z-10 w-full max-w-sm bg-white bg-opacity-90 p-6 rounded-lg shadow-md backdrop-blur-md">
         <div class="text-center">
-            Support Code
+            <h1 class="text-lg font-semibold text-gray-800">Distribution Support</h1>
 
-            <!-- 📌 Display Barangay Name -->
             @if($barangay)
-                <h2 class="mt-4 text-xl font-bold text-primary-700">{{ $barangay->name }}</h2>
+                <h2 class="mt-2 text-xl font-bold text-primary-700 uppercase">{{ $barangay->name }}</h2>
             @endif
 
-            <h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">Enter Code</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Enter the unique code to proceed.
+            </p>
         </div>
 
-        <!-- 🔢 Livewire Form -->
         <div class="mt-6 space-y-6">
             <div>
-                <label for="code" class="block text-sm font-medium text-gray-900">Code</label>
-                <div class="mt-2">
-                    <input type="text" wire:model="code" id="code" required
-                           class="block w-full rounded-md border-gray-300 px-3 py-2 text-gray-900 shadow-sm
-                                  focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
-                </div>
-                <!-- ❌ Show Validation Error -->
+                <input type="text" wire:model="code" id="code" required
+                       class="block w-full rounded-md border-gray-300 px-3 py-2 text-gray-900 shadow-sm
+                              focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                       placeholder="Enter Code">
+
                 @error('code')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
 
-            <!-- ✅ Submit Button with Spinner -->
             <div class="relative">
                 <button wire:click="submitCode"
                         class="w-full rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700 flex items-center justify-center">
@@ -65,6 +62,14 @@
                     </span>
                 </button>
             </div>
+
+            @if(session()->has('error'))
+                <div class="mt-4 text-sm text-red-600 text-center">
+                    {{ session('error') }}
+                </div>
+            @endif
         </div>
     </div>
+
+
 </div>

@@ -3,9 +3,9 @@
         <div class="flex h-16 items-center justify-between">
             <!-- Logo Section -->
             <div class="flex items-center">
-                <a href="#" class="text-lg font-semibold text-gray-800">
+                {{-- <a href="#" class="text-lg font-semibold text-gray-800">
                     Scanner App
-                </a>
+                </a> --}}
             </div>
 
             <!-- Desktop Menu -->
