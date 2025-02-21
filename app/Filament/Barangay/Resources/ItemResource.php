@@ -44,7 +44,7 @@ class ItemResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()->label('Item Name'),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('barangay.name')
@@ -89,9 +89,11 @@ class ItemResource extends Resource
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ])
+            ->striped()
             ->modifyQueryUsing(function (Builder $query) {
-                $query->byBarangay(Auth::user()->barangay_id);
-            });;
+                $query->byBarangay(Auth::user()->barangay_id)->latest();
+            })
+            ;
     }
 
     public static function getPages(): array

@@ -37,7 +37,7 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
     public $record;
 
     public function mount(Distribution $record): void
-    {
+{
         $this->record = $record;
     }
 
@@ -151,7 +151,8 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                             ->send();
                     })
                     ->hidden(function (Model $beneficiary) {
-                        return $beneficiary->status === Beneficiary::CLAIMED;
+                        return $beneficiary->status === Beneficiary::CLAIMED ||
+                        !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
                     })
                     ->icon('far-hand-back-fist')
                     ->color('success'),
@@ -187,7 +188,10 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                             ->success()
                             ->send();
                     })
-                    ->hidden(fn(Model $beneficiary) => $beneficiary->status === Beneficiary::UN_CLAIMED)
+                    ->hidden(function (Model $beneficiary) {
+                        return $beneficiary->status === Beneficiary::UN_CLAIMED ||
+                        !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
+                    })
                     ->icon('heroicon-o-x-circle')
                     ->color('gray')
                     ->label('Revert'),

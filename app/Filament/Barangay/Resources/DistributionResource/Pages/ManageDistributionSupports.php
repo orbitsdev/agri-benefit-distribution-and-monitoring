@@ -46,7 +46,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
     {
         return 'Supports';
     }
-    
+
 
     protected function getDistribution(): Model
     {
@@ -92,7 +92,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
                         // Support Role Field
                         Select::make('type')
                             ->label('Support Role')
-                            ->options(SupportRole::all()->pluck('name', 'name'))
+                            ->options(SupportRole::byBarangay(Auth::user()->barangay_id)->active()->get()->pluck('name', 'name'))
                             ->searchable()
                             ->helperText('Specify the role (e.g., Scanner, Checker).')
                             ->preload()
@@ -109,6 +109,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
 
                             ])
                             ->createOptionUsing(function (array $data) {
+                                $data['barangay_id'] = Auth::user()->barangay_id;
                               return SupportRole::create($data)->name;
 
                             }),
@@ -138,7 +139,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
                             'md' => 4,
                             'lg' => 'full',
                         ]),
-                    
+
                     Toggle::make('enable_beneficiary_management')
                         ->label('Beneficiary Management')
                         ->default(false)
@@ -148,7 +149,7 @@ class ManageDistributionSupports extends ManageRelatedRecords
                             'md' => 4,
                             'lg' => 'full',
                         ]),
-                    
+
 
                         // Enable List Access Toggle
                         // Toggle::make('enable_list_access')

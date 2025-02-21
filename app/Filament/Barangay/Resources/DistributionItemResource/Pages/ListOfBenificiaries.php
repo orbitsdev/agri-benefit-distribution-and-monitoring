@@ -5,16 +5,17 @@ namespace App\Filament\Barangay\Resources\DistributionItemResource\Pages;
 use Filament\Tables\Table;
 use App\Jobs\SendQrMailJob;
 use App\Models\Beneficiary;
+use App\Models\Distribution;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Actions\Action;
 use App\Imports\BeneficiariesImport;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\FilamentForm;
+
+
+
 use Filament\Forms\Contracts\HasForms;
-
-
-
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
@@ -286,7 +287,8 @@ public function table(Table $table): Table
                         ->send();
                 })
                 ->hidden(function (Model $beneficiary) {
-                    return $beneficiary->status === Beneficiary::CLAIMED;
+                    return $beneficiary->status === Beneficiary::CLAIMED ||
+                    !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
                 })
                 ->icon('far-hand-back-fist')
                 ->color('success'),
@@ -322,7 +324,8 @@ public function table(Table $table): Table
                             ->send();
                 })
                 ->hidden(function (Model $beneficiary) {
-                    return $beneficiary->status === Beneficiary::UN_CLAIMED;
+                    return $beneficiary->status === Beneficiary::UN_CLAIMED ||
+                    !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
                 })
                 ->icon('heroicon-o-x-circle')
                 ->color('gray')

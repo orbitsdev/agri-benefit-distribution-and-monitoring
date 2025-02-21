@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Name of the support role (e.g., Scanner, Checker)
             $table->string('description')->nullable();
-            $table->boolean('is_active')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -2,9 +2,10 @@
 
 namespace App\Filament\Barangay\Resources\SupportRoleResource\Pages;
 
-use App\Filament\Barangay\Resources\SupportRoleResource;
 use Filament\Actions;
+use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Barangay\Resources\SupportRoleResource;
 
 class ManageSupportRoles extends ManageRecords
 {
@@ -13,7 +14,11 @@ class ManageSupportRoles extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make() ->mutateFormDataUsing(function (array $data): array {
+                $data['barangay_id'] = Auth::user()->barangay_id;
+
+                   return $data;
+               }),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Barangay;
 use App\Models\SupportRole;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -13,6 +14,13 @@ class SupportRoleSeeder extends Seeder
      */
     public function run(): void
     {
+        $barangays = Barangay::all(); // Fetch all barangays
+
+        if ($barangays->isEmpty()) {
+            $this->command->info('No barangays found. Please seed barangays first.');
+            return;
+        }
+
         $roles = [
             ['name' => 'Scanner', 'description' => 'Responsible for scanning items and confirming claims.'],
             ['name' => 'Checker', 'description' => 'Checks beneficiary eligibility on the list.'],
@@ -21,9 +29,13 @@ class SupportRoleSeeder extends Seeder
             ['name' => 'Concern Support', 'description' => 'Handles beneficiary concerns, such as registration issues.'],
         ];
 
-        // Create roles using Eloquent
         foreach ($roles as $role) {
-            SupportRole::create($role);
+            SupportRole::create([
+                'name' => $role['name'],
+                'description' => $role['description'],
+                'barangay_id' => $barangays->random()->id, // Assign a random barangay_id
+                'is_active' => true,
+            ]);
         }
     }
 }

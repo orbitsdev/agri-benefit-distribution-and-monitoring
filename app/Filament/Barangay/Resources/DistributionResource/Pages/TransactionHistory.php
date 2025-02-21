@@ -101,7 +101,7 @@ class TransactionHistory extends Page  implements HasForms, HasTable
                     // Tables\Columns\TextColumn::make('barangay_location')->searchable()->label('Barangay Location')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
-                ColumnGroup::make('Support Details', [
+                ColumnGroup::make('Recorder Details', [
                     // Tables\Columns\TextColumn::make('support.personnel.user.name')->searchable(),
                     Tables\Columns\TextColumn::make('support_details.name')->searchable(isIndividual:true)->label('Name')->toggleable(isToggledHiddenByDefault: false),
                     Tables\Columns\TextColumn::make('support_details.type')->label('Type')->toggleable(isToggledHiddenByDefault: false),

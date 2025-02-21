@@ -62,88 +62,114 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                 ->requiresConfirmation()
                 ->button()
                 ->action(function (Model $beneficiary) {
-                    // Update beneficiary status to 'Claimed'
                     $beneficiary->update(['status' => Beneficiary::CLAIMED]);
-
 
                     // Decrease the quantity in the associated distribution item
                     $distributionItem = $beneficiary->distributionItem;
                     if ($distributionItem->quantity > 0) {
                         $distributionItem->decrement('quantity');
                     }
+
                     $adminId = Auth::user()->role === 'admin' ? Auth::user()->id : null;
-                    $support = Auth::user()->support();
 
-                    // Create a transaction record
-                    $transactionData = [
+                    // Create a transaction record with JSON snapshots
+                    $beneficiary->transactions()->create([
                         'barangay_id' => $distributionItem->distribution->barangay_id,
-                        'barangay_name' => $distributionItem->distribution->barangay->name,
-                        'barangay_location' => $distributionItem->distribution->barangay->location,
-
                         'distribution_id' => $distributionItem->distribution_id,
-                        'distribution_title' => $distributionItem->distribution->title,
-                        'distribution_location' => $distributionItem->distribution->location,
-                        'distribution_date' => $distributionItem->distribution->distribution_date,
-                        'distribution_code' => $distributionItem->distribution->code,
-
                         'distribution_item_id' => $distributionItem->id,
-                        'distribution_item_name' => $distributionItem->item->name,
-
                         'beneficiary_id' => $beneficiary->id,
-                        'beneficiary_name' => $beneficiary->name,
-                        'beneficiary_contact' => $beneficiary->contact,
-                        'beneficiary_email' => $beneficiary->email,
-                        'beneficiary_code' => $beneficiary->code,
+                        'support_id' => $beneficiary->support_id,
                         'admin_id' => $adminId,
 
-                        'support_id' => $support->id,
-                        'support_name' => Auth::user()->name,
-                        'support_type' => $support->type,
-                        'support_unique_code' => $support->unique_code,
+                        // JSON Snapshots (Storing full details)
+                        'barangay_details' => [
+                            'id' => $distributionItem->distribution->barangay_id,
+                            'name' => $distributionItem->distribution->barangay->name,
+                            'location' => $distributionItem->distribution->barangay->location,
+                        ],
 
+                        'distribution_details' => [
+                            'id' => $distributionItem->distribution_id,
+                            'title' => $distributionItem->distribution->title,
+                            'location' => $distributionItem->distribution->location,
+                            'date' => $distributionItem->distribution->distribution_date,
+                            'code' => $distributionItem->distribution->code,
+                        ],
 
+                        'distribution_item_details' => [
+                            'id' => $distributionItem->id,
+                            'name' => $distributionItem->item->name,
+                        ],
 
+                        'beneficiary_details' => [
+                            'id' => $beneficiary->id,
+                            'name' => $beneficiary->name,
+                            'contact' => $beneficiary->contact,
+                            'address' => $beneficiary->address,
+                            'email' => $beneficiary->email,
+                            'code' => $beneficiary->code,
+                        ],
+
+                        'support_details' => [
+                            'id' => null,
+                            'name' => Auth::user()->name, // Ensure no error if support is null
+                            'type' => 'Admin',
+                            'unique_code' => null,
+                        ],
+
+                        // Action Details
                         'action' => 'Claimed',
                         'performed_at' => now(),
-                    ];
+                    ]);
 
-                    $beneficiary->transactions()->create($transactionData);
-
+                    // Send success notification
                     Notification::make()
                         ->title('Beneficiary Claimed Successfully')
                         ->success()
                         ->send();
                 })
                 ->hidden(function (Model $beneficiary) {
-                    return $beneficiary->status === Beneficiary::CLAIMED;
+                    return $beneficiary->status === Beneficiary::UN_CLAIMED ||
+                    !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
                 })
-                ->icon('far-hand-back-fist')
-                ->color('success'),
-            Action::make('Unclaim')
+                ->icon('heroicon-o-x-circle')
+                ->color('gray')
+                ->label('Revert'),
+
+                Action::make('Unclaim')
                 ->requiresConfirmation()
                 ->button()
                 ->action(function (Model $beneficiary) {
-                    // Update beneficiary status to 'Unclaimed'
                     $beneficiary->update(['status' => Beneficiary::UN_CLAIMED]);
 
-                    // Increase the quantity in the associated distribution item
-                    $distributionItem = $beneficiary->distributionItem;
-                    $distributionItem->increment('quantity');
+                        // Increase the quantity in the associated distribution item
+                        $distributionItem = $beneficiary->distributionItem;
+                        if ($distributionItem) {
+                            $distributionItem->increment('quantity');
+                        }
 
+                        // Find and update the associated transaction instead of deleting it
+                        $transaction = $beneficiary->transactions()
+                            ->where('action', 'Claimed')
+                            ->where('beneficiary_id', $beneficiary->id)
+                            ->latest()
+                            ->first();
 
-                    // Delete the associated transaction for this beneficiary
-                    $beneficiary->transactions()
-                        ->where('action', 'Claimed')
-                        ->where('beneficiary_id', $beneficiary->id)
-                        ->delete();
+                        if ($transaction) {
+                            $transaction->update([
+                                'action' => 'Unclaimed',
+                                'performed_at' => now(), // Log the unclaim action
+                            ]);
+                        }
 
-                    Notification::make()
-                        ->title('Beneficiary Unclaimed Successfully')
-                        ->success()
-                        ->send();
+                        Notification::make()
+                            ->title('Beneficiary Unclaimed Successfully')
+                            ->success()
+                            ->send();
                 })
                 ->hidden(function (Model $beneficiary) {
-                    return $beneficiary->status === Beneficiary::UN_CLAIMED;
+                    return $beneficiary->status === Beneficiary::UN_CLAIMED ||
+                    !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
                 })
                 ->icon('heroicon-o-x-circle')
                 ->color('gray')

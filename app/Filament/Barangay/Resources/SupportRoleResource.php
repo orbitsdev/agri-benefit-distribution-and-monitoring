@@ -8,6 +8,8 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\SupportRole;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -44,7 +46,24 @@ class SupportRoleResource extends Resource
                 Tables\Columns\TextColumn::make('description')
                     ->searchable(),
 
-                    ToggleColumn::make('is_active')->label('Active/Disabled')->alignCenter(),
+                    Tables\Columns\TextColumn::make('barangay.name')
+                    ->searchable()->toggleable(),
+
+                    ToggleColumn::make('is_active')->label('Active/Disabled')->alignCenter()->afterStateUpdated(function ($record, $state) {
+
+                        if ($state) {
+                            Notification::make()
+                                ->title('Status was activated')
+                                ->success()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Status was deactivated')
+                                ->success()
+                                ->send()
+                            ;
+                        }
+                    }),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -66,7 +85,15 @@ class SupportRoleResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->striped()
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->byBarangay(Auth::user()->barangay_id)->latest();
+            })
+
+
+
+            ;
     }
 
     public static function getPages(): array

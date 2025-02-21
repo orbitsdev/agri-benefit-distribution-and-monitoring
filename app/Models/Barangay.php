@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Item;
 use App\Models\Personnel;
+use App\Models\SupportRole;
 use App\Models\Transaction;
 use App\Models\Distribution;
 use Spatie\MediaLibrary\HasMedia;
@@ -43,15 +44,19 @@ class Barangay extends Model implements HasMedia
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class);
+    return $this->hasMany(Transaction::class);
 
-    
+
     }
 
     // has many item
     public function items()
     {
         return $this->hasMany(Item::class);
+    }
+    public function support_roles()
+    {
+        return $this->hasMany(SupportRole::class);
     }
 
 }
