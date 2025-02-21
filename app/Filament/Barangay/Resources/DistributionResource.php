@@ -167,20 +167,6 @@ class DistributionResource extends Resource
                   }),
 
 
-                  Action::make('View Beneficiaries') // Disable closing the modal by clicking outside
-                  ->modalWidth('7xl')
-                  ->size(ActionSize::ExtraSmall) // Set modal width
-                  ->button()
-                  ->outlined()
-
-                  ->label('Beneficiaries') // Add label for better UX
-                  ->icon('heroicon-o-eye') // Optional: Add an icon for better UI
-                  ->url(function (Model $record) {
-
-                    return DistributionResource::getUrl('distribution-beneficiaries',['record'=>$record->id]);
-
-                  }, shouldOpenInNewTab: true)
-                ,
 
 
                 ActionGroup::make([
@@ -215,6 +201,18 @@ class DistributionResource extends Resource
                     ))
                     ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
                     ->closeModalByClickingAway(false)->modalWidth('7xl'),
+                    Action::make('Beneficiaries') // Disable closing the modal by clicking outside
+                    ->modalWidth('7xl')
+
+                    ->label('Beneficiaries') // Add label for better UX
+                    ->icon('heroicon-s-eye') // Optional: Add an icon for better UI
+                    ->url(function (Model $record) {
+
+                      return DistributionResource::getUrl('distribution-beneficiaries',['record'=>$record->id]);
+
+                    }, shouldOpenInNewTab: true)
+                  ,
+
                     Action::make('Transaction') // Disable closing the modal by clicking outside
 
                     ->size(ActionSize::ExtraSmall) // Set modal width

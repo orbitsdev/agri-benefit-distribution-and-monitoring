@@ -36,7 +36,8 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
 
     public $record;
 
-    public function mount(Distribution $record): void {
+    public function mount(Distribution $record): void
+    {
         $this->record = $record;
     }
 
@@ -53,7 +54,7 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
             ->columns([
                 ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
                 TextColumn::make('name')->searchable(),
-                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault:true),
+                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('contact')->searchable(),
                 TextColumn::make('address')->searchable()->wrap(),
                 TextColumn::make('distributionItem.item.name')->searchable(),
@@ -90,35 +91,60 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                         if ($distributionItem->quantity > 0) {
                             $distributionItem->decrement('quantity');
                         }
+
                         $adminId = Auth::user()->role === 'admin' ? Auth::user()->id : null;
-                        // Create a transaction record
+
+                        // Create a transaction record with JSON snapshots
                         $beneficiary->transactions()->create([
                             'barangay_id' => $distributionItem->distribution->barangay_id,
-                            'barangay_name' => $distributionItem->distribution->barangay->name,
-                            'barangay_location' => $distributionItem->distribution->barangay->location,
-
                             'distribution_id' => $distributionItem->distribution_id,
-                            'distribution_title' => $distributionItem->distribution->title,
-                            'distribution_location' => $distributionItem->distribution->location,
-                            'distribution_date' => $distributionItem->distribution->distribution_date,
-                            'distribution_code' => $distributionItem->distribution->code,
-
                             'distribution_item_id' => $distributionItem->id,
-                            'distribution_item_name' => $distributionItem->item->name,
-
                             'beneficiary_id' => $beneficiary->id,
-                            'beneficiary_name' => $beneficiary->name,
-                            'beneficiary_contact' => $beneficiary->contact,
-                            'beneficiary_email' => $beneficiary->email,
-                            'beneficiary_code' => $beneficiary->code,
+                            'support_id' => $beneficiary->support_id,
                             'admin_id' => $adminId,
 
+                            // JSON Snapshots (Storing full details)
+                            'barangay_details' => [
+                                'id' => $distributionItem->distribution->barangay_id,
+                                'name' => $distributionItem->distribution->barangay->name,
+                                'location' => $distributionItem->distribution->barangay->location,
+                            ],
 
+                            'distribution_details' => [
+                                'id' => $distributionItem->distribution_id,
+                                'title' => $distributionItem->distribution->title,
+                                'location' => $distributionItem->distribution->location,
+                                'date' => $distributionItem->distribution->distribution_date,
+                                'code' => $distributionItem->distribution->code,
+                            ],
 
+                            'distribution_item_details' => [
+                                'id' => $distributionItem->id,
+                                'name' => $distributionItem->item->name,
+                            ],
+
+                            'beneficiary_details' => [
+                                'id' => $beneficiary->id,
+                                'name' => $beneficiary->name,
+                                'contact' => $beneficiary->contact,
+                                'address' => $beneficiary->address,
+                                'email' => $beneficiary->email,
+                                'code' => $beneficiary->code,
+                            ],
+
+                            'support_details' => [
+                                'id' => null,
+                                'name' => Auth::user()->name, // Ensure no error if support is null
+                                'type' => 'Admin',
+                                'unique_code' => null,
+                            ],
+
+                            // Action Details
                             'action' => 'Claimed',
                             'performed_at' => now(),
                         ]);
 
+                        // Send success notification
                         Notification::make()
                             ->title('Beneficiary Claimed Successfully')
                             ->success()
@@ -138,22 +164,30 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
 
                         // Increase the quantity in the associated distribution item
                         $distributionItem = $beneficiary->distributionItem;
-                        $distributionItem->increment('quantity');
+                        if ($distributionItem) {
+                            $distributionItem->increment('quantity');
+                        }
 
-                        // Delete the associated transaction for this beneficiary
-                        $beneficiary->transactions()
+                        // Find and update the associated transaction instead of deleting it
+                        $transaction = $beneficiary->transactions()
                             ->where('action', 'Claimed')
                             ->where('beneficiary_id', $beneficiary->id)
-                            ->delete();
+                            ->latest()
+                            ->first();
+
+                        if ($transaction) {
+                            $transaction->update([
+                                'action' => 'Unclaimed',
+                                'performed_at' => now(), // Log the unclaim action
+                            ]);
+                        }
 
                         Notification::make()
                             ->title('Beneficiary Unclaimed Successfully')
                             ->success()
                             ->send();
                     })
-                    ->hidden(function (Model $beneficiary) {
-                        return $beneficiary->status === Beneficiary::UN_CLAIMED;
-                    })
+                    ->hidden(fn(Model $beneficiary) => $beneficiary->status === Beneficiary::UN_CLAIMED)
                     ->icon('heroicon-o-x-circle')
                     ->color('gray')
                     ->label('Revert'),
@@ -161,12 +195,13 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
 
 
 
+
             ])
             ->bulkActions([])
             ->modifyQueryUsing(function ($query) {
-                return $query->whereHas('distributionItem', function($q){
+                return $query->whereHas('distributionItem', function ($q) {
                     return $q->where('distribution_id', $this->record->id);
-                } );
+                });
             })
         ;
     }

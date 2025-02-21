@@ -41,7 +41,7 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-
+                
                 Tables\Columns\TextColumn::make('action')->badge()
                 ->color(fn (string $state): string => match ($state) {
 

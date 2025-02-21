@@ -2,19 +2,27 @@
 
 namespace App\Filament\Barangay\Resources\DistributionResource\Pages;
 
+use App\Models\Item;
+use Filament\Tables;
 use Filament\Tables\Table;
+use App\Models\Beneficiary;
 use App\Models\Transaction;
 use App\Models\Distribution;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Contracts\HasTable;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Enums\ActionsPosition;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables;
 use App\Filament\Barangay\Resources\DistributionResource;
+use App\Models\DistributionItem;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 
 class TransactionHistory extends Page  implements HasForms, HasTable
 {
@@ -41,6 +49,17 @@ class TransactionHistory extends Page  implements HasForms, HasTable
         return $table
             ->query(Transaction::query())
             ->columns([
+                SpatieMediaLibraryImageColumn::make('image')
+                ->defaultImageUrl(url('/images/placeholder-image.jpg'))
+                ->label('Captured Image')
+                ->toggleable(isToggledHiddenByDefault: false)
+                ->getStateUsing(function (Model $record): string {
+                    return  $record->getFirstMediaUrl('image');
+                })
+                ->extraImgAttributes([
+                    'img' => 'src'
+                ])
+                ->openUrlInNewTab(),
                  Tables\Columns\TextColumn::make('action')->badge()
                 ->color(fn (string $state): string => match ($state) {
 
@@ -108,16 +127,50 @@ class TransactionHistory extends Page  implements HasForms, HasTable
             ])
             ->filters([
 
+                // SelectFilter::make('distribution_id')
+                // ->relationship('distribution', 'title')
+                // ->searchable()
+                // // ->multiple()
+                // ->preload()->label('Distribution'),
+
+                SelectFilter::make('distribution_item_id')
+                ->searchable()
+                ->getSearchResultsUsing(fn (string $search): array =>
+                    DistributionItem::whereHas('item', function ($query) use ($search) {
+                        $query->where('name', 'LIKE', "%{$search}%");
+                    })
+                    ->limit(50)
+                    ->get()
+                    ->mapWithKeys(fn ($distributionItem) => [$distributionItem->id => $distributionItem->item->name])
+                    ->toArray()
+                )
+                ->getOptionLabelUsing(fn ($value): ?string =>
+                    DistributionItem::find($value)?->item->name
+                )
+                ->multiple()
+                ->preload()
+                ->label('Item'),
+
+
+                SelectFilter::make('action')
+                ->options(Beneficiary::STATUS_OPTIONS)->searchable()
+
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([])
             ->actions([
 
+                ActionGroup::make([
 
+                    Tables\Actions\DeleteAction::make()->color('gray'),
+                ]),
 
-
-
+            ],position: ActionsPosition::BeforeColumns)
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ])
-            ->bulkActions([])
+            ->striped()
             ->modifyQueryUsing(function ($query) {
                 return $query->byBarangay(Auth::user()->barangay_id);
             })

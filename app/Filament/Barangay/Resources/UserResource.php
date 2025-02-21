@@ -45,7 +45,7 @@ class UserResource extends Resource
                 ->defaultImageUrl(url('/images/placeholder-image.jpg'))
                 ->label('Profile')
                 ->toggleable(isToggledHiddenByDefault: false)
-                ->getStateUsing(function (Book $record): string {
+                ->getStateUsing(function (Model $record): string {
                     return  $record->getFirstMediaUrl('image');
                 })
                 ->extraImgAttributes([
