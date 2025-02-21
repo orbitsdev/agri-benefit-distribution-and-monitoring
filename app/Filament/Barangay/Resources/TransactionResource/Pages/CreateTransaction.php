@@ -69,6 +69,7 @@ class CreateTransaction extends CreateRecord
         'type' => $support->type,
         'unique_code' => $support->unique_code,
     ];
+    
 
     // Action Details
     $data['action'] = 'Claimed';

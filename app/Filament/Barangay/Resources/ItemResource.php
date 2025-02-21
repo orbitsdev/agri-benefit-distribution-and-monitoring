@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,7 @@ class ItemResource extends Resource
     protected static ?string $navigationLabel = 'Registered Items';
     protected static ?string $navigationIcon = 'heroicon-s-archive-box-arrow-down';
     protected static ?int $navigationSort = 2;
-    protected static ?string $navigationGroup = 'Setup';
+    protected static ?string $navigationGroup = 'SETUP';
 
 
 
@@ -65,6 +66,8 @@ class ItemResource extends Resource
                             ;
                         }
                     }),
+
+                    Tables\Columns\TextColumn::make('distribution_items_count')->counts('distribution_items')->label('Usage'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -79,12 +82,12 @@ class ItemResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make()->color('gray'),
+                Tables\Actions\DeleteAction::make()->color('gray')->visible(fn (Model $record) => !$record->has_distribution_items),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $query->byBarangay(Auth::user()->barangay_id);

@@ -27,7 +27,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static ?string $navigationGroup = 'Setup';
+    protected static ?string $navigationGroup = 'SETUP';
     protected static ?string $navigationLabel = 'System Account';
 
 
@@ -91,7 +91,7 @@ class UserResource extends Resource
                 ActionGroup::make([
 
                     Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()->color('gray'),
+                    Tables\Actions\DeleteAction::make()->color('gray')->visible(fn (Model $record) => !$record->has_personnel),
                 ]),
             ])
             ->bulkActions([

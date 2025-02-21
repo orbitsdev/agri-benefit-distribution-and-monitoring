@@ -60,7 +60,6 @@ class Transaction extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('image')->singleFile();
-
     }
 
     public function getImage()

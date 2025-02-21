@@ -5,10 +5,13 @@ namespace App\Filament\Barangay\Widgets;
 use Filament\Tables;
 use Filament\Tables\Table;
 use App\Models\Distribution;
+use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Widgets\TableWidget as BaseWidget;
+use App\Filament\Barangay\Resources\DistributionResource;
 use IbrahimBougaoua\FilaProgress\Tables\Columns\ProgressBar;
 
 class LatestDistributions extends BaseWidget
@@ -23,7 +26,7 @@ class LatestDistributions extends BaseWidget
         ->heading('Latest Distributions')
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                    ->searchable()->wrap(),
+                    ->searchable()->wrap()->toggleable(isToggledHiddenByDefault: false),
                     Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -40,7 +43,7 @@ class LatestDistributions extends BaseWidget
                     Tables\Columns\TextColumn::make('distribution_date')
                     ->date()
                     ->label('Date')
-                    ->sortable()->toggleable(),
+                    ->sortable()->toggleable(isToggledHiddenByDefault: false),
 
                     Tables\Columns\TextColumn::make('location')
                     ->searchable()->label('Location/Venue')->wrap()->toggleable(),
@@ -59,6 +62,23 @@ class LatestDistributions extends BaseWidget
                 ->hideProgressValue(true),
 
                     // ViewColumn::make('progress')->view('tables.columns.distribution-progress')
+
+            ])
+            ->actions([
+                ActionGroup::make([
+ Action::make('Transaction') // Disable closing the modal by clicking outside
+
+
+
+                    ->label('Transaction History') // Add label for better UX
+                    ->icon('heroicon-s-clock')
+                    ->url(function (Model $record) {
+
+                      return DistributionResource::getUrl('distribution-transaction-history',['record'=>$record->id]);
+
+                    }, shouldOpenInNewTab: true)
+                  ,
+                ]),
 
             ])
             ->modifyQueryUsing(fn($query)=> $query->limit(10))

@@ -25,7 +25,8 @@ class TransactionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
     protected static ?int $navigationSort = 4;
-    protected static ?string $navigationGroup = 'Operations Management';
+    protected static ?string $navigationGroup = 'OPERATION MANAGEMENT';
+    protected static bool $shouldRegisterNavigation = false;
     // protected static ?string $navigationLabel = 'Import Logs';
 
 

@@ -7,8 +7,8 @@ use App\Models\DistributionItem;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
-{   
-    
+{
+
     // belongs to barangay
     public function barangay(){
         return $this->belongsTo(Barangay::class);
@@ -17,12 +17,23 @@ class Item extends Model
     public function distributionItems(){
         return $this->hasMany(DistributionItem::class);
     }
+    public function distribution_items(){
+        return $this->hasMany(DistributionItem::class);
+    }
+
+    public function getHasDistributionItemsAttribute(): bool
+{
+    return $this->distributionItems()->exists();
+}
+
+
+
 
     //scope accourding to barangay
     public function scopeByBarangay($query, $barangay_id){
         return $query->where('barangay_id', $barangay_id);
     }
-    
+
 
     //scope active
     public function scopeActive($query){
@@ -30,6 +41,6 @@ class Item extends Model
     }
 
 
-   
-    
+
+
 }

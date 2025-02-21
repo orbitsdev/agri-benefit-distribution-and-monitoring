@@ -41,7 +41,7 @@ class DistributionResource extends Resource
     protected static ?string $model = Distribution::class;
 
     protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';
-     protected static ?string $navigationGroup = 'Operations Management';
+     protected static ?string $navigationGroup = 'OPERATION MANAGEMENT';
 
      //sort
         protected static ?int $navigationSort = 3;
@@ -68,7 +68,17 @@ class DistributionResource extends Resource
         return $table
             ->columns([
                 // Tables\Columns\TextColumn::make('barangay.name')->searchable(),
+                ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries')->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('status')
+                ->badge()
+                ->color(fn(string $state): string => match ($state) {
+                    Distribution::STATUS_PLANNED => 'gray',
+                    Distribution::STATUS_ONGOING => 'success',
+                    Distribution::STATUS_COMPLETED=> 'success',
+                    Distribution::STATUS_CANCELED=> 'danger',
 
+                    default => 'gray'
+                }),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()->wrap(),
 
@@ -98,17 +108,7 @@ class DistributionResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                    ViewColumn::make('Items')->view('tables.columns.distribution-item-list')->label('Items|Quantity|Beneficiaries')->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        Distribution::STATUS_PLANNED => 'gray',
-                        Distribution::STATUS_ONGOING => 'success',
-                        Distribution::STATUS_COMPLETED=> 'success',
-                        Distribution::STATUS_CANCELED=> 'danger',
 
-                        default => 'gray'
-                    }),
                     Tables\Columns\TextColumn::make('is_locked')
                     ->label('Lock Status')
                     ->formatStateUsing(function ($state) {
@@ -205,7 +205,7 @@ class DistributionResource extends Resource
                     ->size(ActionSize::ExtraSmall)
 
                     ->label('View')
-                    ->icon('heroicon-o-eye')
+                    ->icon('heroicon-s-eye')
                     ->modalSubmitAction(false)
                     // ->button()
 
@@ -215,11 +215,6 @@ class DistributionResource extends Resource
                     ))
                     ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
                     ->closeModalByClickingAway(false)->modalWidth('7xl'),
-
-                    Tables\Actions\EditAction::make()->label('Manage'),
-                    Tables\Actions\DeleteAction::make()->color('gray'),
-
-
                     Action::make('Transaction') // Disable closing the modal by clicking outside
 
                     ->size(ActionSize::ExtraSmall) // Set modal width
@@ -234,6 +229,12 @@ class DistributionResource extends Resource
 
                     }, shouldOpenInNewTab: true)
                   ,
+
+
+                    Tables\Actions\EditAction::make()->label('Manage'),
+                    Tables\Actions\DeleteAction::make()->color('gray'),
+
+
 
 
                 ]),

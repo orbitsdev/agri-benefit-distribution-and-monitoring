@@ -130,6 +130,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
     {
         return $this->hasMany(Personnel::class);
     }
+    public function getHasPersonnelAttribute(): bool
+    {
+        return $this->personnels()->exists();
+    }
 
 
     // scope where doesnt have the same barnaggau personne

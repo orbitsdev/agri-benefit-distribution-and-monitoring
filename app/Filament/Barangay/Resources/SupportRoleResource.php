@@ -20,7 +20,7 @@ class SupportRoleResource extends Resource
 
     protected static ?string $navigationIcon = 'vaadin-handshake';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationGroup = 'Setup';
+    protected static ?string $navigationGroup = 'SETUP';
 
 
     public static function form(Form $form): Form
