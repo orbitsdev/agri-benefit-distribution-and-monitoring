@@ -8,6 +8,8 @@ use Livewire\Component;
 use Filament\Tables\Table;
 use App\Models\Beneficiary;
 use App\Models\Distribution;
+use WireUi\Traits\WireUiActions;
+use Filament\Actions\StaticAction;
 use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -17,12 +19,13 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Tables\Concerns\InteractsWithTable;
-use WireUi\Traits\WireUiActions;
+
 class DistributionBeneficiariesList extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
@@ -213,6 +216,20 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                 // ->icon('heroicon-o-x-circle')
                 ->color('gray')
                 ->label('Return'),
+                ActionGroup::make([
+                    Action::make('View Qr')
+                        ->color('gray')
+                        ->label('View QR Code')
+
+                        ->modalSubmitAction(false)
+                        ->modalContent(fn(Model $record): View => view(
+                            'livewire.beneficiary-qr',
+                            ['record' => $record],
+                        ))
+                        ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                        ->closeModalByClickingAway(false)->modalWidth('7xl'),
+
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
