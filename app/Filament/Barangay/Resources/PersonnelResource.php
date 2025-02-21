@@ -25,6 +25,7 @@ class PersonnelResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'SETUP';
+    protected static ?string $navigationLabel = 'Barangay Personnel';
 
 
     //sort
