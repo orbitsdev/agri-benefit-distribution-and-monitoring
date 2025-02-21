@@ -22,12 +22,12 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Tables\Concerns\InteractsWithTable;
-
+use WireUi\Traits\WireUiActions;
 class DistributionBeneficiariesList extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
-
+    use WireUiActions;
     public $record;
     public $support;
 
@@ -73,13 +73,18 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                 ->label('Item Received') // ✅ More intuitive
                 ->searchable(),
 
-            TextColumn::make('status')
+                TextColumn::make('status')
                 ->label('Claim Status') // ✅ More descriptive
                 ->badge()
+                ->icon(fn(string $state): string => match ($state) {  // ✅ Add icon based on status
+                    Beneficiary::CLAIMED => 'heroicon-o-check', // ✅ Success Icon
+                    default => '', // ❌ Default (Unclaimed)
+                })
                 ->color(fn(string $state): string => match ($state) {
                     Beneficiary::CLAIMED => 'success',
                     default => 'gray'
                 }),
+
 
 
             ])
@@ -156,10 +161,11 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                     $this->dispatch('refreshProgress');
 
                     // Send success notification
-                    Notification::make()
-                        ->title('Beneficiary Claimed Successfully')
-                        ->success()
-                        ->send();
+                    $this->dialog()->success(
+                        title: 'Beneficiary Claimed',
+                        description: 'The beneficiary has been successfully marked as claimed.'
+                    );
+
                 })
                 ->hidden(function (Model $beneficiary) {
                     return $beneficiary->status === Beneficiary::CLAIMED ||
@@ -195,10 +201,10 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                         }
                         $this->dispatch('refreshProgress');
 
-                        Notification::make()
-                            ->title('Beneficiary Unclaimed Successfully')
-                            ->success()
-                            ->send();
+                        $this->dialog()->error(
+                            title: 'Beneficiary Unclaimed',
+                            description: 'The beneficiary claim has been successfully reverted.'
+                        );
                 })
                 ->hidden(function (Model $beneficiary) {
                     return $beneficiary->status === Beneficiary::UN_CLAIMED ||
