@@ -5,6 +5,8 @@ namespace App\Livewire\Distributions;
 use Livewire\Component;
 use App\Models\Beneficiary;
 
+use Livewire\Attributes\On;
+
 class DistributionProgress extends Component
 {
     public $distributionId;
@@ -17,6 +19,7 @@ class DistributionProgress extends Component
         $this->calculateProgress(); // Ensure we get the initial progress on mount
     }
 
+    #[On('refreshProgress')]
     public function calculateProgress()
     {
         if (!$this->distributionId) {

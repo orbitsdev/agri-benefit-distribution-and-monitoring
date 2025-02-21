@@ -7,6 +7,7 @@ use App\Models\Support;
 use Livewire\Component;
 use Filament\Tables\Table;
 use App\Models\Beneficiary;
+use App\Models\Distribution;
 use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -28,9 +29,11 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
     use InteractsWithTable;
 
     public $record;
+    public $support;
 
     public function mount(){
-      $this->record = Support::where('unique_code', Auth::user()->code)->first()->distribution;
+        $this->support = Support::where('unique_code', Auth::user()->code)->first() ;
+      $this->record = $this->support->distribution;
     //   dd($this->record);
 
     }
@@ -40,23 +43,50 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
         return $table
             ->query(Beneficiary::query())
             ->columns([
-                ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
-                TextColumn::make('name')->searchable(),
-                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault:true),
-                TextColumn::make('contact')->searchable(),
-                TextColumn::make('address')->searchable()->wrap(),
-                TextColumn::make('distributionItem.item.name')->searchable(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        Beneficiary::CLAIMED => 'success',
-                        default => 'gray'
-                    }),
+                // ✅ Improved label
+                ViewColumn::make('qr')
+                ->view('tables.columns.beneficiary-qr')
+                ->label('QR Code'), // ✅ Improved label
+                TextColumn::make('code')
+                ->label('Beneficiary Code') // ✅ Clearer label
+                ->searchable(isIndividual:true),
+            TextColumn::make('name')
+                ->label('Beneficiary Name') // ✅ Clearer label
+                ->searchable(isIndividual:true),
+
+
+            TextColumn::make('contact')
+                ->label('Contact Number') // ✅ More descriptive
+                ->searchable(),
+
+            TextColumn::make('email')
+                ->label('Email Address')
+                ->searchable()
+                ->toggleable(isToggledHiddenByDefault: true),
+
+            TextColumn::make('address')
+                ->label('Home Address')
+                ->searchable()
+                ->wrap(),
+
+            TextColumn::make('distributionItem.item.name')
+                ->label('Item Received') // ✅ More intuitive
+                ->searchable(),
+
+            TextColumn::make('status')
+                ->label('Claim Status') // ✅ More descriptive
+                ->badge()
+                ->color(fn(string $state): string => match ($state) {
+                    Beneficiary::CLAIMED => 'success',
+                    default => 'gray'
+                }),
+
+
             ])
             ->filters([
                  SelectFilter::make('status')
                     ->options(Beneficiary::STATUS_OPTIONS)->searchable(),
-            ], layout: FiltersLayout::AboveContent)
+            ], layout: FiltersLayout::Modal)
             ->actions([
                 Action::make('Claim')
                 ->requiresConfirmation()
@@ -70,7 +100,8 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                         $distributionItem->decrement('quantity');
                     }
 
-                    $adminId = Auth::user()->role === 'admin' ? Auth::user()->id : null;
+                    $adminId = null;
+                    $support = $this->support;
 
                     // Create a transaction record with JSON snapshots
                     $beneficiary->transactions()->create([
@@ -111,16 +142,18 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                         ],
 
                         'support_details' => [
-                            'id' => null,
-                            'name' => Auth::user()->name, // Ensure no error if support is null
-                            'type' => 'Admin',
-                            'unique_code' => null,
+                            'id' => $support->id,
+                            'name' => $support->personnel->user->name,
+                            'type' => $support->type,
+                            'unique_code' => $support->unique_code,
                         ],
 
                         // Action Details
                         'action' => 'Claimed',
                         'performed_at' => now(),
                     ]);
+
+                    $this->dispatch('refreshProgress');
 
                     // Send success notification
                     Notification::make()
@@ -129,12 +162,11 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                         ->send();
                 })
                 ->hidden(function (Model $beneficiary) {
-                    return $beneficiary->status === Beneficiary::UN_CLAIMED ||
+                    return $beneficiary->status === Beneficiary::CLAIMED ||
                     !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
                 })
-                ->icon('heroicon-o-x-circle')
-                ->color('gray')
-                ->label('Revert'),
+                // ->icon('far-hand-back-fist')
+                ->color('success'),
 
                 Action::make('Unclaim')
                 ->requiresConfirmation()
@@ -161,6 +193,7 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                                 'performed_at' => now(), // Log the unclaim action
                             ]);
                         }
+                        $this->dispatch('refreshProgress');
 
                         Notification::make()
                             ->title('Beneficiary Unclaimed Successfully')
@@ -171,9 +204,9 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                     return $beneficiary->status === Beneficiary::UN_CLAIMED ||
                     !in_array(optional($beneficiary->distributionItem->distribution)->status, [Distribution::STATUS_ONGOING, Distribution::STATUS_COMPLETED]);
                 })
-                ->icon('heroicon-o-x-circle')
+                // ->icon('heroicon-o-x-circle')
                 ->color('gray')
-                ->label('Revert'),
+                ->label('Return'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

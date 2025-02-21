@@ -66,6 +66,18 @@ class LatestDistributions extends BaseWidget
             ])
             ->actions([
                 ActionGroup::make([
+
+                    Action::make('Beneficiaries') // Disable closing the modal by clicking outside
+                  
+
+                    ->label('Beneficiaries') // Add label for better UX
+                    ->icon('heroicon-s-eye') // Optional: Add an icon for better UI
+                    ->url(function (Model $record) {
+
+                      return DistributionResource::getUrl('distribution-beneficiaries',['record'=>$record->id]);
+
+                    }, shouldOpenInNewTab: true)
+                  ,
  Action::make('Transaction') // Disable closing the modal by clicking outside
 
 
