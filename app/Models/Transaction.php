@@ -16,6 +16,15 @@ class Transaction extends Model implements HasMedia
 {
         use InteractsWithMedia;
 
+        protected $casts = [
+            'barangay_details' => 'array',
+            'distribution_details' => 'array',
+            'distribution_item_details' => 'array',
+            'beneficiary_details' => 'array',
+            'support_details' => 'array',
+        ];
+
+
 
     public function beneficiary()
     {

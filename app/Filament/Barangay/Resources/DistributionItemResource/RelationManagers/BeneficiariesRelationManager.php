@@ -49,6 +49,7 @@ class BeneficiariesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('email')->searchable(),
                 Tables\Columns\TextColumn::make('contact')->searchable(),
+                Tables\Columns\TextColumn::make('address')->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {

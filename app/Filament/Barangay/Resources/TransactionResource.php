@@ -40,51 +40,62 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('action'),
+
+                Tables\Columns\TextColumn::make('action')->badge()
+                ->color(fn (string $state): string => match ($state) {
+
+                    'Claimed' => 'success',
+                    'Unclaimed' => 'gray',
+                })->label('Status')
+                ,
 
                 ColumnGroup::make('Beneficiary Information', [
-                    Tables\Columns\TextColumn::make('beneficiary.name')->searchable()->label('Name'),
-                    Tables\Columns\TextColumn::make('beneficiary_name')->searchable()->label('Name')->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('beneficiary_contact')->label('Contact')->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('beneficiary_email')->searchable()->label('Email')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('beneficiary_details.name')
+                    ->label('Beneficiary Name')
+                    ->searchable()
+                   ,
+
+                    Tables\Columns\TextColumn::make('beneficiary_details.contact')->label('Contact')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('beneficiary_details.email')->label('Email')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('beneficiary_details.address')->label('Address')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Item Details', [
-                    Tables\Columns\TextColumn::make('distributionItem.item.name')->searchable(),
-                    Tables\Columns\TextColumn::make('distribution_item_name')->searchable()->label('Item')->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('distributionItem.item.name')->searchable(),
+                    // Tables\Columns\TextColumn::make('distribution_item_name')->searchable()->label('Item')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Distribution Details', [
-                    Tables\Columns\TextColumn::make('distribution.title')->searchable()->wrap()->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('distribution_item_name')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('distribution.title')->searchable()->wrap()->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('distribution_item_name')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Barangay Details ', [
-                    Tables\Columns\TextColumn::make('barangay.name')->searchable(),
-                    Tables\Columns\TextColumn::make('barangay_name')->searchable()->label('Barangay')->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('barangay_location')->searchable()->label('Barangay Location')->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('barangay.name')->searchable(),
+                    // Tables\Columns\TextColumn::make('barangay_name')->searchable()->label('Barangay')->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('barangay_location')->searchable()->label('Barangay Location')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Support Details', [
-                    Tables\Columns\TextColumn::make('support.personnel.user.name')->searchable(),
-                    Tables\Columns\TextColumn::make('support_name')->searchable()->label('Support Name')->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('support_type')->label('Support Type')->toggleable(isToggledHiddenByDefault: false),
-                    Tables\Columns\TextColumn::make('support_unique_code')->label('Support unique code')->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('support.personnel.user.name')->searchable(),
+                    // Tables\Columns\TextColumn::make('support_name')->searchable()->label('Support Name')->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('support_type')->label('Support Type')->toggleable(isToggledHiddenByDefault: false),
+                    // Tables\Columns\TextColumn::make('support_unique_code')->label('Support unique code')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Record Details', [
-                    Tables\Columns\TextColumn::make('performed_at')
-                        ->dateTime()
-                        ->sortable()
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('created_at')
-                        ->dateTime()
-                        ->sortable()
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('updated_at')
-                        ->dateTime()
-                        ->sortable()
-                        ->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('performed_at')
+                    //     ->dateTime()
+                    //     ->sortable()
+                    //     ->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('created_at')
+                    //     ->dateTime()
+                    //     ->sortable()
+                    //     ->toggleable(isToggledHiddenByDefault: true),
+                    // Tables\Columns\TextColumn::make('updated_at')
+                    //     ->dateTime()
+                    //     ->sortable()
+                    //     ->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
 

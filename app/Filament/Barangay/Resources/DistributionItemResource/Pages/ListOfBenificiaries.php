@@ -64,8 +64,9 @@ public function table(Table $table): Table
             ->columns([
                 ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
                 TextColumn::make('name')->searchable(),
-                TextColumn::make('email')->searchable(),
+                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault:true),
                 TextColumn::make('contact')->searchable(),
+                TextColumn::make('address')->searchable()->wrap(),
                 TextColumn::make('status')
                 ->badge()
                 ->color(fn(string $state): string => match ($state) {
@@ -157,7 +158,7 @@ public function table(Table $table): Table
                         // Use a custom import class with error tracking
                         Excel::import(new BeneficiariesImport($distributionItemId, $distributionId, $failures), $file);
 
-                     
+
                         if (Storage::disk('public')->exists($data['file'])) {
                             Storage::disk('public')->delete($data['file']);
                         }

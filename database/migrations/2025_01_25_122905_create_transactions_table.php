@@ -13,42 +13,25 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id(); // Primary key
-            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('cascade'); // Link to barangays
-            $table->string('barangay_name')->nullable();
-            $table->string('barangay_location')->nullable();
-
+            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('cascade');
             $table->foreignId('distribution_id')->nullable()->constrained('distributions')->onDelete('cascade');
-            $table->string('distribution_title')->nullable();
-            $table->string('distribution_location')->nullable();
-            $table->string('distribution_date')->nullable();
-            $table->string('distribution_code')->nullable();
-
             $table->foreignId('distribution_item_id')->nullable()->constrained('distribution_items')->onDelete('cascade');
-            $table->string('distribution_item_name')->nullable();
-
-
-            // Foreign Keys
-            $table->foreignId('beneficiary_id')->constrained('beneficiaries')->onDelete('cascade');
-            $table->string('beneficiary_name')->nullable();
-            $table->string('beneficiary_contact')->nullable();
-            $table->string('beneficiary_email')->nullable();
-            $table->string('beneficiary_code')->nullable();
-
-
-
+            $table->foreignId('beneficiary_id')->nullable()->constrained('beneficiaries')->onDelete('cascade');
             $table->foreignId('support_id')->nullable()->constrained('supports')->onDelete('set null');
-            $table->string('support_name')->nullable();
-            $table->string('support_type')->nullable();
-            $table->string('support_unique_code')->nullable();
-
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null'); // Link to admins
 
-            // Snapshot Fields
+            // JSON Snapshots (to store full details at the time of transaction)
+            $table->json('barangay_details')->nullable(); // Stores barangay details
+            $table->json('distribution_details')->nullable(); // Stores distribution details
+            $table->json('distribution_item_details')->nullable(); // Stores item details
+            $table->json('beneficiary_details')->nullable(); // Stores beneficiary details
+            $table->json('support_details')->nullable(); // Stores support details
 
             // Action Data
             $table->enum('action', ['Claimed', 'Unclaimed'])->nullable();
             $table->string('role')->nullable();
             $table->timestamp('performed_at')->nullable();
+        
             $table->timestamps();
         });
     }

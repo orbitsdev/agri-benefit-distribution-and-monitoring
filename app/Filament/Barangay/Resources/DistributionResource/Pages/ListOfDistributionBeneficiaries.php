@@ -53,8 +53,9 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
             ->columns([
                 ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
                 TextColumn::make('name')->searchable(),
-                TextColumn::make('email')->searchable(),
+                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault:true),
                 TextColumn::make('contact')->searchable(),
+                TextColumn::make('address')->searchable()->wrap(),
                 TextColumn::make('distributionItem.item.name')->searchable(),
                 TextColumn::make('status')
                     ->badge()
