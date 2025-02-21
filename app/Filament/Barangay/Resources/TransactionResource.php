@@ -51,43 +51,50 @@ class TransactionResource extends Resource
 
                 ColumnGroup::make('Beneficiary Information', [
                     Tables\Columns\TextColumn::make('beneficiary_details.name')
-                    ->label('Beneficiary Name')
-                    ->searchable()
+                    ->label('Name')
+                    ->searchable(isIndividual:true)
                    ,
 
-                    Tables\Columns\TextColumn::make('beneficiary_details.contact')->label('Contact')->toggleable(isToggledHiddenByDefault: true),
-                    Tables\Columns\TextColumn::make('beneficiary_details.email')->label('Email')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('beneficiary_details.contact')->searchable(isIndividual:true)->label('Contact')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('beneficiary_details.email')->searchable(isIndividual:true)->label('Email')->toggleable(isToggledHiddenByDefault: true),
                     Tables\Columns\TextColumn::make('beneficiary_details.address')->label('Address')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Item Details', [
-                    // Tables\Columns\TextColumn::make('distributionItem.item.name')->searchable(),
+                    Tables\Columns\TextColumn::make('distribution_item_details.name')->searchable()->toggleable(isToggledHiddenByDefault: false)->label('Item')->wrap(),
                     // Tables\Columns\TextColumn::make('distribution_item_name')->searchable()->label('Item')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Distribution Details', [
-                    // Tables\Columns\TextColumn::make('distribution.title')->searchable()->wrap()->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('distribution_details.title')->searchable()->toggleable(isToggledHiddenByDefault: false)->label('Distribution'),
+                    Tables\Columns\TextColumn::make('distribution_details.location')->toggleable(isToggledHiddenByDefault: true)->label('Location'),
+                    Tables\Columns\TextColumn::make('distribution_details.date')
+                    ->dateTime('M d, Y')
+                    ->toggleable(isToggledHiddenByDefault: true)->label('Date'),
+                    Tables\Columns\TextColumn::make('distribution_details.code')->searchable(isIndividual:true)->toggleable(isToggledHiddenByDefault: true)->label('Code'),
                     // Tables\Columns\TextColumn::make('distribution_item_name')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Barangay Details ', [
                     // Tables\Columns\TextColumn::make('barangay.name')->searchable(),
-                    // Tables\Columns\TextColumn::make('barangay_name')->searchable()->label('Barangay')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('barangay_details.name')->searchable(isIndividual:true)->label('Barangay')->toggleable(isToggledHiddenByDefault: false),
+                    Tables\Columns\TextColumn::make('barangay_details.location')->searchable()->label('Location')->toggleable(isToggledHiddenByDefault: true),
                     // Tables\Columns\TextColumn::make('barangay_location')->searchable()->label('Barangay Location')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
                 ColumnGroup::make('Support Details', [
                     // Tables\Columns\TextColumn::make('support.personnel.user.name')->searchable(),
-                    // Tables\Columns\TextColumn::make('support_name')->searchable()->label('Support Name')->toggleable(isToggledHiddenByDefault: true),
-                    // Tables\Columns\TextColumn::make('support_type')->label('Support Type')->toggleable(isToggledHiddenByDefault: false),
-                    // Tables\Columns\TextColumn::make('support_unique_code')->label('Support unique code')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('support_details.name')->searchable(isIndividual:true)->label('Name')->toggleable(isToggledHiddenByDefault: false),
+                    Tables\Columns\TextColumn::make('support_details.type')->label('Type')->toggleable(isToggledHiddenByDefault: false),
+                    Tables\Columns\TextColumn::make('support_details.unique_code')->searchable(isIndividual:true)->label('Support Code')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
-                ColumnGroup::make('Record Details', [
-                    // Tables\Columns\TextColumn::make('performed_at')
-                    //     ->dateTime()
-                    //     ->sortable()
-                    //     ->toggleable(isToggledHiddenByDefault: true),
+                ColumnGroup::make('Recorded Details', [
+                    Tables\Columns\TextColumn::make('performed_at')
+                    ->dateTime('M d, Y h:i A') // Format: Jan 21, 2025 10:30 AM
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+
                     // Tables\Columns\TextColumn::make('created_at')
                     //     ->dateTime()
                     //     ->sortable()
@@ -130,9 +137,9 @@ class TransactionResource extends Resource
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ])
             ->modifyQueryUsing(function($query){
                 return $query->byBarangay(Auth::user()->barangay_id);

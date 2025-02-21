@@ -165,7 +165,7 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
             ->bulkActions([])
             ->modifyQueryUsing(function ($query) {
                 return $query->whereHas('distributionItem', function($q){
-                    return $q->where('distribution_item_id', $this->record->id);
+                    return $q->where('distribution_id', $this->record->id);
                 } );
             })
         ;
