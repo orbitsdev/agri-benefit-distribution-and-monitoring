@@ -6,10 +6,12 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use App\Http\Middleware\EnsureIsAdmin;
 use Filament\Navigation\NavigationItem;
 use Filament\Http\Middleware\Authenticate;
+use App\Filament\Barangay\Pages\EditProfile;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -57,6 +59,10 @@ class BarangayPanelProvider extends PanelProvider
                 Authenticate::class,
                 EnsureIsAdmin::class
             ])
+            ->profile(EditProfile::class,isSimple:false)
+            // ->userMenuItems([
+            //     'My Profile' => MenuItem::make()->url(fn (): string => EditProfile::getUrl())
+            // ])
             ->navigationItems([
 
 

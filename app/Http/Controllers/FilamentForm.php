@@ -27,6 +27,130 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class FilamentForm extends Controller
 {
+    public static function profileForm(): array
+    {
+        return [
+
+            Section::make('User Details')
+                ->description('Enter all required user information.')
+
+                ->columnSpanFull()
+                ->schema([
+
+                    TextInput::make('name')
+                        ->required()
+                        ->maxLength(191)
+                        ,
+
+                    TextInput::make('email')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ,
+
+                    Select::make('role')
+                        ->default(User::ADMIN)
+                        ->required()
+                        ->options(User::ROLE_OPTIONS)
+
+                        ->searchable()
+                        ->live()
+                        ->disabled(fn(string $operation): bool => $operation === 'edit'),
+
+                    TextInput::make('password')
+                        ->password()
+                        ->revealable()
+
+                        ->dehydrateStateUsing(fn(string $state): string => Hash::make($state))
+                        ->dehydrated(fn(?string $state): bool => filled($state))
+                        ->required(fn(string $operation): bool => $operation === 'create')
+                        ->label(fn(string $operation) => $operation == 'create' ? 'Password' : 'New Password'),
+
+
+
+
+
+
+                    SpatieMediaLibraryFileUpload::make('image')
+                        ->columnSpanFull()
+                        ->label('Profile')
+                        ->image()
+                        ->imageEditor()
+                        // ->required(),
+                ]),
+                Group::make()
+                ->relationship('barangay')->schema(self::barangayProfileForm()),
+
+
+
+        ];
+    }
+    public static function barangayProfileForm(): array
+    {
+        return [
+            Section::make('Barangay Details')
+                ->description('Enter all required barangay information.')
+
+                ->columnSpanFull()
+                ->schema([
+
+                    // Barangay Name
+                    TextInput::make('name')
+                        ->label('Barangay Name')
+                        ->required()
+                        ->maxLength(191)
+                        ,
+
+                    // Barangay Location
+                    Textarea::make('location')
+                        ->label('Location/Venue')
+                        ->maxLength(500)
+                        ->rows(3)
+                        ->columnSpanFull()
+                        ->required(),
+
+                    // Chairman Name
+                    TextInput::make('chairman_name')
+                        ->label('Chairman Name')
+                        // ->required()
+                        ->maxLength(191)
+                        ,
+
+                    // Chairman Contact
+                    TextInput::make('chairman_contact')
+                        ->label('Chairman Contact')
+                        ->tel()
+                        // ->required()
+                        ->maxLength(20)
+                        ,
+
+                    // Head Name
+                    TextInput::make('head_name')
+                        ->label('Head Name')
+                        // ->required()
+                        ->maxLength(191)
+                        ,
+
+                    // Head Contact
+                    TextInput::make('head_contact')
+                        ->label('Head Contact')
+                        ->tel()
+                        // ->required()
+                        ->maxLength(20)
+                        ,
+
+                    SpatieMediaLibraryFileUpload::make('image')
+                        ->columnSpanFull()
+                        ->label('Barangay Image')
+                        ->image()
+                        ->imageEditor(),
+
+                      
+
+                ]),
+
+
+        ];
+    }
     public static function userForm(): array
     {
         return [
