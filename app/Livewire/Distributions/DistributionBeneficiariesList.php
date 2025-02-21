@@ -3,6 +3,7 @@
 namespace App\Livewire\Distributions;
 
 use Filament\Tables;
+use App\Models\Support;
 use Livewire\Component;
 use Filament\Tables\Table;
 use App\Models\Beneficiary;
@@ -26,7 +27,13 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
     use InteractsWithForms;
     use InteractsWithTable;
 
+    public $record;
 
+    public function mount(){
+      $this->record = Support::where('unique_code', Auth::user()->code)->first()->distribution;
+    //   dd($this->record);
+
+    }
 
     public function table(Table $table): Table
     {
@@ -148,9 +155,32 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                 ]),
             ])
             ->modifyQueryUsing(function ($query) {
-                return $query;
+                return $query->whereHas('distributionItem', function($query){
+                    return $query->where('distribution_id', $this->record->id);
+                });
             });
     }
+
+    public function getProgressDataProperty()
+{
+    $total = Beneficiary::whereHas('distributionItem', function($query) {
+        return $query->where('distribution_id', $this->record->id);
+    })->count();
+
+    $claimed = Beneficiary::whereHas('distributionItem', function($query) {
+        return $query->where('distribution_id', $this->record->id);
+    })->where('status', Beneficiary::CLAIMED)->count();
+
+    $progressPercent = $total > 0 ? round(($claimed / $total) * 100, 2) : 0;
+
+    return [
+        'total' => $total,
+        'claimed' => $claimed,
+        'remaining' => $total - $claimed,
+        'percentage' => $progressPercent,
+    ];
+}
+
 
     public function render(): View
     {

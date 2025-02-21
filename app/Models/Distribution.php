@@ -29,7 +29,9 @@ class Distribution extends Model
 
     protected function casts():array{
         return [
-            'is_locked'=> 'boolean'
+            'is_locked'=> 'boolean',
+            'distribution_date' => 'datetime', // ✅ Ensures it's a Carbon instance
+
         ];
 
     }
