@@ -22,6 +22,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
     public bool $codeDetected = false;
     public bool $isScanning = true;
     public ?Beneficiary $beneficiary = null;
+
     #[On('handleScan')]
     public function handleScan(string $code)
     {
@@ -29,11 +30,10 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->codeDetected = true;
         $this->isScanning = false;
 
-        // ✅ Ensure a valid beneficiary is found
+        // ✅ Fetch the beneficiary details
         $this->beneficiary = Beneficiary::where('code', $code)->with('distributionItem.item')->first();
 
         if (!$this->beneficiary) {
-            // ✅ Show error if beneficiary is not found
             $this->dialog()->error(
                 title: 'Invalid QR Code',
                 description: 'No beneficiary found for this code.'
@@ -42,7 +42,6 @@ class QrScannerPage extends Component implements HasForms, HasActions
             return;
         }
 
-        // ✅ Ensure relations are available before using
         $itemName = optional($this->beneficiary->distributionItem?->item)->name ?? 'N/A';
 
         $this->dialog()->success(
@@ -56,14 +55,14 @@ class QrScannerPage extends Component implements HasForms, HasActions
         if ($this->beneficiary) {
             $this->beneficiary->update(['status' => 'Claimed']);
 
+            // ✅ Success message
             $this->dialog()->success(
                 title: 'Claim Confirmed',
                 description: "{$this->beneficiary->name} has successfully claimed the item."
             );
 
-            // ✅ Instead of reloading, we just reset the data
+            // ✅ Reset scan & restart scanner properly
             $this->resetScan();
-            $this->dispatch('restartScanning'); // ✅ Restart the scanner smoothly
         }
     }
 
@@ -74,7 +73,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->isScanning = true;
         $this->beneficiary = null;
 
-        // ✅ Instead of reloading, we restart the scanner and re-render UI
+        // ✅ Ensure UI updates properly & scanner restarts
         $this->dispatch('restartScanning');
     }
 

@@ -1,4 +1,15 @@
 <x-support-layout>
+    <style>
+        #qr-reader {
+            position: relative !important;
+            z-index: 9999 !important; /* Ensures it's above any overlays */
+        }
+
+        .qr-shaded-region {
+            display: none !important; /* Hide unnecessary shaded overlay */
+        }
+    </style>
+
     <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">
         <h2 class="text-lg font-semibold text-center text-gray-700">Scan QR Code</h2>
 
@@ -98,7 +109,7 @@
                     console.error("Camera detection error:", err);
                 });
 
-            // ✅ Restart scanner without full page refresh
+            // ✅ Restart scanner properly after confirmation/reset
             Livewire.on('restartScanning', async function () {
                 console.log("Restarting scanner...");
                 isScanning = false;
