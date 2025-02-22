@@ -74,8 +74,9 @@ class QrScannerPage extends Component implements HasForms, HasActions
                 description: "{$this->beneficiary->name} has successfully claimed the item."
             );
 
-            // ✅ Restart scanning after confirming the claim
+            // ✅ Restart scanning & force Livewire to update
             $this->resetScan();
+            $this->dispatch('refresh');
         }
     }
 
