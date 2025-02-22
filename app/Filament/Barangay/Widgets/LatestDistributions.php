@@ -68,7 +68,7 @@ class LatestDistributions extends BaseWidget
                 ActionGroup::make([
 
                     Action::make('Beneficiaries') // Disable closing the modal by clicking outside
-                  
+
 
                     ->label('Beneficiaries') // Add label for better UX
                     ->icon('heroicon-s-eye') // Optional: Add an icon for better UI
@@ -94,7 +94,7 @@ class LatestDistributions extends BaseWidget
 
             ])
             ->modifyQueryUsing(fn($query)=> $query->limit(10))
-            ->poll('20s')
+            // ->poll('20s')
             ;
     }
 }

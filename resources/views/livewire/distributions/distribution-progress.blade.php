@@ -1,4 +1,5 @@
-<div wire:poll.10s="calculateProgress" class=""> <!-- ✅ Polling will call calculateProgress() -->
+<div  class=""> <!-- ✅ Polling will call calculateProgress() -->
+{{-- <div wire:poll.10s="calculateProgress" class=""> <!-- ✅ Polling will call calculateProgress() --> --}}
 
 
     <div class="relative w-full overflow-hidden rounded-full bg-gray-200 shadow-inner">
