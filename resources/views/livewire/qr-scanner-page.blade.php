@@ -2,56 +2,79 @@
     <style>
         #qr-reader {
             position: relative !important;
-            z-index: 59 !important; /* Ensures it's above any overlays */
+            z-index: 1 !important; /* Ensures it's above any overlays */
         }
 
         .qr-shaded-region {
             display: none !important; /* Hide unnecessary shaded overlay */
         }
     </style>
+      <div class="flex flex-col items-center  min-h-screen  px-4">
+        <div class="w-full max-w-lg rounded-xl  p-6 md:p-8">
+            <!-- Title -->
+            <h2 class="text-xl mt-8 font-semibold text-gray-900 flex items-center justify-center gap-2">
+                <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 8h4V4H3v4zm14-4v4h4V4h-4zM3 20h4v-4H3v4zm14 0h4v-4h-4v4z"></path>
+                </svg>
+                Scan QR Code
+            </h2>
 
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">
-        <h2 class="text-lg font-semibold text-center text-gray-700">Scan QR Code</h2>
+            <!-- Scanner -->
 
-        <!-- Scanning Indicator -->
-        <div wire:loading wire:target="handleScan" class="mt-2 text-blue-600 font-medium">
-            🔍 Scanning...
-        </div>
+            <!-- Scanner (Hidden when Beneficiary is Found) -->
+<div id="qr-reader"
+class="mt-4 w-full aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm
+{{ $beneficiary ? 'hidden' : '' }}">
+</div>
 
-        <!-- Scanner Box -->
-        <div id="qr-reader" class="mt-6 w-full max-w-md bg-gray-200 rounded-lg overflow-hidden"></div>
 
-        <!-- Scanned Code Display -->
-        <div class="mt-4 text-center">
-            <p class="text-gray-600">Scanned Code:</p>
-            <p class="text-lg font-bold text-gray-800">{{ $scannedCode }}</p>
-        </div>
+            <!-- Scanned Code Display -->
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-500">Scanned Code:</p>
+                <p class="text-lg font-medium text-gray-900">{{ $scannedCode }}</p>
+            </div>
 
-        <!-- Beneficiary Details -->
-        @if($beneficiary)
-        <div class="mt-4 p-4 bg-white rounded shadow">
-            <h3 class="text-lg font-bold text-gray-700">Beneficiary Details</h3>
-            <p><strong>Name:</strong> {{ $beneficiary->name }}</p>
-            <p><strong>Contact:</strong> {{ $beneficiary->contact }}</p>
-            <p><strong>Email:</strong> {{ $beneficiary->email }}</p>
-            <p><strong>Address:</strong> {{ $beneficiary->address }}</p>
-            <p><strong>Item:</strong> {{ $beneficiary->distributionItem->item->name ?? 'N/A' }}</p>
-            <p>
-                <strong>Status:</strong>
-                <span class="px-2 py-1 rounded text-white {{ $beneficiary->status === 'Claimed' ? 'bg-green-500' : 'bg-red-500' }}">
-                    {{ $beneficiary->status }}
-                </span>
-            </p>
-        </div>
-        @endif
+            <!-- Beneficiary Details -->
+            @if($beneficiary)
+            <div class="mt-4 bg-gray-50 rounded-md border border-gray-200 p-4 shadow-sm">
+                <dl class="divide-y divide-gray-100">
+                    <div class="py-2 flex justify-between">
+                        <dt class="text-sm font-medium text-gray-600">Name</dt>
+                        <dd class="text-sm text-gray-900">{{ $beneficiary->name }}</dd>
+                    </div>
+                    <div class="py-2 flex justify-between">
+                        <dt class="text-sm font-medium text-gray-600">Contact</dt>
+                        <dd class="text-sm text-gray-900">{{ $beneficiary->contact }}</dd>
+                    </div>
+                    <div class="py-2 flex justify-between">
+                        <dt class="text-sm font-medium text-gray-600">Item</dt>
+                        <dd class="text-sm text-gray-900">{{ $beneficiary->distributionItem->item->name ?? 'N/A' }}</dd>
+                    </div>
+                    <div class="py-2 flex justify-between">
+                        <dt class="text-sm font-medium text-gray-600">Status</dt>
+                        <dd>
+                            <span class="px-3 py-1 text-xs font-medium rounded-md text-white
+                                {{ $beneficiary->status === 'Claimed' ? 'bg-green-500' : 'bg-red-500' }}">
+                                {{ $beneficiary->status }}
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+            @endif
 
-        <!-- Buttons -->
-        <div class="mt-4 flex space-x-2">
-            {{ $this->confirmQrAction() }}
-            <button wire:click="resetScan" class="px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
+            <!-- Buttons -->
+            <div class="mt-5 flex items-center justify-between">
+                {{ $this->confirmQrAction() }}
+                <button wire:click="resetScan" class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
+                    Reset
+                </button>
+            </div>
         </div>
     </div>
-
+    <x-filament-actions::modals />
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <script>
@@ -87,7 +110,7 @@
                             Livewire.dispatch('handleScan', { code: decodedText });
                         },
                         (errorMessage) => {
-                            console.error("QR Scan Error:", errorMessage);
+                            // console.error("QR Scan Error:", errorMessage);
                         }
                     );
                 } catch (err) {
