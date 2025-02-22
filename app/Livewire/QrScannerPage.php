@@ -22,7 +22,6 @@ class QrScannerPage extends Component implements HasForms, HasActions
     public bool $codeDetected = false;
     public bool $isScanning = true;
     public ?Beneficiary $beneficiary = null;
-    
     #[On('handleScan')]
     public function handleScan(string $code)
     {
@@ -53,6 +52,18 @@ class QrScannerPage extends Component implements HasForms, HasActions
     }
 
 
+    public function resetScan()
+{
+    $this->scannedCode = '';
+    $this->codeDetected = false;
+    $this->isScanning = true;
+    $this->beneficiary = null;
+
+    // ✅ Restart scanning
+    $this->dispatch('restartScanning');
+}
+
+
     public function confirmClaim()
     {
         if ($this->beneficiary) {
@@ -63,17 +74,11 @@ class QrScannerPage extends Component implements HasForms, HasActions
                 description: "{$this->beneficiary->name} has successfully claimed the item."
             );
 
+            // ✅ Restart scanning after confirming the claim
             $this->resetScan();
         }
     }
 
-    public function resetScan()
-    {
-        $this->scannedCode = '';
-        $this->codeDetected = false;
-        $this->isScanning = true;
-        $this->beneficiary = null;
-    }
 
     public function confirmQrAction(): Action
     {

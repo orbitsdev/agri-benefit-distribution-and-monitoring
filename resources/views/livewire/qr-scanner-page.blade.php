@@ -54,7 +54,36 @@
 
             const html5QrCode = new Html5Qrcode("qr-reader");
             let currentCameraId = null;
-            let isScanning = true; // ✅ New flag to track scanning state
+            let isScanning = false; // ✅ Fix: Ensure accurate scanning state
+
+            async function startScanner() {
+                if (isScanning) return; // ✅ Prevent multiple start calls
+                isScanning = true;
+
+                console.log("Starting scanner...");
+
+                try {
+                    await html5QrCode.start(
+                        currentCameraId,
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
+                        (decodedText) => {
+                            if (!isScanning) return;
+
+                            console.log("Scanned QR Code:", decodedText);
+                            isScanning = false; // ✅ Stop further scanning
+                            html5QrCode.stop().then(() => console.log("Scanner stopped")).catch(console.error);
+
+                            // ✅ Dispatch scanned code to Livewire
+                            Livewire.dispatch('handleScan', { code: decodedText });
+                        },
+                        (errorMessage) => {
+                            console.error("QR Scan Error:", errorMessage);
+                        }
+                    );
+                } catch (err) {
+                    console.error("QR scanner error:", err);
+                }
+            }
 
             Html5Qrcode.getCameras()
                 .then(devices => {
@@ -64,44 +93,31 @@
                     }
 
                     currentCameraId = devices.find(device => device.label.toLowerCase().includes("back"))?.id || devices[0].id;
-
-                    function startScanner(cameraId) {
-                        if (!isScanning) return; // ✅ Prevent multiple scans if already detected
-
-                        html5QrCode.start(
-                            cameraId,
-                            { fps: 10, qrbox: { width: 250, height: 250 } },
-                            (decodedText) => {
-                                if (!isScanning) return; // ✅ Prevent multiple detections
-
-                                console.log("Scanned QR Code:", decodedText);
-                                isScanning = false; // ✅ Stop further scanning
-                                html5QrCode.stop(); // ✅ Stop the scanner to prevent multiple detections
-
-                                // ✅ Dispatch scanned code to Livewire
-                                Livewire.dispatch('handleScan', { code: decodedText });
-                            },
-                            (errorMessage) => {
-                                console.error("QR Scan Error:", errorMessage);
-                            }
-                        ).catch(err => {
-                            console.error("QR scanner error:", err);
-                        });
-                    }
-
-                    startScanner(currentCameraId);
+                    startScanner(); // ✅ Start scanner on page load
                 })
                 .catch(err => {
                     console.error("Camera detection error:", err);
                 });
 
-            // ✅ Function to restart scanning when user resets or confirms
-            Livewire.on('restartScanning', function () {
-                isScanning = true;
-                html5QrCode.start(currentCameraId, { fps: 10, qrbox: { width: 250, height: 250 } });
+            // ✅ Restart scanning when Livewire tells it to
+            Livewire.on('restartScanning', async function () {
+                console.log("Restarting scanner...");
+                isScanning = false; // ✅ Ensure the state is reset
+
+                try {
+                    await html5QrCode.stop();
+                    console.log("Scanner fully stopped, restarting...");
+                    setTimeout(() => startScanner(), 500); // ✅ Small delay ensures smooth restart
+                } catch (err) {
+                    console.error("Error stopping scanner before restart:", err);
+                    startScanner(); // ✅ Ensure scanner starts even if stop fails
+                }
             });
         });
     </script>
+
+
+
 
 
 
