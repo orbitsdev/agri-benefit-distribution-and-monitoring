@@ -167,7 +167,7 @@ class SupportDistributionTransactionHistory extends Component implements HasForm
             ])
             ->striped()
             ->modifyQueryUsing(function ($query) {
-                return $query->byBarangay(Auth::user()->barangay_id);
+                return $query->byBarangay(Auth::user()->barangay_id)->latest();
             })
         ;
     }

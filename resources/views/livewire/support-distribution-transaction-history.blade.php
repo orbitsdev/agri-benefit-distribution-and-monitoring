@@ -4,6 +4,6 @@
 
     {{-- @dump($record) --}}
 
-    {{$}}
+    {{$this->table}}
 
 </div>
