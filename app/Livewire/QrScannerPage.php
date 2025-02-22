@@ -51,34 +51,34 @@ class QrScannerPage extends Component implements HasForms, HasActions
         );
     }
 
-
     public function resetScan()
-{
-    $this->scannedCode = '';
-    $this->codeDetected = false;
-    $this->isScanning = true;
-    $this->beneficiary = null;
-
-    // ✅ Restart scanning
-    $this->dispatch('restartScanning');
-}
-
-
-    public function confirmClaim()
     {
-        if ($this->beneficiary) {
-            $this->beneficiary->update(['status' => 'Claimed']);
+        $this->scannedCode = '';
+        $this->codeDetected = false;
+        $this->isScanning = true;
+        $this->beneficiary = null;
 
-            $this->dialog()->success(
-                title: 'Claim Confirmed',
-                description: "{$this->beneficiary->name} has successfully claimed the item."
-            );
-
-
-            $this->resetScan();
-            $this->dispatch('refresh');
-        }
+        // ✅ Restart scanning & force UI reload
+        $this->dispatch('restartScanning');
+        $this->dispatch('refreshPage');
     }
+
+
+public function confirmClaim()
+{
+    if ($this->beneficiary) {
+        $this->beneficiary->update(['status' => 'Claimed']);
+
+        $this->dialog()->success(
+            title: 'Claim Confirmed',
+            description: "{$this->beneficiary->name} has successfully claimed the item."
+        );
+
+        // ✅ Restart scanning & force UI refresh
+        $this->resetScan();
+        $this->dispatch('refreshPage');
+    }
+}
 
 
     public function confirmQrAction(): Action
