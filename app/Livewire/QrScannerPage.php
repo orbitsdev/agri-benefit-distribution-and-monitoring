@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Beneficiary;
 use Filament\Actions\Action;
 use Livewire\Component;
 use WireUi\Traits\WireUiActions;
@@ -18,47 +19,70 @@ class QrScannerPage extends Component implements HasForms, HasActions
     use WireUiActions;
 
     public string $scannedCode = '';
-    public bool $codeDetected = false; // ✅ Flag to show the confirm button
-    public bool $isScanning = true; // ✅ Indicator for scanning status
-
-    #[On('handleScan')] // ✅ Livewire 3 event listener
+    public bool $codeDetected = false;
+    public bool $isScanning = true;
+    public ?Beneficiary $beneficiary = null;
+    
+    #[On('handleScan')]
     public function handleScan(string $code)
     {
         $this->scannedCode = $code;
-        $this->codeDetected = true; // ✅ Show the confirm button
-        $this->isScanning = false; // ✅ Stop scanning indicator
+        $this->codeDetected = true;
+        $this->isScanning = false;
 
-        // ✅ Automatically show Filament confirmation dialog
+        // ✅ Ensure a valid beneficiary is found
+        $this->beneficiary = Beneficiary::where('code', $code)->with('distributionItem.item')->first();
+
+        if (!$this->beneficiary) {
+            // ✅ Show error if beneficiary is not found
+            $this->dialog()->error(
+                title: 'Invalid QR Code',
+                description: 'No beneficiary found for this code.'
+            );
+            $this->resetScan();
+            return;
+        }
+
+        // ✅ Ensure relations are available before using
+        $itemName = optional($this->beneficiary->distributionItem?->item)->name ?? 'N/A';
+
         $this->dialog()->success(
             title: 'Scan Successful',
-            description: 'Scan Successful',
+            description: "Beneficiary found: {$this->beneficiary->name}, Item: {$itemName}."
         );
-        dd($this->scannedCode);
     }
 
-    public function confirmScan()
-    {
-        // ✅ Show WireUI success message
-        $this->dialog()->success(
-            title: 'QR Code Confirmed',
-            description: 'The scanned QR code has been successfully processed.'
-        );
 
-        // ✅ Reset scanning state
+    public function confirmClaim()
+    {
+        if ($this->beneficiary) {
+            $this->beneficiary->update(['status' => 'Claimed']);
+
+            $this->dialog()->success(
+                title: 'Claim Confirmed',
+                description: "{$this->beneficiary->name} has successfully claimed the item."
+            );
+
+            $this->resetScan();
+        }
+    }
+
+    public function resetScan()
+    {
         $this->scannedCode = '';
         $this->codeDetected = false;
-        $this->isScanning = true; // ✅ Restart scanning
+        $this->isScanning = true;
+        $this->beneficiary = null;
     }
 
-    // ✅ Filament Action for Confirming QR Code
     public function confirmQrAction(): Action
     {
         return Action::make('confirmQr')
-            ->label('Confirm QR Code')
+            ->label('Confirm Claim')
             ->icon('heroicon-o-check-circle')
             ->color('success')
-            ->visible(fn () => $this->codeDetected) // ✅ Only show if a code is detected
-            ->action(fn () => $this->confirmScan()); // ✅ Calls confirmScan() when clicked
+            ->visible(fn () => $this->beneficiary && $this->beneficiary->status === 'Unclaimed')
+            ->action(fn () => $this->confirmClaim());
     }
 
     public function render()

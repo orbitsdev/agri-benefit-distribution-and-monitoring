@@ -7,41 +7,40 @@
             🔍 Scanning...
         </div>
 
-        <!-- Camera Selection -->
-        <div id="camera-switch" class="hidden flex justify-center space-x-4 mt-4">
-            <button id="toggle-camera" class="px-4 py-2 bg-blue-500 text-white rounded">Switch Camera</button>
-        </div>
-
         <!-- Scanner Box -->
         <div id="qr-reader" class="mt-6 w-full max-w-md bg-gray-200 rounded-lg overflow-hidden"></div>
 
-        <!-- Error Messages -->
-        <div id="camera-error" class="hidden mt-4 text-center text-red-600 font-semibold">
-            No camera detected. Please ensure your device has a camera and grant permissions.
-        </div>
-        <div id="permission-error" class="hidden mt-4 text-center text-red-600 font-semibold">
-            Camera access denied. Please allow camera permissions in your browser settings.
-        </div>
-        <div id="generic-error" class="hidden mt-4 text-center text-red-600 font-semibold">
-            An unexpected error occurred while accessing the camera.
-        </div>
-
-        <!-- ✅ Live Display of Scanned Code -->
+        <!-- Scanned Code Display -->
         <div class="mt-4 text-center">
             <p class="text-gray-600">Scanned Code:</p>
             <p class="text-lg font-bold text-gray-800">{{ $scannedCode }}</p>
         </div>
 
-        <!-- ✅ Filament Action Button -->
-        <div class="mt-4">
+        <!-- Beneficiary Details -->
+        @if($beneficiary)
+        <div class="mt-4 p-4 bg-white rounded shadow">
+            <h3 class="text-lg font-bold text-gray-700">Beneficiary Details</h3>
+            <p><strong>Name:</strong> {{ $beneficiary->name }}</p>
+            <p><strong>Contact:</strong> {{ $beneficiary->contact }}</p>
+            <p><strong>Email:</strong> {{ $beneficiary->email }}</p>
+            <p><strong>Address:</strong> {{ $beneficiary->address }}</p>
+            <p><strong>Item:</strong> {{ $beneficiary->distributionItem->item->name ?? 'N/A' }}</p>
+            <p>
+                <strong>Status:</strong>
+                <span class="px-2 py-1 rounded text-white {{ $beneficiary->status === 'Claimed' ? 'bg-green-500' : 'bg-red-500' }}">
+                    {{ $beneficiary->status }}
+                </span>
+            </p>
+        </div>
+        @endif
+
+        <!-- Buttons -->
+        <div class="mt-4 flex space-x-2">
             {{ $this->confirmQrAction() }}
+            <button wire:click="resetScan" class="px-4 py-2 bg-gray-500 text-white rounded">Reset</button>
         </div>
     </div>
 
-    <!-- ✅ Filament Action Modals -->
-    <x-filament-actions::modals />
-
-    <!-- QR Scanner Script -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <script>
@@ -53,45 +52,57 @@
                 return;
             }
 
-            // Initialize scanner
             const html5QrCode = new Html5Qrcode("qr-reader");
             let currentCameraId = null;
+            let isScanning = true; // ✅ New flag to track scanning state
 
             Html5Qrcode.getCameras()
                 .then(devices => {
                     if (devices.length === 0) {
-                        document.getElementById("camera-error").classList.remove("hidden");
+                        console.error("No camera found.");
                         return;
                     }
 
                     currentCameraId = devices.find(device => device.label.toLowerCase().includes("back"))?.id || devices[0].id;
 
                     function startScanner(cameraId) {
+                        if (!isScanning) return; // ✅ Prevent multiple scans if already detected
+
                         html5QrCode.start(
                             cameraId,
                             { fps: 10, qrbox: { width: 250, height: 250 } },
                             (decodedText) => {
-                                console.log(`Scan result: ${decodedText}`);
-                                Livewire.dispatch('handleScan', decodedText); // ✅ Livewire 3 dispatch event
+                                if (!isScanning) return; // ✅ Prevent multiple detections
+
+                                console.log("Scanned QR Code:", decodedText);
+                                isScanning = false; // ✅ Stop further scanning
+                                html5QrCode.stop(); // ✅ Stop the scanner to prevent multiple detections
+
+                                // ✅ Dispatch scanned code to Livewire
+                                Livewire.dispatch('handleScan', { code: decodedText });
                             },
                             (errorMessage) => {
                                 console.error("QR Scan Error:", errorMessage);
                             }
                         ).catch(err => {
-                            document.getElementById("generic-error").classList.remove("hidden");
                             console.error("QR scanner error:", err);
                         });
                     }
 
-                    // Start scanner with default camera
                     startScanner(currentCameraId);
-
                 })
                 .catch(err => {
-                    document.getElementById("camera-error").classList.remove("hidden");
                     console.error("Camera detection error:", err);
                 });
+
+            // ✅ Function to restart scanning when user resets or confirms
+            Livewire.on('restartScanning', function () {
+                isScanning = true;
+                html5QrCode.start(currentCameraId, { fps: 10, qrbox: { width: 250, height: 250 } });
+            });
         });
     </script>
+
+
 
 </x-support-layout>
