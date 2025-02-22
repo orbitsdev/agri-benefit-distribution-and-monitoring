@@ -98,13 +98,7 @@
                     console.error("Camera detection error:", err);
                 });
 
-            // ✅ Force a full page refresh after confirmation/reset
-            Livewire.on('refreshPage', function () {
-                console.log("Refreshing page...");
-                location.reload(); // ✅ Forces full UI reload to fix layout issues
-            });
-
-            // ✅ Restart scanning after confirmation/reset
+            // ✅ Restart scanner without full page refresh
             Livewire.on('restartScanning', async function () {
                 console.log("Restarting scanner...");
                 isScanning = false;
@@ -120,6 +114,7 @@
             });
         });
     </script>
+
 
 
 
