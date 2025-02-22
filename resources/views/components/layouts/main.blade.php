@@ -41,6 +41,6 @@
         @livewireScripts
         @filamentScripts
         @vite('resources/js/app.js')
-        <x-dialog z-index="z-50" blur="md" align="center" />
+        <x-dialog z-index="z-60" blur="md" align="center" />
     </body>
 </html>

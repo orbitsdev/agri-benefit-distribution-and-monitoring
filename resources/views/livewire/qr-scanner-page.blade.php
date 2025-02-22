@@ -2,7 +2,7 @@
     <style>
         #qr-reader {
             position: relative !important;
-            z-index: 9999 !important; /* Ensures it's above any overlays */
+            z-index: 59 !important; /* Ensures it's above any overlays */
         }
 
         .qr-shaded-region {
