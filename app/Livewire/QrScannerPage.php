@@ -44,10 +44,10 @@ class QrScannerPage extends Component implements HasForms, HasActions
 
         $itemName = optional($this->beneficiary->distributionItem?->item)->name ?? 'N/A';
 
-        $this->dialog()->success(
-            title: 'Scan Successful',
-            description: "Beneficiary found: {$this->beneficiary->name}, Item: {$itemName}."
-        );
+        // $this->dialog()->success(
+        //     title: 'Scan Successful',
+        //     description: "Beneficiary found: {$this->beneficiary->name}, Item: {$itemName}."
+        // );
     }
 
     public function confirmClaim()
