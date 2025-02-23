@@ -9,9 +9,9 @@
             display: none !important; /* Hide unnecessary shaded overlay */
         }
     </style>
-     <div class="flex flex-col items-center min-h-screen px-4">
-        <div class="w-full max-w-lg rounded-xl p-6 md:p-8">
-
+      <div class="flex flex-col items-center  min-h-screen  px-4">
+        <div class="w-full max-w-lg rounded-xl  p-6 md:p-8">
+            <!-- Title -->
             <h2 class="text-xl mt-8 font-semibold text-gray-900 flex items-center justify-center gap-2">
                 <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -21,11 +21,14 @@
                 Scan QR Code
             </h2>
 
+            <!-- Scanner -->
+
             <!-- Scanner (Hidden when Beneficiary is Found) -->
-            <div id="qr-reader"
-                class="mt-4 w-full aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm
-                {{ $beneficiary ? 'hidden' : '' }}">
-            </div>
+<div id="qr-reader"
+class="mt-4 w-full aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm
+{{ $beneficiary ? 'hidden' : '' }}">
+</div>
+
 
             <!-- Scanned Code Display -->
             <div class="mt-4 text-center">
@@ -62,24 +65,13 @@
             </div>
             @endif
 
-            <!-- Capture Image -->
-            @if($showCapture)
-            <div class="mt-4">
-                <p class="text-sm text-gray-500">Take a picture as proof of claim:</p>
-                <input type="file" wire:model="image" accept="image/*" class="mt-2">
-                <div class="flex items-center gap-3 mt-4">
-                    <button wire:click="uploadImage"
-                        class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-                        Upload Picture
-                    </button>
-                    <button wire:click="skip"
-                        class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
-                        Skip
-                    </button>
-                </div>
+            <!-- Buttons -->
+            <div class="mt-5 flex items-center justify-between">
+                {{ $this->confirmQrAction() }}
+                <button wire:click="resetScan" class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
+                    Reset
+                </button>
             </div>
-            @endif
-
         </div>
     </div>
     <x-filament-actions::modals />
