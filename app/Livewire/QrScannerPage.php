@@ -29,6 +29,8 @@ class QrScannerPage extends Component implements HasForms, HasActions
     #[On('handleScan')]
     public function handleScan(string $code)
     {
+        if ($this->showCapture) return; // ✅ Prevent scanning when capturing image
+
         $this->scannedCode = $code;
         $this->codeDetected = true;
         $this->isScanning = false;
@@ -51,6 +53,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
             description: "Beneficiary found: {$this->beneficiary->name}"
         );
     }
+
     public function confirmClaim()
     {
         if ($this->beneficiary) {
@@ -73,7 +76,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
                 description: "{$this->beneficiary->name} has successfully claimed the item."
             );
 
-            // ✅ Keep Scanner Active for Image Capture Mode
+            // ✅ Switch to Image Capture Mode
             $this->isScanning = false;
             $this->showCapture = true;
 
@@ -82,14 +85,16 @@ class QrScannerPage extends Component implements HasForms, HasActions
         }
     }
 
-    #[On('imageCaptured')]
-    public function uploadImage(string $imageData)
-    {
-        if ($this->transaction && $imageData) {
-            $this->imageData = $imageData;
+    public function startCapture(){
+        $this->dispatch('startCaptureMode');
+    }
 
+    #[On('imageCaptured')]
+    public function uploadImage()
+    {
+        if ($this->transaction && $this->imageData) {
             // Convert Base64 to File
-            $image = str_replace('data:image/png;base64,', '', $imageData);
+            $image = str_replace('data:image/png;base64,', '', $this->imageData);
             $image = base64_decode($image);
             $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
             file_put_contents($tempFile, $image);

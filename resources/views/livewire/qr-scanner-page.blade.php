@@ -63,28 +63,37 @@
 
             <!-- ✅ Show Image Capture After Confirmation -->
             @if($showCapture)
-            <div class="mt-6 p-4 bg-white border border-gray-200 rounded-md shadow">
-                <p class="text-sm text-gray-500">Take a picture as proof of claim:</p>
+<div class="mt-6 p-4 bg-white border border-gray-200 rounded-md shadow">
+    <p class="text-sm text-gray-500">Take a picture as proof of claim:</p>
 
-                <!-- Video Feed for Capturing -->
-                <div id="qr-reader-container" class="relative w-full">
-                    <div id="qr-reader" class="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm"></div>
-                </div>
+    <!-- Video Feed for Capturing -->
+    <div id="qr-reader-container" class="relative w-full">
+        <div id="qr-reader" class="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm"></div>
+    </div>
 
-                <!-- Hidden Canvas for Capturing Image -->
-                <canvas id="captureCanvas" class="hidden"></canvas>
+    <!-- Hidden Canvas for Capturing Image -->
+    <canvas id="captureCanvas" class="hidden"></canvas>
 
-                <!-- Capture and Skip Buttons -->
-                <div class="flex items-center gap-3 mt-4">
-                    <button onclick="captureImage()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-                        Take Picture
-                    </button>
-                    <button wire:click="skip" class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
-                        Skip
-                    </button>
-                </div>
-            </div>
-        @endif
+    <!-- ✅ Captured Image Preview -->
+    <img id="capturedImagePreview" class="hidden mt-3 w-full rounded-md border border-gray-300" alt="Captured Image">
+
+    <!-- Hidden Input to Store Image Data -->
+    <input type="hidden" id="capturedImageData">
+
+    <!-- Capture and Submit Buttons -->
+    <div class="flex items-center gap-3 mt-4">
+        <button onclick="captureImage()" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
+            Take Picture
+        </button>
+        <button onclick="submitCapturedImage()" class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700">
+            Confirm Upload
+        </button>
+        <button wire:click="skip" class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
+            Skip
+        </button>
+    </div>
+</div>
+@endif
 
 
             <!-- ✅ Keep Reset Button -->
@@ -206,7 +215,7 @@
     });
 </script>
 
-    </script>
+
 
 
 
