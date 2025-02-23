@@ -9,7 +9,7 @@
             display: none !important; /* Hide unnecessary shaded overlay */
         }
     </style>
-      <div class="flex flex-col items-center min-h-screen px-4">
+     <div class="flex flex-col items-center min-h-screen px-4">
         <div class="w-full max-w-lg rounded-xl p-6 md:p-8">
 
             <h2 class="text-xl mt-8 font-semibold text-gray-900 flex items-center justify-center gap-2">
