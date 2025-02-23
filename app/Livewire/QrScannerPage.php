@@ -3,8 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\Beneficiary;
+use App\Models\Transaction;
 use Filament\Actions\Action;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use WireUi\Traits\WireUiActions;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -14,14 +16,15 @@ use Livewire\Attributes\On;
 
 class QrScannerPage extends Component implements HasForms, HasActions
 {
-    use InteractsWithActions;
-    use InteractsWithForms;
-    use WireUiActions;
+    use InteractsWithActions, InteractsWithForms, WireUiActions, WithFileUploads;
 
     public string $scannedCode = '';
     public bool $codeDetected = false;
     public bool $isScanning = true;
     public ?Beneficiary $beneficiary = null;
+    public ?Transaction $transaction = null;
+    public $image = null;
+    public bool $showCapture = false; // ✅ Control capture screen
 
     #[On('handleScan')]
     public function handleScan(string $code)
@@ -30,8 +33,9 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->codeDetected = true;
         $this->isScanning = false;
 
-        // ✅ Fetch the beneficiary details
-        $this->beneficiary = Beneficiary::where('code', $code)->with('distributionItem.item')->first();
+        $this->beneficiary = Beneficiary::where('code', $code)
+            ->with('distributionItem.item')
+            ->first();
 
         if (!$this->beneficiary) {
             $this->dialog()->error(
@@ -42,11 +46,9 @@ class QrScannerPage extends Component implements HasForms, HasActions
             return;
         }
 
-        $itemName = optional($this->beneficiary->distributionItem?->item)->name ?? 'N/A';
-
         $this->dialog()->success(
             title: 'Scan Successful',
-            description: "Beneficiary found: {$this->beneficiary->name}, Item: {$itemName}."
+            description: "Beneficiary found: {$this->beneficiary->name}"
         );
     }
 
@@ -55,15 +57,43 @@ class QrScannerPage extends Component implements HasForms, HasActions
         if ($this->beneficiary) {
             $this->beneficiary->update(['status' => 'Claimed']);
 
-            // ✅ Success message
+            // ✅ Create Transaction Record
+            $this->transaction = Transaction::create([
+                'beneficiary_id' => $this->beneficiary->id,
+                'distribution_item_id' => $this->beneficiary->distributionItem->id ?? null,
+                'status' => 'Completed',
+            ]);
+
+            $this->showCapture = true; // ✅ Show capture screen
+
             $this->dialog()->success(
                 title: 'Claim Confirmed',
                 description: "{$this->beneficiary->name} has successfully claimed the item."
             );
+        }
+    }
 
-            // ✅ Reset scan & restart scanner properly
+    public function uploadImage()
+    {
+        if ($this->image && $this->transaction) {
+            $path = $this->image->store('transaction_images', 'public');
+
+            // ✅ Save the image in Spatie Media Library
+            $this->transaction->addMedia(storage_path("app/public/{$path}"))
+                ->toMediaCollection('image');
+
+            $this->dialog()->success(
+                title: 'Image Uploaded',
+                description: 'Proof of claim has been saved.'
+            );
+
             $this->resetScan();
         }
+    }
+
+    public function skip()
+    {
+        $this->resetScan();
     }
 
     public function resetScan()
@@ -72,12 +102,11 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->codeDetected = false;
         $this->isScanning = true;
         $this->beneficiary = null;
-
-        // ✅ Ensure UI updates properly & scanner restarts
+        $this->transaction = null;
+        $this->image = null;
+        $this->showCapture = false; // ✅ Hide capture screen
         $this->dispatch('restartScanning');
     }
-
-
 
     public function confirmQrAction(): Action
     {
