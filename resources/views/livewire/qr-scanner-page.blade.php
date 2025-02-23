@@ -100,100 +100,113 @@
     <x-filament-actions::modals />
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const scannerElement = document.getElementById("qr-reader");
-            const html5QrCode = new Html5Qrcode("qr-reader");
-            let currentCameraId = null;
-            let isScanning = false;
 
-            // ✅ Function to start QR scanner
-            async function startScanner() {
-                if (isScanning) return;
-                isScanning = true;
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const scannerElement = document.getElementById("qr-reader");
+        let html5QrCode = new Html5Qrcode("qr-reader");
+        let currentCameraId = null;
+        let isScanning = false;
 
-                console.log("Starting QR Scanner...");
+        async function startScanner() {
+            if (isScanning) return;
+            isScanning = true;
 
-                try {
-                    await html5QrCode.start(
-                        currentCameraId,
-                        { fps: 10, qrbox: { width: 250, height: 250 } },
-                        (decodedText) => {
-                            if (!isScanning) return;
+            console.log("📷 Starting QR Scanner...");
 
-                            console.log("Scanned QR Code:", decodedText);
-                            isScanning = false;
-                            html5QrCode.stop().then(() => console.log("Scanner stopped")).catch(console.error);
+            try {
+                await html5QrCode.start(
+                    currentCameraId,
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        if (!isScanning) return;
 
-                            // ✅ Send Scanned Code to Livewire
-                            Livewire.dispatch('handleScan', { code: decodedText });
-                        },
-                        (errorMessage) => {
-                            console.warn("QR Scan Error:", errorMessage);
-                        }
-                    );
-                } catch (err) {
-                    console.error("QR scanner error:", err);
-                }
-            }
+                        console.log("✅ Scanned QR Code:", decodedText);
+                        isScanning = false;
+                        html5QrCode.stop().then(() => console.log("📴 Scanner stopped")).catch(console.error);
 
-            // ✅ Get Camera List and Start Scanner
-            Html5Qrcode.getCameras()
-                .then(devices => {
-                    if (devices.length === 0) {
-                        console.error("No camera found.");
-                        return;
+                        Livewire.dispatch('handleScan', { code: decodedText });
+                    },
+                    (errorMessage) => {
+                        console.warn("⚠️ QR Scan Error:", errorMessage);
                     }
+                );
+            } catch (err) {
+                console.error("❌ QR scanner error:", err);
+            }
+        }
 
-                    currentCameraId = devices.find(device => device.label.toLowerCase().includes("back"))?.id || devices[0].id;
-                    startScanner();
-                })
-                .catch(err => {
-                    console.error("Camera detection error:", err);
-                });
-
-            // ✅ Restart scanner properly after confirmation/reset
-            Livewire.on('restartScanning', async function () {
-                console.log("Restarting scanner...");
-                isScanning = false;
-
-                try {
-                    await html5QrCode.stop();
-                    console.log("Scanner fully stopped, restarting...");
-                    setTimeout(() => startScanner(), 500);
-                } catch (err) {
-                    console.error("Error stopping scanner before restart:", err);
-                    startScanner();
-                }
-            });
-
-            // ✅ Capture Image from Camera Stream
-            function captureImage() {
-                const video = document.querySelector("#qr-reader video");
-                const canvas = document.getElementById("captureCanvas");
-                if (!video || !canvas) {
-                    console.error("Video or Canvas element not found.");
+        // ✅ Get available cameras and start scanner
+        Html5Qrcode.getCameras()
+            .then(devices => {
+                if (devices.length === 0) {
+                    console.error("❌ No camera found.");
                     return;
                 }
 
-                const context = canvas.getContext("2d");
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                currentCameraId = devices.find(device => device.label.toLowerCase().includes("back"))?.id || devices[0].id;
+                startScanner();
+            })
+            .catch(err => {
+                console.error("❌ Camera detection error:", err);
+            });
 
-                const imageData = canvas.toDataURL("image/png");
-                Livewire.dispatch("imageCaptured", { image: imageData });
+        // ✅ Restart scanner properly after confirmation/reset
+        Livewire.on('restartScanning', async function () {
+            console.log("🔄 Restarting scanner...");
+            isScanning = false;
 
-                console.log("Image Captured!");
+            try {
+                await html5QrCode.stop();
+                console.log("📴 Scanner fully stopped, restarting...");
+                setTimeout(() => startScanner(), 500);
+            } catch (err) {
+                console.error("❌ Error stopping scanner before restart:", err);
+                startScanner();
+            }
+        });
+
+        // ✅ Switch Scanner to Image Capture Mode (AFTER CLAIM CONFIRMATION)
+        Livewire.on('startCaptureMode', function () {
+            console.log("📸 Switching to Image Capture Mode...");
+            isScanning = false;
+
+            // ✅ Restart scanner to ensure camera is ready for picture capture
+            setTimeout(() => startScanner(), 500);
+        });
+
+        // ✅ Image Capture Function - Ensures Video Element Exists
+        window.captureImage = function () {
+            const scannerContainer = document.getElementById("qr-reader");
+            const video = scannerContainer?.querySelector("video");
+
+            if (!video) {
+                console.error("❌ No video element found. Ensure the scanner is running.");
+                alert("No camera detected! Please make sure the scanner is open.");
+                return;
             }
 
-            // ✅ Assign Capture Button to Function
-            document.getElementById("captureBtn")?.addEventListener("click", captureImage);
-        });
-    </script>
+            const canvas = document.getElementById("captureCanvas");
+            if (!canvas) {
+                console.error("❌ Capture canvas not found.");
+                return;
+            }
 
+            const context = canvas.getContext("2d");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = canvas.toDataURL("image/png");
+            Livewire.dispatch("imageCaptured", { image: imageData });
+
+            console.log("✅ Image Captured!");
+        };
+    });
+</script>
+
+    </script>
 
 
 

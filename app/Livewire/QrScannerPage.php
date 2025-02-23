@@ -51,16 +51,19 @@ class QrScannerPage extends Component implements HasForms, HasActions
             description: "Beneficiary found: {$this->beneficiary->name}"
         );
     }
-
     public function confirmClaim()
     {
         if ($this->beneficiary) {
+            // ✅ Update beneficiary status to Claimed
             $this->beneficiary->update(['status' => 'Claimed']);
+
+            // ✅ Ensure distribution item exists to prevent errors
+            $distributionItemId = $this->beneficiary->distributionItem->id ?? null;
 
             // ✅ Create Transaction Entry
             $this->transaction = Transaction::create([
                 'beneficiary_id' => $this->beneficiary->id,
-                'distribution_item_id' => $this->beneficiary->distributionItem->id,
+                'distribution_item_id' => $distributionItemId,
                 'action' => 'Claimed',
             ]);
 
@@ -70,9 +73,12 @@ class QrScannerPage extends Component implements HasForms, HasActions
                 description: "{$this->beneficiary->name} has successfully claimed the item."
             );
 
-            // ✅ Hide Scanner & Show Capture Screen
+            // ✅ Keep Scanner Active for Image Capture Mode
             $this->isScanning = false;
             $this->showCapture = true;
+
+            // ✅ Dispatch event to restart scanner for image capture
+            $this->dispatch('startCaptureMode');
         }
     }
 
