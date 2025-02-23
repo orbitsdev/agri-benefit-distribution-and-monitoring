@@ -9,10 +9,12 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Http\Controllers\FilamentForm;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\BarangayResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use App\Filament\Resources\BarangayResource\RelationManagers;
 
 class BarangayResource extends Resource
@@ -31,6 +33,17 @@ class BarangayResource extends Resource
     {
         return $table
             ->columns([
+                SpatieMediaLibraryImageColumn::make('image')
+                ->defaultImageUrl(url('/images/placeholder-image.jpg'))
+                ->label('Profile')
+                ->toggleable(isToggledHiddenByDefault: false)
+                ->getStateUsing(function (Model $record): string {
+                    return  $record->getFirstMediaUrl('image');
+                })
+                ->extraImgAttributes([
+                    'img' => 'src'
+                ])
+                ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('chairman_name')
@@ -39,22 +52,15 @@ class BarangayResource extends Resource
 
                 Tables\Columns\TextColumn::make('chairman_contact')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('head_name')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('head_contact')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
+              
             ])
             ->filters([
                 //

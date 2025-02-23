@@ -31,6 +31,8 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationLabel = 'Barangay Admin';
+
 
     public static function form(Form $form): Form
     {
@@ -43,7 +45,7 @@ class UserResource extends Resource
         return $table
             ->columns([
              SpatieMediaLibraryImageColumn::make('image') ->defaultImageUrl(url('/images/placeholder-image.jpg'))->label('Profile')
-             ->toggleable(isToggledHiddenByDefault: true)
+             ->toggleable(isToggledHiddenByDefault: false)
              ,
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(isIndividual:true),
@@ -51,10 +53,10 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable(isToggledHiddenByDefault: false)
                     ,
 
-                    
+
 
                     Tables\Columns\TextColumn::make('role')
                     ->badge()
@@ -88,7 +90,7 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->isNotSuperAdmin())
@@ -100,6 +102,7 @@ class UserResource extends Resource
                     ,
             ])
             ->defaultGroup('barangay.name')
+            ->modifyQueryUsing(fn (Builder $query) => $query->latest())
             ;
     }
 

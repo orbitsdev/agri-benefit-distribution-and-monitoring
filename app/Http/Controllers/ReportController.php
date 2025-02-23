@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Exports\SupportExport;
 use App\Exports\SystemUsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BarangayDistributionExport;
@@ -25,4 +26,10 @@ class ReportController extends Controller
 
         return Excel::download(new SystemUsersExport($barangayId), $filename);
     }
+    public function exportSupports($record)
+    {
+        $filename = 'Supports_' . now()->format('Y-m-d') . '.xlsx';
+        return Excel::download(new SupportExport($record), $filename);
+    }
+
 }

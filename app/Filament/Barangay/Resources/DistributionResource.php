@@ -228,6 +228,18 @@ class DistributionResource extends Resource
                     }, shouldOpenInNewTab: true)
                   ,
 
+                  Action::make('Supports')
+    ->size(ActionSize::ExtraSmall)
+    ->label('Support Lists')
+    ->icon('heroicon-s-clock')
+    ->url(function (Model $record) {
+        return route('export.supports', ['record' => $record->id]);
+    }, shouldOpenInNewTab: true)
+    ->hidden(function (Model $record) {
+        return !$record->supports()->exists();
+    })
+,
+
 
                     Tables\Actions\EditAction::make()->label('Manage'),
                     Tables\Actions\DeleteAction::make()->color('gray'),

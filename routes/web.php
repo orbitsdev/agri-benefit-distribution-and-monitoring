@@ -25,7 +25,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-
+    Route::get('/export-supports/{record}', [ReportController::class, 'exportSupports'])->name('export.supports');
     Route::post('/support/logout', function () {
         $user = Auth::user();
 
@@ -105,6 +105,11 @@ Route::middleware([
 
 
     Route::get('/support-not-authorize', SupportNotAuthorize::class)->name('support-not-authorize');
+
+
+
+
+
 
 });
 

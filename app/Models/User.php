@@ -188,5 +188,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
         return Support::where('unique_code', $this->code)->first();
     }
 
+    public function scopeAdminWithBarangay($query)
+    {
+        return $query->where('role', self::ADMIN)
+                     ->whereNotNull('barangay_id');
+    }
 
 }
