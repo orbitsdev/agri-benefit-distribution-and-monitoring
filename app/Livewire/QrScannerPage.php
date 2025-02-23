@@ -2,29 +2,30 @@
 
 namespace App\Livewire;
 
-use App\Models\Support;
-use Livewire\Component;
 use App\Models\Beneficiary;
-use Livewire\Attributes\On;
+use App\Models\Transaction;
 use Filament\Actions\Action;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 use WireUi\Traits\WireUiActions;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Contracts\HasForms;
+use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Forms\Contracts\HasForms;
+use Livewire\Attributes\On;
 
 class QrScannerPage extends Component implements HasForms, HasActions
 {
-    use InteractsWithActions;
-    use InteractsWithForms;
-    use WireUiActions;
+    use InteractsWithActions, InteractsWithForms, WireUiActions, WithFileUploads;
 
     public string $scannedCode = '';
     public bool $codeDetected = false;
     public bool $isScanning = true;
     public ?Beneficiary $beneficiary = null;
-    
+    public ?Transaction $transaction = null;
+    public ?string $imageData = null; // Stores base64 image
+    public bool $showCapture = false; // ✅ Controls capture screen
+
     #[On('handleScan')]
     public function handleScan(string $code)
     {
@@ -32,7 +33,6 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->codeDetected = true;
         $this->isScanning = false;
 
-        // Fetch the beneficiary details
         $this->beneficiary = Beneficiary::where('code', $code)
             ->with('distributionItem.item')
             ->first();
@@ -46,44 +46,63 @@ class QrScannerPage extends Component implements HasForms, HasActions
             return;
         }
 
-        // Retrieve the support record using the unique code stored on the user
-        $support = Support::where('unique_code', Auth::user()->code)->first();
-
-        if (
-            !$this->beneficiary->distributionItem ||
-            $this->beneficiary->distributionItem->distribution_id !== $support->distribution_id
-        ) {
-            $this->dialog()->error(
-                title: 'Invalid QR Code',
-                description: 'This beneficiary does not belong to your distribution.'
-            );
-            $this->resetScan();
-            return;
-        }
-
-        $itemName = optional($this->beneficiary->distributionItem?->item)->name ?? 'N/A';
-
         $this->dialog()->success(
             title: 'Scan Successful',
-            description: "Beneficiary found: {$this->beneficiary->name}, Item: {$itemName}."
+            description: "Beneficiary found: {$this->beneficiary->name}"
         );
     }
-
 
     public function confirmClaim()
     {
         if ($this->beneficiary) {
             $this->beneficiary->update(['status' => 'Claimed']);
 
-            // ✅ Success message
+            // ✅ Create Transaction Entry
+            $this->transaction = Transaction::create([
+                'beneficiary_id' => $this->beneficiary->id,
+                'distribution_item_id' => $this->beneficiary->distributionItem->id,
+                'action' => 'Claimed',
+            ]);
+
+            // ✅ Show success message
             $this->dialog()->success(
                 title: 'Claim Confirmed',
                 description: "{$this->beneficiary->name} has successfully claimed the item."
             );
 
-            // ✅ Reset scan & restart scanner properly
+            // ✅ Hide Scanner & Show Capture Screen
+            $this->isScanning = false;
+            $this->showCapture = true;
+        }
+    }
+
+    #[On('imageCaptured')]
+    public function uploadImage(string $imageData)
+    {
+        if ($this->transaction && $imageData) {
+            $this->imageData = $imageData;
+
+            // Convert Base64 to File
+            $image = str_replace('data:image/png;base64,', '', $imageData);
+            $image = base64_decode($image);
+            $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+            file_put_contents($tempFile, $image);
+
+            // Store Image in Media Library
+            $this->transaction->addMedia($tempFile)->toMediaCollection('image');
+
+            $this->dialog()->success(
+                title: 'Image Uploaded',
+                description: 'Proof of claim has been successfully uploaded.'
+            );
+
             $this->resetScan();
         }
+    }
+
+    public function skip()
+    {
+        $this->resetScan();
     }
 
     public function resetScan()
@@ -92,12 +111,12 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->codeDetected = false;
         $this->isScanning = true;
         $this->beneficiary = null;
+        $this->transaction = null;
+        $this->imageData = null;
+        $this->showCapture = false;
 
-        // ✅ Ensure UI updates properly & scanner restarts
         $this->dispatch('restartScanning');
     }
-
-
 
     public function confirmQrAction(): Action
     {
