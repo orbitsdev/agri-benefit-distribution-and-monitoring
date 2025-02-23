@@ -5,7 +5,9 @@ namespace App\Filament\Barangay\Widgets;
 use Filament\Tables;
 use Filament\Tables\Table;
 use App\Models\Distribution;
+use Filament\Actions\StaticAction;
 use Filament\Tables\Actions\Action;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -66,7 +68,20 @@ class LatestDistributions extends BaseWidget
             ])
             ->actions([
                 ActionGroup::make([
+                    Action::make('View')
 
+                    ->label('View')
+                    ->icon('heroicon-s-eye')
+                    ->modalSubmitAction(false)
+                    // ->button()
+
+                    ->modalContent(fn(Model $record): View => view(
+                        'livewire.view-distribution',
+                        ['record' => $record],
+                    ))
+                    ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                    ->closeModalByClickingAway(false)->modalWidth('7xl'),
+                   
                     Action::make('Beneficiaries') // Disable closing the modal by clicking outside
 
 
@@ -90,6 +105,15 @@ class LatestDistributions extends BaseWidget
 
                     }, shouldOpenInNewTab: true)
                   ,
+                  Action::make('Supports')
+                  ->label('Support Lists')
+                  ->icon('heroicon-s-user-group')
+                  ->url(function (Model $record) {
+                      return route('export.supports', ['record' => $record->id]);
+                  }, shouldOpenInNewTab: true)
+                  ->hidden(function (Model $record) {
+                      return !$record->supports()->exists();
+                  })
                 ]),
 
             ])

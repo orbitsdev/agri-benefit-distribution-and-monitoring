@@ -2,15 +2,17 @@
 
 namespace App\Livewire;
 
-use App\Models\Beneficiary;
-use Filament\Actions\Action;
+use App\Models\Support;
 use Livewire\Component;
+use App\Models\Beneficiary;
+use Livewire\Attributes\On;
+use Filament\Actions\Action;
 use WireUi\Traits\WireUiActions;
-use Filament\Actions\Concerns\InteractsWithActions;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Livewire\Attributes\On;
+use Filament\Actions\Concerns\InteractsWithActions;
 
 class QrScannerPage extends Component implements HasForms, HasActions
 {
@@ -22,7 +24,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
     public bool $codeDetected = false;
     public bool $isScanning = true;
     public ?Beneficiary $beneficiary = null;
-
+    
     #[On('handleScan')]
     public function handleScan(string $code)
     {
@@ -30,13 +32,30 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->codeDetected = true;
         $this->isScanning = false;
 
-        // ✅ Fetch the beneficiary details
-        $this->beneficiary = Beneficiary::where('code', $code)->with('distributionItem.item')->first();
+        // Fetch the beneficiary details
+        $this->beneficiary = Beneficiary::where('code', $code)
+            ->with('distributionItem.item')
+            ->first();
 
         if (!$this->beneficiary) {
             $this->dialog()->error(
                 title: 'Invalid QR Code',
                 description: 'No beneficiary found for this code.'
+            );
+            $this->resetScan();
+            return;
+        }
+
+        // Retrieve the support record using the unique code stored on the user
+        $support = Support::where('unique_code', Auth::user()->code)->first();
+
+        if (
+            !$this->beneficiary->distributionItem ||
+            $this->beneficiary->distributionItem->distribution_id !== $support->distribution_id
+        ) {
+            $this->dialog()->error(
+                title: 'Invalid QR Code',
+                description: 'This beneficiary does not belong to your distribution.'
             );
             $this->resetScan();
             return;
@@ -49,6 +68,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
             description: "Beneficiary found: {$this->beneficiary->name}, Item: {$itemName}."
         );
     }
+
 
     public function confirmClaim()
     {

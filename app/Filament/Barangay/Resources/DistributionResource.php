@@ -231,7 +231,7 @@ class DistributionResource extends Resource
                   Action::make('Supports')
     ->size(ActionSize::ExtraSmall)
     ->label('Support Lists')
-    ->icon('heroicon-s-clock')
+    ->icon('heroicon-s-user-group')
     ->url(function (Model $record) {
         return route('export.supports', ['record' => $record->id]);
     }, shouldOpenInNewTab: true)

@@ -29,6 +29,8 @@ class CodeFormPage extends Component
         $support = Support::where('unique_code', $this->code)
             ->whereHas('distribution', function ($query) use ($user) {
                 $query->where('barangay_id', $user->barangay_id);
+            })->whereHas('personnel', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
             })
             ->first();
 

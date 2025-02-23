@@ -74,7 +74,7 @@ class BarangayPanelProvider extends PanelProvider
                 //     ->sort(1),
 
 
-            ])
+            ])->viteTheme('resources/css/filament/barangay/theme.css')
 
         ;
     }

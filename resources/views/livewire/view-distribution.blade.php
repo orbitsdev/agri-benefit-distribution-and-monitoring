@@ -89,33 +89,39 @@
                 @forelse ($record->supports as $support)
                     <li class="flex justify-between gap-x-6 py-5">
                         <div class="flex min-w-0 gap-x-4">
-                            <img class="w-10 h-10 flex-none rounded-full bg-gray-50" src="{{$support->personnel->user->getImage()}}" alt="{{$support->personnel->user->name }}">
+                            <img class="w-10 h-10 flex-none rounded-full bg-gray-50"
+                                 src="{{ $support->personnel->user->getImage() }}"
+                                 alt="{{ $support->personnel->user->name }}">
                             <div class="min-w-0 flex-auto">
-                                <p class="text-sm font-semibold text-gray-900">{{ $support->personnel->user->name }}</p>
-                                <p class="mt-1 truncate text-xs text-gray-500">{{ $support->personnel->user->email }} / {{ $support->personnel->contact_number }}</p>
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ $support->personnel->user->name }}
+                                </p>
+                                <p class="mt-1 truncate text-xs text-gray-500">
+                                    {{ $support->personnel->user->email }} / {{ $support->personnel->contact_number }}
+                                </p>
+                                <p class="mt-1 truncate text-xs text-gray-500">
+                                    Unique Code: {{ $support->unique_code ?? 'N/A' }}
+                                </p>
                             </div>
                         </div>
 
                         <div>
-
                             <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end items-center justify-center">
                                 <p class="text-sm text-success-900 px-4">{{ $support->type }}</p>
-
-                                <div class="text-sm ">
+                                <div class="text-sm">
                                     <ul>
                                         @if ($support->enable_item_scanning)
-                                        <li>- Item Scanning</li>
+                                            <li>- Item Scanning</li>
                                         @endif
                                         @if ($support->enable_beneficiary_management)
-                                        <li>- Manage Beneficiaries</li>
+                                            <li>- Manage Beneficiaries</li>
                                         @endif
                                         @if ($support->enable_list_access)
-                                        <li>- Access Beneficiaries Record</li>
+                                            <li>- Access Beneficiaries Record</li>
                                         @endif
                                     </ul>
                                 </div>
                             </div>
-
                         </div>
                     </li>
                 @empty
@@ -125,6 +131,7 @@
                 @endforelse
             </ul>
         </div>
+
 
     </div>
 
