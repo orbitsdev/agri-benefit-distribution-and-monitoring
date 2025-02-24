@@ -228,10 +228,21 @@ class DistributionResource extends Resource
                     }, shouldOpenInNewTab: true)
                   ,
 
+                  Action::make('Transcation Support')
+              ->size(ActionSize::ExtraSmall)
+              ->label('Transaction Report')
+              ->icon('heroicon-s-arrow-down-tray')
+              ->url(function (Model $record) {
+              return route('export.transactions', ['record' => $record->id]);
+              }, shouldOpenInNewTab: true)
+              ->hidden(function (Model $record) {
+              return !$record->transactions()->exists() ;
+              })
+              ,
                   Action::make('Supports')
     ->size(ActionSize::ExtraSmall)
     ->label('Support Lists')
-    ->icon('heroicon-s-user-group')
+    ->icon('heroicon-s-arrow-down-tray')
     ->url(function (Model $record) {
         return route('export.supports', ['record' => $record->id]);
     }, shouldOpenInNewTab: true)

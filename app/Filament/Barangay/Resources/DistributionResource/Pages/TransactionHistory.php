@@ -144,7 +144,8 @@ class TransactionHistory extends Page  implements HasForms, HasTable
                 ->getSearchResultsUsing(fn (string $search): array =>
                     DistributionItem::whereHas('item', function ($query) use ($search) {
                         $query->where('name', 'LIKE', "%{$search}%");
-                    })
+                    })->where('distribution_id',$this->record->id)
+
                     ->limit(50)
                     ->get()
                     ->mapWithKeys(fn ($distributionItem) => [$distributionItem->id => $distributionItem->item->name])

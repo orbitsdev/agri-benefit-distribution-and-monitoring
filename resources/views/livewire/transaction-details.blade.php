@@ -44,8 +44,7 @@
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Item</p>
         <p class="text-gray-900 dark:text-gray-200">{{ $record->distribution_item_details['name'] ?? 'N/A' }}</p>
 
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Quantity</p>
-        <p class="text-gray-900 dark:text-gray-200">{{ $record->distribution_item_details['quantity'] ?? 'N/A' }}</p>
+
 
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Distribution</p>
         <p class="text-gray-900 dark:text-gray-200">{{ $record->distribution_details['title'] ?? 'N/A' }}</p>

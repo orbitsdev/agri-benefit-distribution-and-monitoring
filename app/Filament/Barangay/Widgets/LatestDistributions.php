@@ -9,6 +9,7 @@ use Filament\Actions\StaticAction;
 use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\ActionGroup;
@@ -81,7 +82,7 @@ class LatestDistributions extends BaseWidget
                     ))
                     ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
                     ->closeModalByClickingAway(false)->modalWidth('7xl'),
-                   
+
                     Action::make('Beneficiaries') // Disable closing the modal by clicking outside
 
 
@@ -104,6 +105,17 @@ class LatestDistributions extends BaseWidget
                       return DistributionResource::getUrl('distribution-transaction-history',['record'=>$record->id]);
 
                     }, shouldOpenInNewTab: true)
+                  ,
+
+                  Action::make('Transcation Support')
+                  ->label('Transaction Report')
+                  ->icon('heroicon-s-arrow-down-tray')
+                  ->url(function (Model $record) {
+                  return route('export.transactions', ['record' => $record->id]);
+                  }, shouldOpenInNewTab: true)
+                  ->hidden(function (Model $record) {
+                  return !$record->transactions()->exists() ;
+                  })
                   ,
                   Action::make('Supports')
                   ->label('Support Lists')

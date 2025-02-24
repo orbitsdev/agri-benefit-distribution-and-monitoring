@@ -26,6 +26,10 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/export-supports/{record}', [ReportController::class, 'exportSupports'])->name('export.supports');
+
+Route::get('/export-transactions/{record}', [ReportController::class, 'exportTransactions'])
+->name('export.transactions');
+
     Route::post('/support/logout', function () {
         $user = Auth::user();
 

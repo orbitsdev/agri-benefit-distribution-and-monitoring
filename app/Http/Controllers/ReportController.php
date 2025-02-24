@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Exports\SupportExport;
 use App\Exports\SystemUsersExport;
+use App\Exports\TransactionsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BarangayDistributionExport;
+use App\Models\Distribution;
 
 class ReportController extends Controller
 {
@@ -31,5 +33,12 @@ class ReportController extends Controller
         $filename = 'Supports_' . now()->format('Y-m-d') . '.xlsx';
         return Excel::download(new SupportExport($record), $filename);
     }
+
+    public function exportTransactions($record)
+    {
+        $distribution =  Distribution::find($record);
+        $filename = $distribution->title.' Transactions-List' . now()->format('Y-m-d') . '.xlsx';
+    return Excel::download(new TransactionsExport($record), $filename);
+}
 
 }
