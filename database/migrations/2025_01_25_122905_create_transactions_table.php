@@ -26,12 +26,13 @@ return new class extends Migration
             $table->json('distribution_item_details')->nullable(); // Stores item details
             $table->json('beneficiary_details')->nullable(); // Stores beneficiary details
             $table->json('support_details')->nullable(); // Stores support details
+            $table->json('recorder_details')->nullable(); // Stores support details
 
             // Action Data
             $table->enum('action', ['Claimed', 'Unclaimed'])->nullable();
             $table->string('role')->nullable();
             $table->timestamp('performed_at')->nullable();
-        
+
             $table->timestamps();
         });
     }

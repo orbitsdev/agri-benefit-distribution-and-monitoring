@@ -7,16 +7,20 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Transaction;
+use App\Models\Distribution;
 use Filament\Resources\Resource;
+use Filament\Actions\StaticAction;
+use Filament\Tables\Actions\Action;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FilamentForm;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Barangay\Resources\TransactionResource\Pages;
 use App\Filament\Barangay\Resources\TransactionResource\RelationManagers;
-use App\Models\Distribution;
 
 class TransactionResource extends Resource
 {
@@ -41,7 +45,7 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                
+
                 Tables\Columns\TextColumn::make('action')->badge()
                 ->color(fn (string $state): string => match ($state) {
 
@@ -134,7 +138,9 @@ class TransactionResource extends Resource
                 ->preload()->label('Item'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+               
+
+                // Tables\Actions\ViewAction::make(),
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

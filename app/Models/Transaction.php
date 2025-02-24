@@ -22,6 +22,7 @@ class Transaction extends Model implements HasMedia
             'distribution_item_details' => 'array',
             'beneficiary_details' => 'array',
             'support_details' => 'array',
+            'recorder_details' => 'array',
         ];
 
 
@@ -60,16 +61,22 @@ class Transaction extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('image')->singleFile();
+
+    }
+    public function getCoverUrlAttribute(): ?string
+    {
+      return self::getImage();
     }
 
     public function getImage()
     {
-        if ($this->hasMedia()) {
-            return $this->getFirstMediaUrl();
+        if ($this->hasMedia('image')) { // ✅ Ensure it's fetching from the correct collection
+            return $this->getFirstMediaUrl('image');
         }
 
-        return asset('images/placeholder-image.jpg');
+        return asset('images/placeholder-image.jpg'); // Default placeholder
     }
+
 
     public function scopeByBarangay($query, $barangay_id){
         return $query->where('barangay_id', $barangay_id);

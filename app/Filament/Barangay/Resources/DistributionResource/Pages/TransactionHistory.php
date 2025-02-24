@@ -8,7 +8,11 @@ use Filament\Tables\Table;
 use App\Models\Beneficiary;
 use App\Models\Transaction;
 use App\Models\Distribution;
+use App\Models\DistributionItem;
+use Filament\Actions\StaticAction;
 use Filament\Resources\Pages\Page;
+use Filament\Tables\Actions\Action;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Contracts\HasTable;
@@ -21,7 +25,6 @@ use Filament\Tables\Enums\ActionsPosition;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Tables\Concerns\InteractsWithTable;
 use App\Filament\Barangay\Resources\DistributionResource;
-use App\Models\DistributionItem;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 
 class TransactionHistory extends Page  implements HasForms, HasTable
@@ -35,7 +38,11 @@ class TransactionHistory extends Page  implements HasForms, HasTable
     protected static string $view = 'filament.barangay.resources.distribution-resource.pages.transaction-history';
 
     public $record;
-    public function mount(Distribution $record): void {}
+    public function mount(Distribution $record): void {
+        // $transaction = \App\Models\Transaction::latest()->with('media')->first();
+        // dd($transaction->getMedia()->pluck('collection_name'),$transaction);
+
+    }
 
     public function getHeading(): string
     {
@@ -47,19 +54,13 @@ class TransactionHistory extends Page  implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Transaction::query())
+            ->query(Transaction::query()->with('media'))
             ->columns([
                 SpatieMediaLibraryImageColumn::make('image')
-                ->defaultImageUrl(url('/images/placeholder-image.jpg'))
-                ->label('Captured Image')
-                ->toggleable(isToggledHiddenByDefault: false)
-                ->getStateUsing(function (Model $record): string {
-                    return  $record->getFirstMediaUrl('image');
-                })
-                ->extraImgAttributes([
-                    'img' => 'src'
-                ])
-                ->openUrlInNewTab(),
+                ->collection('image')
+                ->defaultImageUrl(url('/images/placeholder-image.jpg'))->label('Captured Image')
+                 ->toggleable(isToggledHiddenByDefault: false)
+                ,
                  Tables\Columns\TextColumn::make('action')->badge()
                 ->color(fn (string $state): string => match ($state) {
 
@@ -101,14 +102,19 @@ class TransactionHistory extends Page  implements HasForms, HasTable
                     // Tables\Columns\TextColumn::make('barangay_location')->searchable()->label('Barangay Location')->toggleable(isToggledHiddenByDefault: true),
                 ]),
 
-                ColumnGroup::make('Recorder Details', [
-                    // Tables\Columns\TextColumn::make('support.personnel.user.name')->searchable(),
-                    Tables\Columns\TextColumn::make('support_details.name')->searchable(isIndividual:true)->label('Name')->toggleable(isToggledHiddenByDefault: false),
-                    Tables\Columns\TextColumn::make('support_details.type')->label('Type')->toggleable(isToggledHiddenByDefault: false),
-                    Tables\Columns\TextColumn::make('support_details.unique_code')->searchable(isIndividual:true)->label('Support Code')->toggleable(isToggledHiddenByDefault: true),
-                ]),
+                // ColumnGroup::make('Recorder Details', [
+                //     // Tables\Columns\TextColumn::make('support.personnel.user.name')->searchable(),
+                //     Tables\Columns\TextColumn::make('support_details.name')->searchable(isIndividual:true)->label('Name')->toggleable(isToggledHiddenByDefault: false),
+                //     Tables\Columns\TextColumn::make('support_details.type')->label('Type')->toggleable(isToggledHiddenByDefault: false),
+                //     Tables\Columns\TextColumn::make('support_details.unique_code')->searchable(isIndividual:true)->label('Support Code')->toggleable(isToggledHiddenByDefault: true),
+                // ]),
 
                 ColumnGroup::make('Recorded Details', [
+                    Tables\Columns\TextColumn::make('recorder_details.name')->searchable(isIndividual:true)->label('Name')->toggleable(isToggledHiddenByDefault: false),
+                    Tables\Columns\TextColumn::make('recorder_details.role')->label('Role')->toggleable(isToggledHiddenByDefault: false),
+                    Tables\Columns\TextColumn::make('recorder_details.unique_code')->searchable(isIndividual:true)->label('Support Code')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('recorder_details.enable_item_scanning')->searchable(isIndividual:true)->label('Can Scan')->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('recorder_details.enable_beneficiary_management')->searchable(isIndividual:true)->label('Can Manage')->toggleable(isToggledHiddenByDefault: true),
                     Tables\Columns\TextColumn::make('performed_at')
                     ->dateTime('M d, Y h:i A') // Format: Jan 21, 2025 10:30 AM
                     ->sortable()
@@ -152,13 +158,26 @@ class TransactionHistory extends Page  implements HasForms, HasTable
                 ->label('Item'),
 
 
+
                 SelectFilter::make('action')
                 ->options(Beneficiary::STATUS_OPTIONS)->searchable()
 
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([])
             ->actions([
-
+                Action::make('View History')
+                ->button()
+                ->icon('heroicon-s-eye')
+                ->color('gray')
+                ->label('View ')
+                ->modalSubmitAction(false)
+                ->modalContent(fn (Model $record): View => view(
+                    'livewire.transaction-details', // ✅ Use Livewire View
+                    ['record' => $record],
+                ))
+                ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                ->closeModalByClickingAway(false)
+                ->modalWidth('7xl'),
                 ActionGroup::make([
 
                     Tables\Actions\DeleteAction::make()->color('gray'),
@@ -167,12 +186,12 @@ class TransactionHistory extends Page  implements HasForms, HasTable
             ],position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->striped()
             ->modifyQueryUsing(function ($query) {
-                return $query->byBarangay(Auth::user()->barangay_id);
+                return $query->byBarangay(Auth::user()->barangay_id)->latest();
             })
         ;
     }
