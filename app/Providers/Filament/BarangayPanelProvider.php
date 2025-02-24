@@ -75,6 +75,7 @@ class BarangayPanelProvider extends PanelProvider
 
 
             ])->viteTheme('resources/css/filament/barangay/theme.css')
+            ->darkMode(false)
 
         ;
     }
