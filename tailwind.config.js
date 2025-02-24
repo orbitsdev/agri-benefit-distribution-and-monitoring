@@ -38,18 +38,19 @@ export default {
             },
             colors: {
                 'primary': {
-                    '50': '#eefbf2',
-                    '100': '#d5f6dd',
-                    '200': '#afebc0',
-                    '300': '#7bda9c',
-                    '400': '#45c274',
-                    '500': '#22a759',
-                    '600': '#148746',
-                    '700': '#106c3b',
-                    '800': '#0f5630',
-                    '900': '#0d4327',
-                    '950': '#062817',
-                            },
+    '50': '#eff3ff',
+    '100': '#dbe3fe',
+    '200': '#bfcefe',
+    '300': '#93acfd',
+    '400': '#6084fa',
+    '500': '#3b67f6',
+    '600': '#2553eb',
+    '700': '#1d49d8',
+    '800': '#1e40af',
+    '900': '#1e378a',
+    '950': '#172554',
+},
+
                 green: colors.green, // Default green palette
                 indigo: colors.indigo, // Default indigo palette
                 gray: colors.gray, // Default gray palette
