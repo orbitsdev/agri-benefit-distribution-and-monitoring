@@ -17,3 +17,47 @@
 
 
 
+.fi-sidebar-header{
+    @apply bg-[#1e378a]
+}
+
+.fi-logo{
+    @apply text-white
+}
+.fi-topbar nav{
+    @apply bg-[#1e378a]
+}
+
+.fi-sidebar-nav {
+    @apply bg-[#1f3b8c] text-white; /* Match header's deep blue and ensure text is visible */
+}
+.fi-sidebar-group-label{
+    @apply text-white
+}
+
+.fi-sidebar-item-label{
+    @apply text-white
+}
+
+.fi-sidebar-item-active > a {
+    @apply bg-[#172554];
+
+    & > svg, span {
+        @apply text-white;
+    }
+
+    &:hover {
+        @apply bg-[#172554];
+    }
+}
+.fi-sidebar-item .fi-sidebar-item-button .fi-sidebar-item-label  {
+    @apply text-white
+}
+
+.fi-sidebar-item .fi-sidebar-item-button:hover .fi-sidebar-item-label {
+    @apply text-primary-900;
+}
+
+.fi-sidebar-item-active .fi-sidebar-item-label {
+    /* @apply text-primary-900 !important; */
+}

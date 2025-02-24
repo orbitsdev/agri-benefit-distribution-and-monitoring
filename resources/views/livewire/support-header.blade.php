@@ -1,4 +1,4 @@
-<nav class="bg-white shadow" x-data="{ menuOpen: false }">
+<nav class="bg-[#172554] shadow" x-data="{ menuOpen: false }">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
             <!-- Logo Section -->
@@ -11,12 +11,12 @@
             <!-- Desktop Menu -->
             <div class="hidden md:flex md:items-center md:space-x-4">
                 @can('view-member-dashboard')
-                    <a href="{{ route('member.dashboard') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="{{ route('member.dashboard') }}" class="text-white hover:scale-105 transition-all px-3 py-2 rounded-md text-sm font-medium">
                         Member Dashboard
                     </a>
                 @endcan
                 @can('view-qr-scanner')
-                    <a href="{{ route('qr-scan') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    <a href="{{ route('qr-scan') }}" class="text-white hover:scale-105 transition-all px-3 py-2 rounded-md text-sm font-medium">
                         QR Scanner
                     </a>
                 @endcan

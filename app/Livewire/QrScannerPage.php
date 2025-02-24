@@ -99,6 +99,11 @@ class QrScannerPage extends Component implements HasForms, HasActions
             try {
                 // ✅ Update Beneficiary Status to "Claimed"
                 $this->beneficiary->update(['status' => 'Claimed']);
+                $distributionItem = $this->beneficiary->distributionItem;
+                if ($distributionItem->quantity > 0) {
+                    $distributionItem->decrement('quantity');
+                }
+
 
                 // ✅ Retrieve Related Details
                 $distributionItemDetails = $this->beneficiary->distributionItem ?? null;

@@ -85,10 +85,5 @@
     </div>
 
     <!-- Back Button -->
-    <div class="mt-6 text-center">
-        <button type="button" onclick="window.history.back()"
-            class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
-            Back
-        </button>
-    </div>
+    
 </div>

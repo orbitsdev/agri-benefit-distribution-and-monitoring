@@ -1,5 +1,5 @@
 <header class="relative bg-white">
-   
+
     <div class="h-1 bg-primary-600"></div>
     <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="">

@@ -39,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         Model::unguard();
 
+        FilamentColor::register([
+            'primary' => "#172554",
+
+        ]);
+
         RedirectIfAuthenticated::redirectUsing(function($request){
             if ($request->is('admin/*')) {
                 return redirect('/admin/dashboard'); // Redirect to admin dashboard

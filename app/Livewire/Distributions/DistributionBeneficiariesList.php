@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Distributions;
 
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Support;
 use Livewire\Component;
@@ -10,6 +11,7 @@ use App\Models\Beneficiary;
 use App\Models\Distribution;
 use WireUi\Traits\WireUiActions;
 use Filament\Actions\StaticAction;
+use Illuminate\Support\Facades\DB;
 use Filament\Tables\Actions\Action;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -100,65 +102,63 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                 ->requiresConfirmation()
                 ->button()
                 ->action(function (Model $beneficiary) {
-                    $beneficiary->update(['status' => Beneficiary::CLAIMED]);
 
+                    try {
+                    $beneficiary->update(['status' => Beneficiary::CLAIMED]);
+                              DB::beginTransaction();
                     // Decrease the quantity in the associated distribution item
                     $distributionItem = $beneficiary->distributionItem;
                     if ($distributionItem->quantity > 0) {
                         $distributionItem->decrement('quantity');
                     }
 
-                    $adminId = null;
-                    $support = $this->support;
+                     $distributionItemDetails = $beneficiary->distributionItem ?? null;
+                        $distributionDetails = $distributionItemDetails?->distribution ?? null;
+                        $barangayDetails = $distributionDetails?->barangay ?? null;
+                        $supportDetails =  $this->support ?? null;
+                        $currentUser = Auth::user();
+                         $recorderDetails = [];
+
 
                     // Create a transaction record with JSON snapshots
                     $beneficiary->transactions()->create([
-                        'barangay_id' => $distributionItem->distribution->barangay_id,
-                        'distribution_id' => $distributionItem->distribution_id,
-                        'distribution_item_id' => $distributionItem->id,
-                        'beneficiary_id' => $beneficiary->id,
-                        'support_id' => $beneficiary->support_id,
-                        'admin_id' => $adminId,
-
-                        // JSON Snapshots (Storing full details)
-                        'barangay_details' => [
-                            'id' => $distributionItem->distribution->barangay_id,
-                            'name' => $distributionItem->distribution->barangay->name,
-                            'location' => $distributionItem->distribution->barangay->location,
-                        ],
-
-                        'distribution_details' => [
-                            'id' => $distributionItem->distribution_id,
-                            'title' => $distributionItem->distribution->title,
-                            'location' => $distributionItem->distribution->location,
-                            'date' => $distributionItem->distribution->distribution_date,
-                            'code' => $distributionItem->distribution->code,
-                        ],
-
-                        'distribution_item_details' => [
-                            'id' => $distributionItem->id,
-                            'name' => $distributionItem->item->name,
-                        ],
-
-                        'beneficiary_details' => [
-                            'id' => $beneficiary->id,
-                            'name' => $beneficiary->name,
-                            'contact' => $beneficiary->contact,
-                            'address' => $beneficiary->address,
-                            'email' => $beneficiary->email,
-                            'code' => $beneficiary->code,
-                        ],
-
-                        'support_details' => [
-                            'id' => $support->id,
-                            'name' => $support->personnel->user->name,
-                            'type' => $support->type,
-                            'unique_code' => $support->unique_code,
-                        ],
-
-                        // Action Details
-                        'action' => 'Claimed',
-                        'performed_at' => now(),
+                        'barangay_id'               => $distributionDetails->barangay_id ?? null,
+                            'distribution_id'           => $distributionDetails->id ?? null,
+                            'beneficiary_id'            => $beneficiary->id,
+                            'distribution_item_id'      => $distributionItemDetails->id ?? null,
+                            'support_id'                => $supportDetails->id ?? null,
+                            'admin_id'                  => $currentUser->role === User::ADMIN ? $currentUser->id : null,
+                            'action'                    => 'Claimed',
+                            'performed_at'              => now(),
+                            'barangay_details'          => $barangayDetails ? $barangayDetails->toArray() : null,
+                            'distribution_details'      => $distributionDetails ? [
+                                'id'       => $distributionDetails->id,
+                                'title'    => $distributionDetails->title,
+                                'location' => $distributionDetails->location,
+                                'date'     => $distributionDetails->distribution_date,
+                                'code'     => $distributionDetails->code,
+                                'status'   => $distributionDetails->status,
+                            ] : null,
+                            'distribution_item_details' => $distributionItemDetails ? [
+                                'id'       => $distributionItemDetails->id,
+                                'name'     => $distributionItemDetails->item->name,
+                                'quantity' => $distributionItemDetails->quantity,
+                            ] : null,
+                            'beneficiary_details'       => [
+                                'id'      => $beneficiary->id,
+                                'name'    => $beneficiary->name,
+                                'contact' => $beneficiary->contact,
+                                'address' => $beneficiary->address,
+                                'email'   => $beneficiary->email,
+                                'code'    => $beneficiary->code,
+                            ],
+                            'support_details'           => $supportDetails ? [
+                                'id'          => $supportDetails->id,
+                                'name'        => $supportDetails->personnel->user->name,
+                                'type'        => $supportDetails->type,
+                                'unique_code' => $supportDetails->unique_code,
+                            ] : null,
+                            'recorder_details'          => $recorderDetails,
                     ]);
 
                     $this->dispatch('refreshProgress');
@@ -168,6 +168,18 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                         title: 'Beneficiary Claimed',
                         description: 'The beneficiary has been successfully marked as claimed.'
                     );
+
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    report($e);
+                    // Optionally, show an error dialog
+
+
+                     $this->dialog()->error(
+                        title: 'Claim Failed',
+                        description: 'Trasaction Failed to create.'.$e->getMessage()
+                    );
+                }
 
                 })
                 ->hidden(function (Model $beneficiary) {
@@ -181,33 +193,60 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                 ->requiresConfirmation()
                 ->button()
                 ->action(function (Model $beneficiary) {
-                    $beneficiary->update(['status' => Beneficiary::UN_CLAIMED]);
 
-                        // Increase the quantity in the associated distribution item
-                        $distributionItem = $beneficiary->distributionItem;
-                        if ($distributionItem) {
-                            $distributionItem->increment('quantity');
-                        }
+                    try {
+                        DB::beginTransaction();
+                     // Update beneficiary status to 'Unclaimed'
+                     $beneficiary->update(['status' => Beneficiary::UN_CLAIMED]);
 
-                        // Find and update the associated transaction instead of deleting it
-                        $transaction = $beneficiary->transactions()
-                            ->where('action', 'Claimed')
-                            ->where('beneficiary_id', $beneficiary->id)
-                            ->latest()
-                            ->first();
+                     // Increase the quantity in the associated distribution item
+                     $distributionItem = $beneficiary->distributionItem;
+                     if ($distributionItem) {
+                         $distributionItem->increment('quantity');
+                     }
 
-                        if ($transaction) {
-                            $transaction->update([
-                                'action' => 'Unclaimed',
-                                'performed_at' => now(), // Log the unclaim action
-                            ]);
-                        }
+                     $currentUser = Auth::user();
+
+                     // Create recorder details for tracing who performed the unclaim action
+                     $recorderDetails = [
+                         'id'    => $currentUser->id,
+                         'name'  => $currentUser->name,
+                         'email' => $currentUser->email,
+                         'role'  => $currentUser->role,
+                     ];
+
+                     // Find the latest transaction with action 'Claimed'
+                     $transaction = $beneficiary->transactions()
+                         ->where('action', 'Claimed')
+                         ->where('beneficiary_id', $beneficiary->id)
+                         ->latest()
+                         ->first();
+
+                     if ($transaction) {
+                         // Update the transaction to reflect the unclaim action and record the details
+                         $transaction->update([
+                             'action'           => 'Unclaimed',
+                             'performed_at'     => now(),
+                             'recorder_details' => $recorderDetails,
+                         ]);
+                     }
+                        DB::commit();
                         $this->dispatch('refreshProgress');
+                        $this->dialog()->success(
+                            title: 'Beneficiary Unclaimed',
+                            description: 'The beneficiary claim has been successfully reverted.',
+                        );
+
+
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        report($e);
 
                         $this->dialog()->error(
-                            title: 'Beneficiary Unclaimed',
-                            description: 'The beneficiary claim has been successfully reverted.'
+                            title: 'Beneficiary Unclaimed Failed',
+                            description: 'Error'.$e->getMessage()
                         );
+                    }
                 })
                 ->hidden(function (Model $beneficiary) {
                     return $beneficiary->status === Beneficiary::UN_CLAIMED ||
@@ -220,7 +259,7 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                     Action::make('View Qr')
                         ->color('gray')
                         ->label('View QR Code')
-
+                        ->icon('heroicon-s-eye')
                         ->modalSubmitAction(false)
                         ->modalContent(fn(Model $record): View => view(
                             'livewire.beneficiary-qr',

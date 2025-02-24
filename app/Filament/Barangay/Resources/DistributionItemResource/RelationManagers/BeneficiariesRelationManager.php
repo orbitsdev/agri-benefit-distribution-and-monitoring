@@ -172,6 +172,7 @@ class BeneficiariesRelationManager extends RelationManager
                     Action::make('View Qr')
                         ->color('gray')
                         ->label('View QR Code')
+                        ->icon('heroicon-s-eye')
 
                         ->modalSubmitAction(false)
                         ->modalContent(fn(Model $record): View => view(

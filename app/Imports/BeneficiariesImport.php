@@ -25,50 +25,51 @@ class BeneficiariesImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
 
-      
+
         DB::beginTransaction();
 
         try {
-            $validColumns = ['name', 'contact', 'email'];
-    
+            $validColumns = ['name', 'contact', 'email','address'];
+
             $normalizedRow = [];
             foreach ($row as $header => $value) {
                 $normalizedRow[strtolower($header)] = $value;
             }
-    
+
             $filteredData = [];
             foreach ($validColumns as $column) {
                 $filteredData[$column] = $normalizedRow[strtolower($column)] ?? null;
             }
-    
+
             $filteredData['distribution_item_id'] = $this->distributionItemId;
-    
+
             $existingBeneficiary = Beneficiary::where('name', $filteredData['name'])
                 ->where('distribution_item_id', $this->distributionItemId)
                 ->first();
-    
+
             if ($existingBeneficiary) {
                 $existingBeneficiary->update([
                     'contact' => $filteredData['contact'] ?? $existingBeneficiary->contact,
                     'email' => $filteredData['email'] ?? $existingBeneficiary->email,
+                    'address' => $filteredData['address'] ?? $existingBeneficiary->email,
                 ]);
             } else {
                 Beneficiary::create($filteredData);
             }
-    
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             // Ensure distributionId is valid
             $distributionId = $this->distributionId ?? null;
-    
+
             ImportFailure::create([
                 'distribution_id' => $distributionId,
                 'row_data' => json_encode($row),
                 'error_message' => $e->getMessage(),
             ]);
-    
+
             throw $e; // Optional: Re-throw exception for debugging
         }
     }

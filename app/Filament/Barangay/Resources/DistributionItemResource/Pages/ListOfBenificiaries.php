@@ -6,15 +6,17 @@ use Filament\Tables\Table;
 use App\Jobs\SendQrMailJob;
 use App\Models\Beneficiary;
 use App\Models\Distribution;
+use Filament\Actions\StaticAction;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Actions\Action;
+use Illuminate\Contracts\View\View;
 use App\Imports\BeneficiariesImport;
 use Illuminate\Support\Facades\Auth;
+
+
+
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\FilamentForm;
-
-
-
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -216,6 +218,18 @@ public function table(Table $table): Table
                 })->form(FilamentForm::beneficiaryForm()),
             ])
             ->actions([
+                Action::make('View Qr')
+                        ->color('gray')
+                        ->label('View QR Code')
+                        ->icon('heroicon-s-eye')
+
+                        ->modalSubmitAction(false)
+                        ->modalContent(fn(Model $record): View => view(
+                            'livewire.beneficiary-qr',
+                            ['record' => $record],
+                        ))
+                        ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                        ->closeModalByClickingAway(false)->modalWidth('7xl'),
                 Action::make('Claim')
                 ->requiresConfirmation()
                 ->button()

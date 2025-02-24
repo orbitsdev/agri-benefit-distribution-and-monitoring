@@ -101,10 +101,10 @@ class DistributionItemsRelationManager extends RelationManager
 
 1. Ensure your file is in the correct format (`.xlsx`, `.xls`, or `.csv`).
 2. The file must include these columns:
-   - **First Name**: The beneficiary\'s first name.
-   - **Middle Name**: The beneficiary\'s middle name (optional).
-   - **Last Name**: The beneficiary\'s last name.
-   - **Unique Beneficiary ID**: This must be unique for each beneficiary.
+   - **name**: .
+   - **contact**:  .
+   - **email**: .
+   - **address**: .
 
 3. If updating existing beneficiaries, ensure the "Unique Beneficiary ID" matches records in the system. Otherwise, new beneficiaries will be added.
 4. Verify your data before uploading to prevent errors.
