@@ -4,6 +4,7 @@ namespace App\Filament\Barangay\Resources\DistributionResource\Pages;
 
 use App\Models\User;
 use Filament\Tables\Table;
+use App\Jobs\SendQrMailJob;
 use App\Models\Beneficiary;
 use App\Models\Transaction;
 use App\Models\Distribution;
@@ -17,11 +18,11 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Contracts\HasTable;
+
 use Illuminate\Database\Eloquent\Model;
-
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\ActionGroup;
 
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -66,7 +67,7 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                 }),
                 ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
                 TextColumn::make('name')->searchable(),
-                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('contact')->searchable(),
                 TextColumn::make('address')->searchable()->wrap(),
                 TextColumn::make('distributionItem.item.name')->searchable(),
@@ -89,7 +90,42 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                 //     ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->created_at}")
 
             ], layout: FiltersLayout::AboveContent)
-            ->headerActions([])
+            ->headerActions([
+                Action::make('SendQr')
+                ->label('Send QR to All Beneficiaries')
+                ->icon('heroicon-o-paper-airplane')
+                ->button()
+                // ->hidden(function () {
+                //     return !$this->record->beneficiaries()->exists();
+                // })
+                ->outlined()
+                ->requiresConfirmation() // Ask for confirmation before sending
+                ->modalHeading('Confirm Sending QR Codes')
+                ->modalSubheading('Are you sure you want to send QR codes to all beneficiaries of this distribution?')
+                ->action(function (): void {
+
+
+                    $beneficiaries = Beneficiary::whereHas('distributionItem', function($query){
+                        $query->where('distribution_id', $this->record->id);
+                    })->get()->filter(function ($beneficiary) {
+                        return !empty($beneficiary->email);
+                        });
+
+
+
+                    foreach ($beneficiaries as $beneficiary) {
+                        dispatch(new SendQrMailJob($beneficiary));
+                    }
+
+
+                    Notification::make()
+                        ->title('Emails are being sent')
+                        ->success()
+                        ->send();
+                })
+                ->closeModalByClickingAway(false)
+                ->modalWidth('md'),
+            ])
             ->actions([
                 Action::make('View Qr')
                         ->color('gray')

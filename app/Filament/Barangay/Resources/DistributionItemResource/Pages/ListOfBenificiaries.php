@@ -97,8 +97,10 @@ public function table(Table $table): Table
                 ->action(function (): void {
                     $beneficiaries = $this->record->beneficiaries->filter(function ($beneficiary) {
                         return !empty($beneficiary->email);
-                });
+                        });
 
+
+                        // dd($beneficiaries);
 
                     foreach ($beneficiaries as $beneficiary) {
                         dispatch(new SendQrMailJob($beneficiary));

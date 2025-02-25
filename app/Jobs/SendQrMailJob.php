@@ -43,7 +43,7 @@ class SendQrMailJob implements ShouldQueue
             // Log the error
             Log::error('Error sending email to ' . $this->beneficiary->email . ': ' . $e->getMessage());
 
-            // Optionally fail the job
+            // Optionally fail the jo
             $this->fail($e);
         }
     }
