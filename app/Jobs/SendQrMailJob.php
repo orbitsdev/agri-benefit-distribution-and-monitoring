@@ -37,6 +37,7 @@ class SendQrMailJob implements ShouldQueue
         }
 
         try {
+
             Mail::to($this->beneficiary->email)
                 ->send(new QrMail($this->beneficiary));
         } catch (\Exception $e) {

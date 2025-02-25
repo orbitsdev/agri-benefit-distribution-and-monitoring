@@ -88,7 +88,7 @@
                 Below is your QR code to claim your item:
             </p>
             <div class="qr-code">
-                <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG($beneficiary->code, 'QRCODE') }}" alt="QR Code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{$beneficiary->code}}" alt="QR Code">
             </div>
             <p>Please present this QR code at the distribution site to claim your item.</p>
             <p>Thank you,<br><span class="highlight">Agri Distribution Project</span></p>
