@@ -28,7 +28,14 @@ Route::middleware([
     Route::get('/export-supports/{record}', [ReportController::class, 'exportSupports'])->name('export.supports');
 
 Route::get('/export-transactions/{record}', [ReportController::class, 'exportTransactions'])
+
 ->name('export.transactions');
+
+Route::get('/export-beneficiaries/{distribution}/{filter}', [ReportController::class, 'exportBeneficiaries'])
+    ->name('export.beneficiaries');
+
+    Route::get('/export-distribution-items/{distribution}', [ReportController::class, 'exportDistributionItems'])
+    ->name('export.distribution_items');
 
     Route::post('/support/logout', function () {
         $user = Auth::user();

@@ -7,6 +7,7 @@ use Filament\Tables;
 use App\Models\Support;
 use Livewire\Component;
 use Filament\Tables\Table;
+use App\Jobs\SendQrMailJob;
 use App\Models\Beneficiary;
 use App\Models\Distribution;
 use WireUi\Traits\WireUiActions;
@@ -48,50 +49,59 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
         return $table
             ->query(Beneficiary::query())
             ->columns([
-                // ✅ Improved label
-                ViewColumn::make('qr')
-                ->view('tables.columns.beneficiary-qr')
-                ->label('QR Code'), // ✅ Improved label
-                TextColumn::make('code')
-                ->label('Beneficiary Code') // ✅ Clearer label
-                ->searchable(isIndividual:true),
-            TextColumn::make('name')
-                ->label('Beneficiary Name') // ✅ Clearer label
-                ->searchable(isIndividual:true),
-
-
-            TextColumn::make('contact')
-                ->label('Contact Number') // ✅ More descriptive
-                ->searchable(),
-
-            TextColumn::make('email')
-                ->label('Email Address')
-                ->searchable()
-                ->toggleable(isToggledHiddenByDefault: true),
-
-            TextColumn::make('address')
-                ->label('Home Address')
-                ->searchable()
-                ->wrap(),
-
-            TextColumn::make('distributionItem.item.name')
-                ->label('Item Received') // ✅ More intuitive
-                ->searchable(),
-
                 TextColumn::make('status')
-                ->label('Claim Status') // ✅ More descriptive
                 ->badge()
-                ->icon(fn(string $state): string => match ($state) {  // ✅ Add icon based on status
-                    Beneficiary::CLAIMED => 'heroicon-o-check', // ✅ Success Icon
-                    default => '', // ❌ Default (Unclaimed)
-                })
                 ->color(fn(string $state): string => match ($state) {
                     Beneficiary::CLAIMED => 'success',
                     default => 'gray'
                 }),
+                ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('contact')->searchable(),
+                TextColumn::make('address')->searchable()->wrap(),
+                TextColumn::make('distributionItem.item.name')->searchable(),
 
 
 
+            ])
+            ->headerActions([
+                Action::make('SendQr')
+                ->label('Send QR to Emails')
+
+                ->icon('heroicon-o-paper-airplane')
+                ->button()
+                // ->outlined()
+                // ->hidden(function () {
+                //     return !$this->record->beneficiaries()->exists();
+                // })
+
+                ->requiresConfirmation() // Ask for confirmation before sending
+                ->modalHeading('Confirm Sending QR Codes')
+                ->modalSubheading('Are you sure you want to send QR codes to all beneficiaries of this distribution?')
+                ->action(function (): void {
+
+
+                    $beneficiaries = Beneficiary::whereHas('distributionItem', function($query){
+                        $query->where('distribution_id', $this->record->id);
+                    })->get()->filter(function ($beneficiary) {
+                        return !empty($beneficiary->email);
+                        });
+
+
+
+                    foreach ($beneficiaries as $beneficiary) {
+                        dispatch(new SendQrMailJob($beneficiary));
+                    }
+
+
+                    Notification::make()
+                        ->title('Emails are being sent')
+                        ->success()
+                        ->send();
+                })
+                ->closeModalByClickingAway(false)
+                ->modalWidth('md'),
             ])
             ->filters([
                  SelectFilter::make('status')
@@ -256,10 +266,35 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
                 ->color('gray')
                 ->label('Return'),
                 ActionGroup::make([
+                    Action::make('send_qr')
+                    // ->button()
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->label('Send QR To Email ')
+                    ->action(function (Model $record) {
+                        if (empty($record->email)) {
+                            Notification::make()
+                                ->title('Error')
+                                ->body('The beneficiary does not have an email address.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        dispatch(new SendQrMailJob($record));
+
+                        Notification::make()
+                            ->title('Success')
+                            ->body('QR Code has been sent successfully to ' . $record->email)
+                            ->success()
+                            ->send();
+                    }),
                     Action::make('View Qr')
-                        ->color('gray')
+                        ->color('primary')
                         ->label('View QR Code')
-                        ->icon('heroicon-s-eye')
+                        // ->icon('heroicon-s-eye')
+
                         ->modalSubmitAction(false)
                         ->modalContent(fn(Model $record): View => view(
                             'livewire.beneficiary-qr',

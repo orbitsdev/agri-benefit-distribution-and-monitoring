@@ -125,7 +125,69 @@ class LatestDistributions extends BaseWidget
                   }, shouldOpenInNewTab: true)
                   ->hidden(function (Model $record) {
                       return !$record->supports()->exists();
-                  })
+                  }),
+
+
+Action::make('Beneficiaries Report')
+->size(ActionSize::ExtraSmall)
+->label('All Beneficiaries')
+->icon('heroicon-s-arrow-down-tray')
+->url(function (Model $record) {
+    return route('export.beneficiaries', [
+        'distribution' => $record->id,
+        'filter' => 'all'
+    ]);
+}, shouldOpenInNewTab: true)
+->hidden(function (Model $record) {
+    return !$record->distributionItems()->whereHas('beneficiaries')->exists();
+}),
+
+// Action for Claimed Beneficiaries
+Action::make('Claimed Beneficiaries Report')
+->size(ActionSize::ExtraSmall)
+->label('Claimed Beneficiaries')
+->icon('heroicon-s-arrow-down-tray')
+->url(function (Model $record) {
+    return route('export.beneficiaries', [
+        'distribution' => $record->id,
+        'filter' => 'claimed'
+    ]);
+}, shouldOpenInNewTab: true)
+->hidden(function (Model $record) {
+    return !$record->distributionItems()->whereHas('beneficiaries')->exists();
+}),
+
+// Action for Unclaimed Beneficiaries
+Action::make('Unclaimed Beneficiaries Report')
+->size(ActionSize::ExtraSmall)
+->label('Unclaimed Beneficiaries')
+->icon('heroicon-s-arrow-down-tray')
+->url(function (Model $record) {
+    return route('export.beneficiaries', [
+        'distribution' => $record->id,
+        'filter' => 'unclaimed'
+    ]);
+}, shouldOpenInNewTab: true)
+->hidden(function (Model $record) {
+    return !$record->distributionItems()->whereHas('beneficiaries')->exists();
+}),
+
+
+
+Action::make('Distribution Items Report')
+    ->size(ActionSize::ExtraSmall)
+    ->label('Inventory Report')
+    ->icon('heroicon-s-arrow-down-tray')
+    ->url(function (Model $record) {
+        return route('export.distribution_items', [
+            'distribution' => $record->id,
+        ]);
+    }, shouldOpenInNewTab: true)
+    ->hidden(function (Model $record) {
+        return !$record->distributionItems()->exists();
+    }),
+
+
                 ]),
 
             ])

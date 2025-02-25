@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Distribution;
 use Illuminate\Http\Request;
 use App\Exports\SupportExport;
+use App\Exports\BeneficiaryExport;
 use App\Exports\SystemUsersExport;
 use App\Exports\TransactionsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DistributionItemExport;
 use App\Exports\BarangayDistributionExport;
-use App\Models\Distribution;
 
 class ReportController extends Controller
 {
@@ -40,5 +42,33 @@ class ReportController extends Controller
         $filename = $distribution->title.' Transactions-List' . now()->format('Y-m-d') . '.xlsx';
     return Excel::download(new TransactionsExport($record), $filename);
 }
+
+public function exportBeneficiaries($distribution, $filter)
+{
+    // If a specific distribution ID is provided, fetch its title; otherwise, use "all"
+    if ($distribution !== 'all') {
+        $distributionModel = Distribution::find($distribution);
+        $distributionTitle = $distributionModel ? str_replace(' ', '_', $distributionModel->title) : $distribution;
+    } else {
+        $distributionTitle = 'all';
+    }
+
+    $filename = 'Beneficiaries_' . $distributionTitle . '_' . $filter . '_' . now()->format('Y-m-d') . '.xlsx';
+    return Excel::download(new BeneficiaryExport($distribution, $filter), $filename);
+}
+
+public function exportDistributionItems($distribution)
+    {
+        // If a specific distribution ID is provided, fetch its title; otherwise, use 'all'
+        if ($distribution !== 'all') {
+            $distributionModel = Distribution::find($distribution);
+            $distributionTitle = $distributionModel ? str_replace(' ', '_', $distributionModel->title) : $distribution;
+        } else {
+            $distributionTitle = 'all';
+        }
+
+        $filename = 'DistributionItems_' . $distributionTitle . '_' . now()->format('Y-m-d') . '.xlsx';
+        return Excel::download(new DistributionItemExport($distribution), $filename);
+    }
 
 }
