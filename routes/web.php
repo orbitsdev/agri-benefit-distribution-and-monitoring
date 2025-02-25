@@ -118,22 +118,26 @@ Route::get('/export-transactions/{record}', [ReportController::class, 'exportTra
 });
 
 Route::get('/test-qr-mail', function () {
-    try {
-        $beneficiary = Beneficiary::with(['distributionItem.distribution', 'distributionItem.item'])->first();
 
-        if (!$beneficiary) {
-            return "No beneficiary found.";
-        }
+    $beneficiary = Beneficiary::with(['distributionItem.distribution','distributionItem.item'])->latest()->first();
+    // dd($beneficiary);
+    return view('emails.qrmail',['beneficiary'=>$beneficiary,'distribution'=> $beneficiary->distributionItem->distribution]);
+    // try {
+    //     $beneficiary = Beneficiary::with(['distributionItem.distribution', 'distributionItem.item'])->first();
 
-        Mail::to($beneficiary->email)->send(new QrMail($beneficiary));
+    //     if (!$beneficiary) {
+    //         return "No beneficiary found.";
+    //     }
 
-        return "QR email sent to {$beneficiary->email}";
-    } catch (\Exception $e) {
-        // Log the error for debugging
-        Log::error('Error sending QR email: ' . $e->getMessage());
+    //     Mail::to($beneficiary->email)->send(new QrMail($beneficiary));
 
-        return "Failed to send email. Check the logs for details.";
-    }
+    //     return "QR email sent to {$beneficiary->email}";
+    // } catch (\Exception $e) {
+    //     // Log the error for debugging
+    //     Log::error('Error sending QR email: ' . $e->getMessage());
+
+    //     return "Failed to send email. Check the logs for details.";
+    // }
 });
 
 

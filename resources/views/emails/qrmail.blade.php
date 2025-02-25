@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0fdf4; /* Light green background */
+            background-color: #e3f2fd; /* Light blue background */
             margin: 0;
             padding: 0;
         }
@@ -18,21 +18,23 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 2px solid #22c55e; /* Green border */
+            border: 2px solid #1e88e5; /* Blue border */
         }
         .email-header {
-            /* background-color: #16a34a;  */
-            /* color: white; */
-            text-align: center;
+            background-color: #1e88e5;
+            color: white;
+            text-align: left;
             padding: 20px;
+            display: flex;
+            align-items: center;
         }
         .email-header img {
-            width: 80px;
-            margin-bottom: 10px;
+            width: 60px;
+            margin-right: 15px;
         }
         .email-header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 22px;
         }
         .email-body {
             padding: 20px;
@@ -42,24 +44,25 @@
             line-height: 1.6;
             margin: 10px 0;
         }
-        .email-body strong {
-            color: #16a34a; /* Dark green for highlights */
+        .highlight {
+            color: #1e88e5; /* Blue for highlights */
+            font-weight: bold;
         }
         .qr-code {
             text-align: center;
             margin: 20px 0;
         }
         .qr-code img {
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
         }
         .email-footer {
             text-align: center;
             font-size: 14px;
             color: #666666;
-            padding: 10px;
+            padding: 15px;
             border-top: 1px solid #eeeeee;
-            background-color: #f0fdf4; /* Match the body background */
+            background-color: #e3f2fd; /* Match the body background */
         }
     </style>
 </head>
@@ -72,14 +75,14 @@
         </div>
         <!-- Body Section -->
         <div class="email-body">
-            <p>Dear <strong>{{ $beneficiary->name }}</strong>,</p>
+            <p>Dear <span class="highlight">{{ $beneficiary->name }}</span>,</p>
             <p>
-                You are a beneficiary of the <strong>{{ $distribution->title }}</strong> distribution.
+                You are a beneficiary of the <span class="highlight">{{ $distribution->title }}</span> distribution.
             </p>
             <p>
-                <strong>Item:</strong> {{ $beneficiary->distributionItem->item->name }}<br>
-                <strong>Distribution Date:</strong> {{ $distribution->distribution_date }}<br>
-                <strong>Location:</strong> {{ $distribution->location }}
+                <span class="highlight">Item:</span> {{ $beneficiary->distributionItem->item->name }}<br>
+                <span class="highlight">Distribution Date:</span> {{ \Carbon\Carbon::parse($distribution->distribution_date)->format('F j, Y') }}<br>
+                <span class="highlight">Location:</span> {{ $distribution->location }}
             </p>
             <p>
                 Below is your QR code to claim your item:
@@ -88,11 +91,11 @@
                 <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG($beneficiary->code, 'QRCODE') }}" alt="QR Code">
             </div>
             <p>Please present this QR code at the distribution site to claim your item.</p>
-            <p>Thank you,<br><strong>Agri Distribution Project</strong></p>
+            <p>Thank you,<br><span class="highlight">Agri Distribution Project</span></p>
         </div>
         <!-- Footer Section -->
         <div class="email-footer">
-            If you have any questions, please contact us at <strong>support@agriproject.com</strong>.
+            If you have any questions, please contact us at <span class="highlight">support@agriproject.com</span>.
         </div>
     </div>
 </body>
