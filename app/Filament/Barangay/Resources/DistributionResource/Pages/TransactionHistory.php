@@ -74,6 +74,10 @@ class TransactionHistory extends Page  implements HasForms, HasTable
                     ->label('Name')
                     ->searchable(isIndividual:true)
                    ,
+                    Tables\Columns\TextColumn::make('beneficiary_details.code')
+                    ->label('Code')
+                    ->searchable(isIndividual:true)
+                   ,
 
                     Tables\Columns\TextColumn::make('beneficiary_details.contact')->searchable(isIndividual:true)->label('Contact')->toggleable(isToggledHiddenByDefault: true),
                     Tables\Columns\TextColumn::make('beneficiary_details.email')->searchable(isIndividual:true)->label('Email')->toggleable(isToggledHiddenByDefault: true),

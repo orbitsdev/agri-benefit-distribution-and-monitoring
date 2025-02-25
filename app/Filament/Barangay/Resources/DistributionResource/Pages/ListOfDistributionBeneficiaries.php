@@ -59,25 +59,28 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
         return $table
             ->query(Beneficiary::query())
             ->columns([
-                TextColumn::make('status')
-                ->badge()
-                ->color(fn(string $state): string => match ($state) {
-                    Beneficiary::CLAIMED => 'success',
-                    default => 'gray'
-                }),
-                ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
+                ViewColumn::make('code_qr')->view('tables.columns.beneficiary-qr')->label('Qr'),
+
+                TextColumn::make('code')->searchable()->copyable(),
+                // TextColumn::make('status')
+                // ->badge()
+                // ->color(fn(string $state): string => match ($state) {
+                //     Beneficiary::CLAIMED => 'success',
+                //     default => 'gray'
+                // }),
+
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('contact')->searchable(),
                 TextColumn::make('address')->searchable()->wrap(),
                 TextColumn::make('distributionItem.item.name')->searchable(),
-                // TextColumn::make('status')
-                //     ->badge()
-                //     ->color(fn(string $state): string => match ($state) {
-                //         Beneficiary::CLAIMED => 'success',
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        Beneficiary::CLAIMED => 'success',
 
-                //         default => 'gray'
-                //     }),
+                        default => 'gray'
+                    }),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -91,6 +94,7 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
 
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([
+
                 Action::make('SendQr')
                 ->label('Send QR to Emails')
 
@@ -130,44 +134,6 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                 ->modalWidth('md'),
             ])
             ->actions([
-
-                // ->visible(fn (Model $record) => !empty($record->email)),
-                Action::make('send_qr')
-                ->button()
-                ->color('primary')
-                ->requiresConfirmation()
-                ->label('Send QR To Email ')
-                ->action(function (Model $record) {
-                    if (empty($record->email)) {
-                        Notification::make()
-                            ->title('Error')
-                            ->body('The beneficiary does not have an email address.')
-                            ->danger()
-                            ->send();
-
-                        return;
-                    }
-
-                    dispatch(new SendQrMailJob($record));
-
-                    Notification::make()
-                        ->title('Success')
-                        ->body('QR Code has been sent successfully to ' . $record->email)
-                        ->success()
-                        ->send();
-                }),
-                Action::make('View Qr')
-                ->button()
-                        ->label('View QR ')
-                        ->icon('heroicon-s-eye')
-
-                        ->modalSubmitAction(false)
-                        ->modalContent(fn(Model $record): View => view(
-                            'livewire.beneficiary-qr',
-                            ['record' => $record],
-                        ))
-                        ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
-                        ->closeModalByClickingAway(false)->modalWidth('7xl'),
                 Action::make('Claim')
                 ->requiresConfirmation()
                 ->button()
@@ -332,6 +298,46 @@ class ListOfDistributionBeneficiaries extends Page  implements HasForms, HasTabl
                 ->icon('heroicon-o-x-circle')
                 ->color('gray')
                 ->label('Revert'),
+                ActionGroup::make([
+                // ->visible(fn (Model $record) => !empty($record->email)),
+                Action::make('send_qr')
+
+                ->color('primary')
+                ->requiresConfirmation()
+                ->label('Send QR To Email ')
+                ->action(function (Model $record) {
+                    if (empty($record->email)) {
+                        Notification::make()
+                            ->title('Error')
+                            ->body('The beneficiary does not have an email address.')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    dispatch(new SendQrMailJob($record));
+
+                    Notification::make()
+                        ->title('Success')
+                        ->body('QR Code has been sent successfully to ' . $record->email)
+                        ->success()
+                        ->send();
+                }),
+                Action::make('View Qr')
+
+                        ->label('View QR ')
+
+
+                        ->modalSubmitAction(false)
+                        ->modalContent(fn(Model $record): View => view(
+                            'livewire.beneficiary-qr',
+                            ['record' => $record],
+                        ))
+                        ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                        ->closeModalByClickingAway(false)->modalWidth('7xl'),
+
+            ]),
 
 
                     // ActionGroup::make([

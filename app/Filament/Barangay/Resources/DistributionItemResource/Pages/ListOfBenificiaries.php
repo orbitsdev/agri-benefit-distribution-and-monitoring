@@ -65,7 +65,8 @@ public function table(Table $table): Table
         return $table
             ->query(Beneficiary::query())
             ->columns([
-                ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
+                ViewColumn::make('code_code')->view('tables.columns.beneficiary-qr')->label('Qr'),
+                TextColumn::make('code')->searchable(),
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault:true),
                 TextColumn::make('contact')->searchable(),

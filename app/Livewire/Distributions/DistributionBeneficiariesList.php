@@ -49,18 +49,20 @@ class DistributionBeneficiariesList extends Component implements HasForms, HasTa
         return $table
             ->query(Beneficiary::query())
             ->columns([
+
+                ViewColumn::make('qr_code')->view('tables.columns.beneficiary-qr')->label('Qr'),
+                TextColumn::make('code')->searchable(),
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('contact')->searchable(),
+                TextColumn::make('address')->searchable()->wrap(),
+                TextColumn::make('distributionItem.item.name')->searchable(),
                 TextColumn::make('status')
                 ->badge()
                 ->color(fn(string $state): string => match ($state) {
                     Beneficiary::CLAIMED => 'success',
                     default => 'gray'
                 }),
-                ViewColumn::make('code')->view('tables.columns.beneficiary-qr'),
-                TextColumn::make('name')->searchable(),
-                TextColumn::make('email')->searchable()->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('contact')->searchable(),
-                TextColumn::make('address')->searchable()->wrap(),
-                TextColumn::make('distributionItem.item.name')->searchable(),
 
 
 
