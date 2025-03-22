@@ -61,6 +61,7 @@
                     <tr class="text-left text-sm text-gray-500 bg-gray-100">
                         <th class="px-4 py-2">Name</th>
                         <th class="px-4 py-2">Quantity</th>
+                        <th class="px-4 py-2">Left </th>
                         <th class="px-4 py-2">Beneficiaries</th>
                     </tr>
                 </thead>
@@ -69,6 +70,7 @@
                     <tr>
                         <td class="border-t px-4 py-2">{{ $distributionItem->item->name }}</td>
                         <td class="border-t px-4 py-2">{{ $distributionItem->original_quantity }}</td>
+                        <td class="border-t px-4 py-2">{{ $distributionItem->quantity }}</td>
                         <td class="border-t px-4 py-2">{{ $distributionItem->getTotalBeneficiaries() }}</td>
                     </tr>
                 @empty
