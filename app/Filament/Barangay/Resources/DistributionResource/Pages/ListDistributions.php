@@ -23,7 +23,7 @@ class ListDistributions extends ListRecords
 
     public function getTabs(): array{
       return [
-        'all' => Tab::make('All customers'),
+        'all' => Tab::make('All Distributions'),
         'Planned'=> Tab::make('Planned')->modifyQueryUsing(fn (Builder $query) => $query->planned()),
         'Ongoing'=> Tab::make('Ongoing')->modifyQueryUsing(fn (Builder $query) => $query->ongoing()),
         'Completed'=> Tab::make('Completed')->modifyQueryUsing(fn (Builder $query) => $query->completed()),
