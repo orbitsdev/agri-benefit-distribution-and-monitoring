@@ -102,7 +102,7 @@ class UserResource extends Resource
                     ,
             ])
             ->defaultGroup('barangay.name')
-            ->modifyQueryUsing(fn (Builder $query) => $query->latest())
+            ->modifyQueryUsing(fn (Builder $query) => $query->latest()->whereHas('barangay'))
             ;
     }
 
