@@ -37,7 +37,7 @@ class BarangayPanelProvider extends PanelProvider
             ])
             ->brandName(function(){
                 if(Auth::user()->barangay){
-                    return 'Barangay '. Auth::user()->barangay->name;
+                    return 'Barangay '. Auth::user()->barangay->name. ' Agri Distribution System';
                 }
                     return 'Agriculture Benefit Distribution and Monitoring';
 
