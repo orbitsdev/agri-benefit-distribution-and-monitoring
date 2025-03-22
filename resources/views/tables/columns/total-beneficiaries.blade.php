@@ -1,0 +1,3 @@
+<div>
+    {{ $getRecord()->totalBeneficiaries() }}
+</div>

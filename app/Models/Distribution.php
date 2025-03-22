@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Item;
 use App\Models\Support;
 use App\Models\Barangay;
+use App\Models\Beneficiary;
 use App\Models\Transaction;
 use App\Models\ImportFailure;
 use App\Models\DistributionItem;
@@ -165,5 +166,14 @@ public function hasUnlockedItems(): bool
     return $this->distributionItems()->where('is_locked', false)->exists();
 }
 
+
+public function beneficiaries()
+{
+    return $this->hasManyThrough(Beneficiary::class, DistributionItem::class);
+}
+
+public function totalBeneficiaries(){
+ return $this->beneficiaries()->count();
+}
 
 }

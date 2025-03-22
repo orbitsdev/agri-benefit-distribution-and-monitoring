@@ -123,6 +123,8 @@ class DistributionResource extends Resource
                                         default=> 'gray'
 
                                     }),
+
+                                    ViewColumn::make('total')->view('tables.columns.total-beneficiaries')->label('Total beneficiaries')
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -312,7 +314,7 @@ Action::make('Distribution Items Report')
     ->hidden(function (Model $record) {
         return !$record->distributionItems()->exists();
     }),
-//  
+//
 
 
                 ]),
