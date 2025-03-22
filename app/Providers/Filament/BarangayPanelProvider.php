@@ -8,6 +8,7 @@ use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\EnsureIsAdmin;
 use Filament\Navigation\NavigationItem;
 use Filament\Http\Middleware\Authenticate;
@@ -34,6 +35,13 @@ class BarangayPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#1e40af',
             ])
+            ->brandName(function(){
+                if(Auth::user()->barangay){
+                    return 'Barangay '. Auth::user()->barangay->name;
+                }
+                    return 'Agriculture Benefit Distribution and Monitoring';
+
+            })
 
             ->discoverResources(in: app_path('Filament/Barangay/Resources'), for: 'App\\Filament\\Barangay\\Resources')
             ->discoverPages(in: app_path('Filament/Barangay/Pages'), for: 'App\\Filament\\Barangay\\Pages')
