@@ -19,7 +19,7 @@ use App\Filament\Barangay\Pages\ListOfBeneficiaries;
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
-
+//
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
