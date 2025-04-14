@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Beneficiary;
+use App\Models\Distribution;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 
@@ -19,29 +20,34 @@ class BeneficiaryExport implements FromView
 
     public function view(): View
     {
-        // Eager load related distribution and item details
+        // Eager load related data
         $query = Beneficiary::with([
-            'distributionItem.distribution',
-            'distributionItem.item'
+            'barangayDistribution.distribution',
+            'barangayDistribution.barangay',
+            'cropsToReceive.crop'
         ]);
 
         // Filter by distribution if a specific ID is provided
         if ($this->distribution !== 'all') {
-            $query->whereHas('distributionItem', function ($q) {
+            $query->whereHas('barangayDistribution', function ($q) {
                 $q->where('distribution_id', $this->distribution);
             });
         }
 
         // Apply status filter if not 'all'
         if ($this->filter === 'claimed') {
-            $query->where('status', 'Claimed');
+            $query->whereHas('cropsToReceive', function ($q) {
+                $q->where('is_claimed', true);
+            });
         } elseif ($this->filter === 'unclaimed') {
-            $query->where('status', 'Unclaimed');
+            $query->whereHas('cropsToReceive', function ($q) {
+                $q->where('is_claimed', false);
+            });
         }
 
         $beneficiaries = $query->get();
 
-        // This view should follow your Excel layout (dates formatted with Carbon in the Blade view)
+        // This view should follow your Excel layout
         return view('exports.beneficiaries', compact('beneficiaries'));
     }
 }

@@ -34,8 +34,8 @@ Route::get('/export-transactions/{record}', [ReportController::class, 'exportTra
 Route::get('/export-beneficiaries/{distribution}/{filter}', [ReportController::class, 'exportBeneficiaries'])
     ->name('export.beneficiaries');
 
-    Route::get('/export-distribution-items/{distribution}', [ReportController::class, 'exportDistributionItems'])
-    ->name('export.distribution_items');
+    Route::get('/export-crops/{distribution}', [ReportController::class, 'exportCrops'])
+    ->name('export.crops');
 
     Route::post('/support/logout', function () {
         $user = Auth::user();
@@ -146,8 +146,3 @@ Route::get('/test-qr-mail', function () {
     //     return "Failed to send email. Check the logs for details.";
     // }
 });
-
-
-
-
-

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CropExport;
 use App\Models\Distribution;
 use Illuminate\Http\Request;
 use App\Exports\SupportExport;
@@ -70,5 +71,17 @@ public function exportDistributionItems($distribution)
         $filename = 'DistributionItems_' . $distributionTitle . '_' . now()->format('Y-m-d') . '.xlsx';
         return Excel::download(new DistributionItemExport($distribution), $filename);
     }
+public function exportCrops($distribution)
+{
+    // If a specific distribution ID is provided, fetch its title; otherwise, use 'all'
+    if ($distribution !== 'all') {
+        $distributionModel = Distribution::find($distribution);
+        $distributionTitle = $distributionModel ? str_replace(' ', '_', $distributionModel->title) : $distribution;
+    } else {
+        $distributionTitle = 'all';
+    }
 
+    $filename = 'Crops_' . $distributionTitle . '_' . now()->format('Y-m-d') . '.xlsx';
+    return Excel::download(new CropExport($distribution), $filename);
+}
 }

@@ -125,6 +125,85 @@ class LatestDistribution extends BaseWidget
                         ->hidden(function (Model $record) {
                             return !$record->transactions()->exists();
                         }),
+
+
+                        Tables\Actions\Action::make('Transcation Support')
+                        ->size(ActionSize::ExtraSmall)
+                        ->label('Transaction Report')
+                        ->icon('heroicon-s-arrow-down-tray')
+                        ->url(function (Model $record) {
+                            return route('export.transactions', ['record' => $record->id]);
+                        }, shouldOpenInNewTab: true)
+                        ->hidden(function (Model $record) {
+                            return !$record->transactions()->exists();
+                        }),
+                        Tables\Actions\Action::make('Beneficiaries Report')
+                        ->size(ActionSize::ExtraSmall)
+                        ->label('All Beneficiaries')
+                        ->icon('heroicon-s-arrow-down-tray')
+                        ->url(function (Model $record) {
+                            return route('export.beneficiaries', [
+                                'distribution' => $record->id,
+                                'filter' => 'all'
+                            ]);
+                        }, shouldOpenInNewTab: true)
+                        ->hidden(function (Model $record) {
+                            return !$record->barangayDistributions()->whereHas('beneficiaries')->exists();
+                        }),
+
+                        Tables\Actions\Action::make('Claimed Beneficiaries Report')
+                        ->size(ActionSize::ExtraSmall)
+                        ->label('Claimed Beneficiaries')
+                        ->icon('heroicon-s-arrow-down-tray')
+                        ->url(function (Model $record) {
+                            return route('export.beneficiaries', [
+                                'distribution' => $record->id,
+                                'filter' => 'claimed'
+                            ]);
+                        }, shouldOpenInNewTab: true)
+                        ->hidden(function (Model $record) {
+                            return !$record->barangayDistributions()->whereHas('beneficiaries', function($query) {
+                                $query->whereHas('cropsToReceive', function($q) {
+                                    $q->where('is_claimed', true);
+                                });
+                            })->exists();
+                        }),
+
+                    // Action for Unclaimed Beneficiaries
+                    Tables\Actions\Action::make('Unclaimed Beneficiaries Report')
+                        ->size(ActionSize::ExtraSmall)
+                        ->label('Unclaimed Beneficiaries')
+                        ->icon('heroicon-s-arrow-down-tray')
+                        ->url(function (Model $record) {
+                            return route('export.beneficiaries', [
+                                'distribution' => $record->id,
+                                'filter' => 'unclaimed'
+                            ]);
+                        }, shouldOpenInNewTab: true)
+                        ->hidden(function (Model $record) {
+                            return !$record->barangayDistributions()->whereHas('beneficiaries', function($query) {
+                                $query->whereHas('cropsToReceive', function($q) {
+                                    $q->where('is_claimed', false);
+                                });
+                            })->exists();
+                        }),
+                        Tables\Actions\Action::make('Distribution Items Report')
+                        ->size(ActionSize::ExtraSmall)
+                        ->label('Inventory Report')
+                        ->icon('heroicon-s-arrow-down-tray')
+                        ->url(function (Model $record) {
+                            return route('export.crops', [
+                                'distribution' => $record->id,
+                            ]);
+                        }, shouldOpenInNewTab: true)
+                        ->hidden(function (Model $record) {
+                            // Check if there are any crops associated with beneficiaries in this distribution
+                            return !$record->barangayDistributions()
+                                ->whereHas('beneficiaries', function($query) {
+                                    $query->whereHas('cropsToReceive');
+                                })
+                                ->exists();
+                        }),
                 ]),
             ])
             ->modifyQueryUsing(fn($query) => $query->limit(10));
