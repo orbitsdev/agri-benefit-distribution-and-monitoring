@@ -5,41 +5,45 @@ namespace App\Filament\Resources\DistributionResource\Pages;
 use Filament\Tables\Table;
 use App\Jobs\SendQrMailJob;
 use App\Models\Beneficiary;
+use App\Models\Transaction;
 use App\Models\Distribution;
+use Filament\Infolists\Infolist;
 use Filament\Actions\StaticAction;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Grouping\Group;
+
 use Illuminate\Contracts\View\View;
-use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\EditAction;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\Grid as InfolistGrid;
-use Filament\Infolists\Components\Section as InfolistSection;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Contracts\HasInfolists;
-use Filament\Infolists\Concerns\InteractsWithInfolists;
-
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Contracts\HasInfolists;
 use Filament\Forms\Concerns\InteractsWithForms;
 use App\Filament\Resources\DistributionResource;
 use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Infolists\Components\Grid as InfolistGrid;
+use Filament\Infolists\Concerns\InteractsWithInfolists;
+use Filament\Infolists\Components\Section as InfolistSection;
 
 class ListOfBarangayBeneficiaries extends Page  implements HasForms, HasTable, HasInfolists
 {
@@ -67,11 +71,48 @@ class ListOfBarangayBeneficiaries extends Page  implements HasForms, HasTable, H
         return $table
         ->query(Beneficiary::query())
             ->columns([
-                // Tables\Columns\TextColumn::make('unique_code')
-                // ->label('Code')
-                // ,
-                ViewColumn::make('cropsToReceive.unique_code')->view('tables.columns.crop-qr')->label('Code'),
-               TextColumn::make('is_approved')
+                // First show the most important status columns
+                TextColumn::make('cropsToReceive.is_claimed')
+                    ->label('Claim Status')
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'CLAIMED' : 'UNCLAIMED')
+                    ->badge()
+                    ->size('lg')
+                    ->alignCenter()
+                    ->icon(fn (bool $state): string => $state ? 'heroicon-o-check-badge' : 'heroicon-o-clock')
+                    ->color(fn (bool $state): string => $state ? 'success' : 'gray')
+                    ->searchable()
+                    ->sortable(),
+
+                ViewColumn::make('cropsToReceive.unique_code')->view('tables.columns.crop-qr')->label('QR Code'),
+
+                TextColumn::make('cropsToReceive.date_claimed')
+                    ->label('Date Claimed')
+                    ->date('M d, Y h:i A')
+                    ->placeholder('Not claimed yet')
+                    ->alignCenter()
+                    ->sortable(),
+
+                TextColumn::make('cropsToReceive.crop.name')
+                    ->listWithLineBreaks()
+                    ->badge()
+                    ->color('primary')
+                    ->label('Crop')
+                    ->searchable(),
+
+                // Then show beneficiary information
+                TextColumn::make('rsbsa_no')
+                    ->label('RSBSA')
+                    ->searchable(),
+
+                TextColumn::make('first_name')
+                    ->label('First Name')
+                    ->searchable(),
+
+                TextColumn::make('last_name')
+                    ->label('Last Name')
+                    ->searchable(),
+
+                TextColumn::make('is_approved')
                     ->label('Approved')
                     ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
                     ->badge()
@@ -79,85 +120,60 @@ class ListOfBarangayBeneficiaries extends Page  implements HasForms, HasTable, H
                     ->icon(fn (bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
                     ->color(fn (bool $state): string => $state ? 'success' : 'danger'),
 
-                // Always visible columns
-               TextColumn::make('rsbsa_no')
-                    ->label('RSBSA')
-                    ->searchable(),
-
-               TextColumn::make('first_name')
-                    ->label('First Name')
-                    ->searchable(),
-
-               TextColumn::make('last_name')
-                    ->label('Last Name')
-                    ->searchable(),
-
-               TextColumn::make('email')
+                TextColumn::make('email')
                     ->searchable(),
 
                 // Toggleable columns
-               TextColumn::make('contact_num')
+                TextColumn::make('contact_num')
                     ->label('Contact')
                     ->formatStateUsing(fn ($state) => $state ? '+63 ' . substr($state, -10) : '-')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-               TextColumn::make('gender')
+                TextColumn::make('gender')
                     ->formatStateUsing(fn ($state) => ucfirst($state))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-               TextColumn::make('birthday')
+                TextColumn::make('birthday')
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-               TextColumn::make('farmer_address')
+                TextColumn::make('farmer_address')
                     ->label('Address')
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-               TextColumn::make('farmer_address_mun')
+                TextColumn::make('farmer_address_mun')
                     ->label('Municipality')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
-               TextColumn::make('cropsToReceive.crop.name')
-                    ->listWithLineBreaks()->badge()->color('primary')->label('Crop'),
-
-                // Tables\Columns\TextColumn::make('farmer_address_prv')
-                //     ->label('Province')
-                //     ->searchable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                //     ToggleColumn::make('is_approved')->label('Status')->alignCenter()->afterStateUpdated(function ($record, $state) {
-
-                //         if ($state) {
-                //             Notification::make()
-                //                 ->title('Beneficiary was approved')
-                //                 ->success()
-                //                 ->send();
-                //         } else {
-                //             Notification::make()
-                //                 ->title('Beneficiary was disapproved')
-                //                 ->success()
-                //                 ->send()
-                //             ;
-                //         }
-                //     }),
-
-                // Tables\Columns\TextColumn::make('agency')
-                //     ->searchable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-
-
-
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->dateTime()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-
-
             ])
             ->filters([
-                //
+                SelectFilter::make('is_approved')
+                    ->label('Approval Status')
+                    ->options([
+                        '1' => 'Approved',
+                        '0' => 'Not Approved',
+                    ])
+                    ->placeholder('All Beneficiaries')
+                    ->default(null),
+
+                SelectFilter::make('is_claimed')
+                    ->label('Claim Status')
+                    ->options([
+                        '1' => 'Claimed',
+                        '0' => 'Not Claimed',
+                    ])
+                    ->placeholder('All Statuses')
+                    ->default(null)
+                    ->query(function ($query, array $data) {
+                        return $query->when($data['value'] !== null, function ($query) use ($data) {
+                            return $query->whereHas('cropsToReceive', function ($query) use ($data) {
+                                return $query->where('is_claimed', $data['value']);
+                            });
+                        });
+                    }),
             ])
             ->headerActions([
                 Action::make('SendQr')
@@ -220,11 +236,187 @@ class ListOfBarangayBeneficiaries extends Page  implements HasForms, HasTable, H
                 CreateAction::make()->modalWidth('6xl'),
             ])
             ->actions([
-                ActionGroup::make([
+                Action::make('claim')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->label('Claim Benefit')
+                    ->requiresConfirmation()
+                    ->button()
+                    ->modalHeading('Claim Benefit')
+                    ->modalDescription('Are you sure you want to mark this benefit as claimed? This will record a transaction and update inventory.')
+                    ->modalSubmitActionLabel('Yes, Claim Benefit')
+                    ->action(function (Model $record) {
+                        // Check if already claimed
+                        if ($record->cropsToReceive->is_claimed) {
+                            Notification::make()
+                                ->title('Already Claimed')
+                                ->body('This benefit has already been claimed.')
+                                ->warning()
+                                ->send();
+                            return;
+                        }
 
+                        // Get the crop to update inventory
+                        $crop = $record->cropsToReceive->crop;
+
+                        // Start a database transaction to ensure all updates happen together
+                        DB::beginTransaction();
+
+                        try {
+                            // Update crops to receive status
+                            $record->cropsToReceive->is_claimed = true;
+                            $record->cropsToReceive->date_claimed = now();
+                            $record->cropsToReceive->save();
+
+                            // Decrease the crop inventory using the helper method
+                            $result = $crop->decreaseInventory();
+
+                            if (!$result) {
+                                throw new \Exception('Cannot decrease inventory. Stock limit reached or no stock available.');
+                            }
+
+                            // Record transaction
+                            Transaction::recordClaim($record, 'Claimed');
+
+                            // Commit the transaction
+                            DB::commit();
+
+                            Notification::make()
+                                ->title('Benefit Claimed')
+                                ->body('The benefit has been successfully claimed and inventory updated.')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            // Roll back the transaction if anything goes wrong
+                            DB::rollBack();
+
+                            Notification::make()
+                                ->title('Error')
+                                ->body('Failed to claim benefit: ' . $e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->hidden(fn (Model $record) =>
+                        $record->cropsToReceive->is_claimed ||
+                        !$record->barangayDistribution->is_disbursed
+                    ),
+
+                Action::make('revert_claim')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('danger')
+                    ->label('Revert Claim')
+                    ->button()
+                    ->requiresConfirmation()
+                    ->modalHeading('Revert Claim')
+                    ->modalDescription('Are you sure you want to revert this claim? This will record a transaction and update inventory.')
+                    ->modalSubmitActionLabel('Yes, Revert Claim')
+                    ->action(function (Model $record) {
+                        // Check if not claimed
+                        if (!$record->cropsToReceive->is_claimed) {
+                            Notification::make()
+                                ->title('Not Claimed')
+                                ->body('This benefit has not been claimed yet.')
+                                ->warning()
+                                ->send();
+                            return;
+                        }
+
+                        // Get the crop to update inventory
+                        $crop = $record->cropsToReceive->crop;
+
+                        // Start a database transaction to ensure all updates happen together
+                        DB::beginTransaction();
+
+                        try {
+                            // Update crops to receive status
+                            $record->cropsToReceive->is_claimed = false;
+                            $record->cropsToReceive->date_claimed = null;
+                            $record->cropsToReceive->save();
+
+                            // Increase the crop inventory using the helper method
+                            $result = $crop->increaseInventory();
+
+                            if (!$result) {
+                                throw new \Exception('Cannot increase inventory. Original stock limit reached.');
+                            }
+
+                            // Record transaction
+                            Transaction::recordClaim($record, 'Unclaimed');
+
+                            // Commit the transaction
+                            DB::commit();
+
+                            Notification::make()
+                                ->title('Claim Reverted')
+                                ->body('The benefit claim has been successfully reverted and inventory updated.')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            // Roll back the transaction if anything goes wrong
+                            DB::rollBack();
+
+                            Notification::make()
+                                ->title('Error')
+                                ->body('Failed to revert claim: ' . $e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->hidden(fn (Model $record) =>
+                        !$record->cropsToReceive->is_claimed ||
+                        !$record->barangayDistribution->is_disbursed
+                    ),
+
+                ActionGroup::make([
+                    Action::make('manageApproval')
+                    ->label(fn (Model $record): string => $record->is_approved ? 'Disapprove' : 'Approve')
+                    ->icon(fn (Model $record): string => $record->is_approved ? 'heroicon-o-x-circle' : 'heroicon-o-check-badge')
+                    ->color(fn (Model $record): string => $record->is_approved ? 'danger' : 'success')
+                    // ->button()
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (Model $record): string => $record->is_approved ? 'Disapprove Beneficiary' : 'Approve Beneficiary')
+                    ->modalDescription(fn (Model $record): string => $record->is_approved
+                        ? 'Are you sure you want to disapprove this beneficiary? They will not be able to claim benefits until approved again.'
+                        : 'Are you sure you want to approve this beneficiary? This will allow them to claim benefits when distribution is disbursed.')
+                    ->modalSubmitActionLabel(fn (Model $record): string => $record->is_approved ? 'Yes, Disapprove' : 'Yes, Approve')
+                    ->action(function (Model $record) {
+                        $record->is_approved = !$record->is_approved;
+                        $record->save();
+
+                        $status = $record->is_approved ? 'approved' : 'disapproved';
+                        Notification::make()
+                            ->title("Beneficiary {$status}")
+                            ->success()
+                            ->send();
+                    }),
+                    Action::make('send_qr')
+                    ->icon('heroicon-o-paper-airplane')
+                ->color('primary')
+                ->requiresConfirmation()
+                ->label('Send QR To Email ')
+                ->action(function (Model $record) {
+                    if (empty($record->email)) {
+                        Notification::make()
+                            ->title('Error')
+                            ->body('The beneficiary does not have an email address.')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    dispatch(new SendQrMailJob($record));
+
+                    Notification::make()
+                        ->title('Success')
+                        ->body('QR Code has been sent successfully to ' . $record->email)
+                        ->success()
+                        ->send();
+                }),
                     Action::make('View Qr')
                     ->color('gray')
-                    ->label('View QR Code')
+                    ->label(' QR Code')
                     ->icon('heroicon-s-eye')
 
                     ->modalSubmitAction(false)
@@ -316,53 +508,10 @@ class ListOfBarangayBeneficiaries extends Page  implements HasForms, HasTable, H
 
 
                 ])->label('Beneficiary Information'),
-                Action::make('send_qr')
-                    ->icon('heroicon-o-paper-airplane')
-                ->color('primary')
-                ->requiresConfirmation()
-                ->label('Send QR To Email ')
-                ->action(function (Model $record) {
-                    if (empty($record->email)) {
-                        Notification::make()
-                            ->title('Error')
-                            ->body('The beneficiary does not have an email address.')
-                            ->danger()
-                            ->send();
 
-                        return;
-                    }
-
-                    dispatch(new SendQrMailJob($record));
-
-                    Notification::make()
-                        ->title('Success')
-                        ->body('QR Code has been sent successfully to ' . $record->email)
-                        ->success()
-                        ->send();
-                }),
                    DeleteAction::make()->color('gray'),
-                   Action::make('manageApproval')
-                        ->label('Manage Approval')
-                        ->icon('heroicon-o-check-badge')
-                        ->requiresConfirmation()
-                        ->form([
-                           Toggle::make('is_approved')
-                                ->label('Approve Beneficiary')
-                                ->default(function ($record) {
-                                    return $record->is_approved;
-                                })
-                                ->helperText('Toggle to approve or disapprove this beneficiary.')
-                        ])
-                        ->action(function ($record, array $data) {
-                            $record->is_approved = $data['is_approved'];
-                            $record->save();
 
-                            $status = $data['is_approved'] ? 'approved' : 'disapproved';
-                            Notification::make()
-                                ->title("Beneficiary {$status}")
-                                ->success()
-                                ->send();
-                        })
+
                 ])->label('Actions'),
             ])
             ->modifyQueryUsing(function (Builder $query) {
@@ -370,6 +519,13 @@ class ListOfBarangayBeneficiaries extends Page  implements HasForms, HasTable, H
                     $query->where('distribution_id', $this->record->id);
                 })->latest();
             })
+            ->groups([
+                Group::make('barangayDistribution.barangay.name')
+                    ->label('Barangay')
+                    ->collapsible()
+                    ->titlePrefixedWithLabel(false)
+            ])
+            ->defaultGroup('barangayDistribution.barangay.name')
             ->bulkActions([
                 //BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),

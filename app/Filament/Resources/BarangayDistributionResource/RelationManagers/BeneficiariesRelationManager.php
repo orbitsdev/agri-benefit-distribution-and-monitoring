@@ -123,6 +123,7 @@ class BeneficiariesRelationManager extends RelationManager
                         Group::make([
                             Select::make('crop_id')
                             ->label('Crop')
+                            ->required()
                             ->relationship(
                                 'crop',
                                 'id',

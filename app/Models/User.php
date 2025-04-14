@@ -147,7 +147,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class,'admin_id') ;
+        return $this->hasMany(Transaction::class, 'recorder_details->id', 'id');
     }
 
 
@@ -193,5 +193,8 @@ class User extends Authenticatable implements FilamentUser, HasMedia {
         return $query->where('role', self::ADMIN)
                      ->whereNotNull('barangay_id');
     }
-
+public function transactionsAsRecorder()
+{
+    return Transaction::where('recorder_details->id', $this->id);
+}
 }

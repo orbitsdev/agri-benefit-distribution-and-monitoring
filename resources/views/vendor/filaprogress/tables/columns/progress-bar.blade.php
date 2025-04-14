@@ -9,12 +9,16 @@
     // Dynamic color based on progress
     if ($progressPercent == 100) {
         $progressColor = '#2980b9'; // Blue (Completed)
+        $textColor = 'white';
     } elseif ($progressPercent > 50) {
         $progressColor = '#27ae60'; // Green (>50% completed)
+        $textColor = 'white';
     } elseif ($progressPercent > 25) {
         $progressColor = '#f39c12'; // Orange (>25% completed)
+        $textColor = 'black';
     } else {
         $progressColor = '#e74c3c'; // Red (<25% completed)
+        $textColor = 'white';
     }
 @endphp
 
@@ -23,7 +27,7 @@
     <div class="progress-container">
         <div class="progress-bar" style="width: {{ $progressPercent }}%; background-color: {{ $progressColor }};"></div>
         <div class="progress-text">
-            <small>
+            <small style="color: {{ $textColor }};">
                 {{ $progressPercent }}%
             </small>
         </div>
@@ -32,7 +36,7 @@
     <!-- Show exact claimed vs remaining values below -->
     <div class="progress-summary">
         <span class="progress-current">
-             {{ $claimed }} / {{ $total }}  Remaining
+             {{ $claimed }} / {{ $total }} Claimed
         </span>
     </div>
 
@@ -46,7 +50,7 @@
         width: 100%;
         background-color: #e5e7eb;
         border-radius: 0.375rem;
-        height: 12px;
+        height: 14px;
         overflow: hidden;
         position: relative;
         box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
