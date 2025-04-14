@@ -10,15 +10,17 @@ use App\Models\Distribution;
 use Filament\Resources\Resource;
 use Filament\Actions\StaticAction;
 use Filament\Resources\Pages\Page;
+use Illuminate\Contracts\View\View;
 use Filament\Support\Enums\ActionSize;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\FilamentNestedResources\Ancestor;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DistributionResource\Pages;
 use Guava\FilamentNestedResources\Concerns\NestedResource;
 use App\Filament\Resources\DistributionResource\RelationManagers;
-use Illuminate\Contracts\View\View;
+
 class DistributionResource extends Resource
 {
     use NestedResource;
@@ -127,15 +129,24 @@ class DistributionResource extends Resource
                 Tables\Columns\TextColumn::make('distribution_date')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('code')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('is_disbursed')->label('Disbursed')
-                    ->formatStateUsing(fn(bool $state): string => $state ? 'Yes' : 'No')
+                // Tables\Columns\TextColumn::make('code')
+                //     ->searchable(),
+                Tables\Columns\TextColumn::make('is_disbursed')
+                    ->label('Disbursed')
                     ->badge()
-                    ->color(fn (string $state): string => $state === 'Yes' ? 'success' : 'gray'),
-                Tables\Columns\TextColumn::make('is_completed')->label('Completed')
-                    ->formatStateUsing(fn(bool $state): string => $state ? 'Yes' : 'No')->badge()->color(fn (string $state): string => $state ? 'success' : 'gray'),
-                Tables\Columns\TextColumn::make('created_at')
+                    ->formatStateUsing(fn(bool $state): string => $state ? 'Yes' : 'No')
+                    ->icon(fn(bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn(bool $state): string => $state ? 'success' : 'gray')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('is_completed')
+                    ->label('Completed')
+                    ->badge()
+                    ->formatStateUsing(fn(bool $state): string => $state ? 'Yes' : 'No')
+                    ->icon(fn(bool $state): string => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                    ->color(fn(bool $state): string => $state ? 'success' : 'gray')
+                    ->sortable(),
+
+                    Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -149,10 +160,48 @@ class DistributionResource extends Resource
             ])
             ->actions([
 
-
-
-
                 Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('disburse')
+                    ->label(fn (Distribution $record): string => $record->is_disbursed ? 'Undo Disbursed' : 'Disburse')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (Distribution $record): string => $record->is_disbursed ? 'Revert Disbursement' : 'Disburse')
+                    ->modalDescription(fn (Distribution $record): string => $record->is_disbursed
+                        ? 'Are you sure you want to revert the disbursement status?'
+                        : 'Are you sure you want to mark this as disbursed?')
+                    ->icon('heroicon-o-banknotes')
+                    ->color(fn (Distribution $record): string => $record->is_disbursed ? 'danger' : 'success')
+
+                    ->action(function (Distribution $record): void {
+                        $record->is_disbursed = !$record->is_disbursed;
+                        $record->save();
+
+                        $status = $record->is_disbursed ? 'marked as disbursed' : 'reverted to not disbursed';
+                        Notification::make()
+                            ->title("Distribution {$status}")
+                            ->success()
+                            ->send();
+                    }),
+                Tables\Actions\Action::make('complete')
+                    ->label(fn (Distribution $record): string => $record->is_completed ? 'Undo Complete' : 'Complete')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (Distribution $record): string => $record->is_completed ? 'Revert Completion' : 'Complete')
+                    ->modalDescription(fn (Distribution $record): string => $record->is_completed
+                        ? 'Are you sure you want to revert the completion status?'
+                        : 'Are you sure you want to mark this as completed?')
+                    ->icon('heroicon-o-check-circle')
+                    ->color(fn (Distribution $record): string => $record->is_completed ? 'danger' : 'success')
+
+                    ->action(function (Distribution $record): void {
+                        $record->is_completed = !$record->is_completed;
+                        $record->save();
+
+                        $status = $record->is_completed ? 'marked as completed' : 'reverted to not completed';
+                        Notification::make()
+                            ->title("Distribution {$status}")
+                            ->success()
+                            ->send();
+                    }),
+                    Tables\Actions\EditAction::make()->label('Manage'),
                     Tables\Actions\Action::make('View')
                     ->size(ActionSize::ExtraSmall)
 
@@ -167,11 +216,14 @@ class DistributionResource extends Resource
                     ))
                     ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
                     ->closeModalByClickingAway(false)->modalWidth('7xl'),
-                    Tables\Actions\EditAction::make()->label('Manage'),
+
+
+
+
                     Tables\Actions\Action::make('Beneficiaries') // Disable closing the modal by clicking outside
                     ->modalWidth('7xl')
 
-                    ->label('Beneficiaries') // Add label for better UX
+                    ->label('List of Beneficiaries') // Add label for better UX
                     ->icon('heroicon-s-eye') // Optional: Add an icon for better UI
                     ->url(function (Model $record) {
 
@@ -179,41 +231,6 @@ class DistributionResource extends Resource
 
                     }, shouldOpenInNewTab: true)
                   ,
-
-                    Tables\Actions\Action::make('disburse')
-                        ->label('Manage Disbursement')
-                        ->requiresConfirmation()
-                        ->icon('heroicon-o-banknotes')
-                        ->color('gray')
-                        ->visible(fn (Distribution $record): bool => !$record->is_disbursed)
-                        ->form([
-                            Forms\Components\Toggle::make('is_disbursed')
-                                ->label('Mark as Disbursed')
-                                ->helperText('Toggle to mark this distribution as disbursed.')
-                                ->default(true)
-                                ->required(),
-                        ])
-                        ->action(function (Distribution $record, array $data): void {
-                            $record->is_disbursed = $data['is_disbursed'];
-                            $record->save();
-                        }),
-                    Tables\Actions\Action::make('complete')
-                        ->label('Manage Completion')
-                        ->requiresConfirmation()
-                        ->icon('heroicon-o-check-circle')
-                        ->color('gray')
-                        ->visible(fn (Distribution $record): bool => !$record->is_completed)
-                        ->form([
-                            Forms\Components\Toggle::make('is_completed')
-                                ->label('Mark as Completed')
-                                ->helperText('Toggle to mark this distribution as completed.')
-                                ->default(true)
-                                ->required(),
-                        ])
-                        ->action(function (Distribution $record, array $data): void {
-                            $record->is_completed = $data['is_completed'];
-                            $record->save();
-                        }),
                 ]),
             ])
             ->bulkActions([

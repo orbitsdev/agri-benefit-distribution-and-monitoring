@@ -75,20 +75,20 @@
         </div>
         <!-- Body Section -->
         <div class="email-body">
-            <p>Dear <span class="highlight">{{ $beneficiary->name }}</span>,</p>
+            <p>Dear <span class="highlight">{{ $beneficiary->first_name }} {{ $beneficiary->last_name }}</span>,</p>
             <p>
                 You are a beneficiary of the <span class="highlight">{{ $distribution->title }}</span> distribution.
             </p>
             <p>
-                <span class="highlight">Item:</span> {{ $beneficiary->distributionItem->item->name }}<br>
+                <span class="highlight">Crop:</span> {{ $beneficiary->cropsToReceive->crop->name ?? 'Not specified' }}<br>
                 <span class="highlight">Distribution Date:</span> {{ \Carbon\Carbon::parse($distribution->distribution_date)->format('F j, Y') }}<br>
-                <span class="highlight">Location:</span> {{ $distribution->location }}
+                <span class="highlight">Location:</span> {{ $beneficiary->barangayDistribution->location ?? $distribution->location ?? 'Not specified' }}
             </p>
             <p>
                 Below is your QR code to claim your item:
             </p>
             <div class="qr-code">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{$beneficiary->code}}" alt="QR Code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{$beneficiary->cropsToReceive->unique_code}}" alt="QR Code">
             </div>
             <p>Please present this QR code at the distribution site to claim your item.</p>
             <p>Thank you,<br><span class="highlight">Agri Distribution Project</span></p>

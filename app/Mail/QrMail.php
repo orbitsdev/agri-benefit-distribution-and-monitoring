@@ -23,7 +23,7 @@ class QrMail extends Mailable implements ShouldQueue
     public function __construct($beneficiary)
     {
         $this->beneficiary = $beneficiary;
-        $this->distribution = $beneficiary->distributionItem->distribution;
+        $this->distribution = $beneficiary->barangayDistribution->distribution;
     }
 
     /**
