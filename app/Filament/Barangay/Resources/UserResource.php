@@ -25,6 +25,8 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
+    // protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
     protected static ?string $navigationGroup = 'SETUP';
@@ -78,13 +80,13 @@ class UserResource extends Resource
                        ToggleColumn::make('is_active')->label('Active/Disabled')->alignCenter(),
             ])
             ->filters([
-                SelectFilter::make('barangay_id')
-                ->relationship('barangay', 'name')
-                ->searchable()
-                ->multiple()
-                ->preload()->label('Barangay'),
-                SelectFilter::make('role')
-                ->options(User::ROLE_OPTIONS)->searchable()->multiple(),
+                // SelectFilter::make('barangay_id')
+                // ->relationship('barangay', 'name')
+                // ->searchable()
+                // ->multiple()
+                // ->preload()->label('Barangay'),
+                // SelectFilter::make('role')
+                // ->options(User::ROLE_OPTIONS)->searchable()->multiple(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->button()->color('primary'),
@@ -99,7 +101,8 @@ class UserResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->isNotSuperAdmin()->byBarangay(Auth::user()->barangay_id)->IsNotAdmin())
+
+            ->modifyQueryUsing(fn (Builder $query) => $query->latest()->where('role', User::MEMBER)->byBarangay(Auth::user()->barangay_id))
 
             ->groups([
                 Group::make('barangay.name')

@@ -15,8 +15,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SupportResource extends Resource
 {
+
     protected static ?string $model = Support::class;
     protected static bool $shouldRegisterNavigation = false;
+    
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 

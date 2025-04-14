@@ -50,7 +50,7 @@ class BarangayPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Barangay/Widgets'), for: 'App\\Filament\\Barangay\\Widgets')
             ->widgets([
-                LatestDistributions::class,
+                // LatestDistributions::class,
             ])
             ->middleware([
                 EncryptCookies::class,

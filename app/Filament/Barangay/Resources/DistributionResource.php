@@ -43,6 +43,8 @@ class DistributionResource extends Resource
     protected static ?string $navigationIcon = 'solar-calendar-date-bold-duotone';
     protected static ?string $navigationGroup = 'OPERATION MANAGEMENT';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     //sort
     protected static ?int $navigationSort = 3;
 

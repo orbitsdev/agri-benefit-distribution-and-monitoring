@@ -19,6 +19,9 @@ use App\Filament\Barangay\Resources\ItemResource\RelationManagers;
 
 class ItemResource extends Resource
 {
+
+
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $model = Item::class;
     protected static ?string $navigationLabel = 'Registered Items';
     protected static ?string $navigationIcon = 'heroicon-s-archive-box-arrow-down';

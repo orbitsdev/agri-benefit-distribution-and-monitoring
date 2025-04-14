@@ -23,6 +23,7 @@ class PersonnelResource extends Resource
 {
     protected static ?string $model = Personnel::class;
 
+    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'SETUP';
     protected static ?string $navigationLabel = 'Barangay Personnel';

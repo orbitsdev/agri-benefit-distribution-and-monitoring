@@ -24,6 +24,7 @@ class SupportRoleResource extends Resource
     protected static ?int $navigationSort = 3;
     protected static ?string $navigationGroup = 'SETUP';
 
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
