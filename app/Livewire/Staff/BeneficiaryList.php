@@ -200,6 +200,9 @@ class BeneficiaryList extends Component implements HasForms, HasTable
                             // Commit the transaction
                             DB::commit();
 
+                            // Dispatch event to refresh progress component
+                            $this->dispatch('beneficiary-claimed', distribution: $record->barangay_distribution_id);
+
                             $this->notification()->success('Benefit Claimed', 'The benefit has been successfully claimed and inventory updated.');
                         } catch (\Exception $e) {
                             // Roll back the transaction if anything goes wrong
@@ -253,6 +256,9 @@ class BeneficiaryList extends Component implements HasForms, HasTable
 
                             // Commit the transaction
                             DB::commit();
+
+                            // Dispatch event to refresh progress component
+                            $this->dispatch('beneficiary-unclaimed', distribution: $record->barangay_distribution_id);
 
                             $this->notification()->success('Claim Reverted', 'The benefit claim has been successfully reverted and inventory updated.');
                         } catch (\Exception $e) {

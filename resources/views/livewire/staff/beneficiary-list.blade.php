@@ -11,7 +11,7 @@
                 @endif
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 overflow-x-auto">
                 {{ $this->table }}
             </div>
         </div>

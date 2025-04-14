@@ -10,37 +10,12 @@
             </div>
 
             <div x-data="{ tab: 'beneficiaries' }">
-                {{-- <header class="p-4 border-sm bg-white rounded-lg">
-                    <div class="mx-auto">
-                        <h1 class="text-3xl text-main tracking-tight text-gray-900">
-                            {{ $record->distribution->title ?? 'Distribution Details' }}
-                        </h1>
-
-                        <!-- Distribution Details -->
-                        <p class="text-gray-600 text-sm mt-1">
-                            <span class="font-semibold">Date:</span> {{ $record->distribution_date ? $record->distribution_date->format('F d, Y') : 'N/A' }} |
-                            <span class="font-semibold">Location:</span> {{ $record->location ?? 'N/A' }} |
-                            <span class="font-semibold">Total Beneficiaries:</span> {{ $progressData['total'] ?? 0 }} |
-                            <span class="font-semibold">Claimed:</span> {{ $progressData['claimed'] ?? 0 }} |
-                            <span class="font-semibold">Remaining:</span> {{ $progressData['remaining'] ?? 0 }}
-                        </p>
-                    </div>
-                    <div class="mt-2"></div>
-
-                    <!-- Progress Bar -->
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
-                        @php
-                            $percentage = $progressData['total'] > 0 ? ($progressData['claimed'] / $progressData['total']) * 100 : 0;
-                        @endphp
-                        <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
-                    </div>
-                    <div class="text-xs text-gray-500 text-right mt-1">{{ number_format($percentage, 1) }}% claimed</div>
-                </header> --}}
+                <livewire:staff.distribution-progress :distribution="$record->id" />
 
                 <div class="mt-8"></div>
 
                 <!-- Tabs Navigation -->
-                <div class="border-b border-gray-200">
+                <div class="border-b border-gray-200 overflow-x-auto">
                     <nav class="-mb-px flex space-x-4" aria-label="Tabs">
                         <button
                             @click="tab = 'beneficiaries'"
@@ -59,7 +34,7 @@
                 </div>
 
                 <!-- Tab Content -->
-                <div class="mt-6">
+                <div class="mt-6 overflow-x-auto">
                     <!-- Beneficiaries Tab -->
                     <div x-show="tab === 'beneficiaries'" x-cloak>
                         <livewire:staff.beneficiary-list :distribution="$record->id" />
