@@ -6,6 +6,7 @@ use Filament\Tables;
 use Livewire\Component;
 use App\Models\Transaction;
 use Filament\Tables\Table;
+use Livewire\Attributes\On;
 use Filament\Actions\StaticAction;
 use WireUi\Traits\WireUiActions;
 use Illuminate\Contracts\View\View;
@@ -32,6 +33,16 @@ class TransactionList extends Component implements HasForms, HasTable
     public function mount($distribution = null)
     {
         $this->distribution = $distribution;
+    }
+    
+    #[On('beneficiary-claimed')]
+    #[On('beneficiary-unclaimed')]
+    public function refreshTransactions($distribution = null)
+    {
+        // If we receive a specific distribution ID and it matches our current one, refresh the table
+        if ($distribution === null || $distribution == $this->distribution) {
+            $this->resetTable();
+        }
     }
 
     public function table(Table $table): Table
