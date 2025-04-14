@@ -66,7 +66,9 @@ class Distribution extends Model
 
     //scope by barangay
     public function scopeByBarangay($query, $barangay_id){
-        return $query->where('barangay_id', $barangay_id);
+        return $query->whereHas('barangayDistributions', function($query) use ($barangay_id) {
+            $query->where('barangay_id', $barangay_id);
+        });
     }
 
     public function scopeNotCanceled($query)

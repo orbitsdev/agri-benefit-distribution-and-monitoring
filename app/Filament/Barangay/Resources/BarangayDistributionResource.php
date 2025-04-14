@@ -134,6 +134,19 @@ class BarangayDistributionResource extends Resource
 
 
                 ActionGroup::make([
+                    Tables\Actions\Action::make('View')
+                        ->label('View Details')
+                        ->icon('heroicon-s-eye')
+                        ->color('gray')
+                        ->modalSubmitAction(false)
+                        ->modalContent(fn(Model $record): View => view(
+                            'livewire.view-barangay-distribution',
+                            ['record' => $record],
+                        ))
+                        ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
+                        ->closeModalByClickingAway(false)
+                        ->modalWidth('7xl'),
+
                     Tables\Actions\Action::make('Beneficiaries')
                         ->label('List Of Beneficiaries')
                         ->icon('heroicon-o-user-group')
@@ -143,17 +156,80 @@ class BarangayDistributionResource extends Resource
                         }, shouldOpenInNewTab: true)
                         ->visible(fn (Model $record) => $record->is_disbursed),
 
-                    Tables\Actions\Action::make('Transaction')
-                        ->label('Transaction History')
-                        ->icon('heroicon-s-clock')
-                        ->color('gray')
-                        ->url(function (Model $record) {
-                            return BarangayDistributionResource::getUrl('transaction-history', ['record' => $record->id]);
-                        }, shouldOpenInNewTab: true)
-                        ->hidden(function (Model $record) {
-                            return !Transaction::where('barangay_distribution_id', $record->id)->exists();
-                        }),
+                   // Report Export Actions
+                   Tables\Actions\Action::make('Transaction Report')
+                       ->size(ActionSize::ExtraSmall)
+                       ->label('Transaction Report')
+                       ->icon('heroicon-s-arrow-down-tray')
+                       ->url(function (Model $record) {
+                           return route('export.barangay.transactions', ['record' => $record->id]);
+                       }, shouldOpenInNewTab: true)
+                       ->hidden(function (Model $record) {
+                           return !Transaction::where('barangay_distribution_id', $record->id)->exists();
+                       }),
 
+                   Tables\Actions\Action::make('All Beneficiaries')
+                       ->size(ActionSize::ExtraSmall)
+                       ->label('All Beneficiaries')
+                       ->icon('heroicon-s-arrow-down-tray')
+                       ->url(function (Model $record) {
+                           return route('export.barangay.beneficiaries', [
+                               'barangayDistribution' => $record->id,
+                               'filter' => 'all'
+                           ]);
+                       }, shouldOpenInNewTab: true)
+                       ->hidden(function (Model $record) {
+                           return !$record->beneficiaries()->exists();
+                       }),
+
+                   Tables\Actions\Action::make('Claimed Beneficiaries')
+                       ->size(ActionSize::ExtraSmall)
+                       ->label('Claimed Beneficiaries')
+                       ->icon('heroicon-s-arrow-down-tray')
+                       ->url(function (Model $record) {
+                           return route('export.barangay.beneficiaries', [
+                               'barangayDistribution' => $record->id,
+                               'filter' => 'claimed'
+                           ]);
+                       }, shouldOpenInNewTab: true)
+                       ->hidden(function (Model $record) {
+                           return !$record->beneficiaries()
+                               ->whereHas('cropsToReceive', function($query) {
+                                   $query->where('is_claimed', true);
+                               })->exists();
+                       }),
+
+                   Tables\Actions\Action::make('Unclaimed Beneficiaries')
+                       ->size(ActionSize::ExtraSmall)
+                       ->label('Unclaimed Beneficiaries')
+                       ->icon('heroicon-s-arrow-down-tray')
+                       ->url(function (Model $record) {
+                           return route('export.barangay.beneficiaries', [
+                               'barangayDistribution' => $record->id,
+                               'filter' => 'unclaimed'
+                           ]);
+                       }, shouldOpenInNewTab: true)
+                       ->hidden(function (Model $record) {
+                           return !$record->beneficiaries()
+                               ->whereHas('cropsToReceive', function($query) {
+                                   $query->where('is_claimed', false);
+                               })->exists();
+                       }),
+
+                   Tables\Actions\Action::make('Inventory Report')
+                       ->size(ActionSize::ExtraSmall)
+                       ->label('Inventory Report')
+                       ->icon('heroicon-s-arrow-down-tray')
+                       ->url(function (Model $record) {
+                           return route('export.barangay.crops', [
+                               'barangayDistribution' => $record->id
+                           ]);
+                       }, shouldOpenInNewTab: true)
+                       ->hidden(function (Model $record) {
+                           return !$record->beneficiaries()
+                               ->whereHas('cropsToReceive')
+                               ->exists();
+                       }),
 
                 //     Action::make('view_details')
                 //         ->label('View Details')

@@ -17,9 +17,28 @@
             padding: 8px;
             border: 1px solid #ccc;
         }
+        .header {
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .header h1 {
+            color: #1d4ed8;
+            margin-bottom: 5px;
+        }
+        .header p {
+            margin: 5px 0;
+            color: #4b5563;
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>Crops Inventory Report</h1>
+        <p><strong>Distribution:</strong> {{ $barangayDistribution->distribution->title }}</p>
+        <p><strong>Barangay:</strong> {{ $barangayDistribution->barangay->name }}</p>
+        <p><strong>Date Generated:</strong> {{ now()->format('F d, Y h:i A') }}</p>
+    </div>
+    
     <table border="1" cellspacing="0" cellpadding="5">
         <thead>
             <tr>

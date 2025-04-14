@@ -14,6 +14,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Http\Middleware\Authenticate;
 use App\Filament\Barangay\Pages\EditProfile;
 use Illuminate\Session\Middleware\StartSession;
+use App\Filament\Barangay\Widgets\StatsOverview;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -48,9 +49,11 @@ class BarangayPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Barangay/Widgets'), for: 'App\\Filament\\Barangay\\Widgets')
+            // Disabled auto-discovery of widgets to prevent polling issues
+            // ->discoverWidgets(in: app_path('Filament/Barangay/Widgets'), for: 'App\\Filament\\Barangay\\Widgets')
             ->widgets([
-                // LatestDistributions::class,
+                // Register only the widgets you need here
+                StatsOverview::class,
             ])
             ->middleware([
                 EncryptCookies::class,

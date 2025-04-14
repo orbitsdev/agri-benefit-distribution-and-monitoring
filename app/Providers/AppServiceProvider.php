@@ -41,8 +41,13 @@ class AppServiceProvider extends ServiceProvider
 
         FilamentColor::register([
             'primary' => "#172554",
-
+            'barangay' => "#0369a1",
+            'progress-low' => "#dc2626",     // Red for low progress
+            'progress-medium' => "#f59e0b",  // Amber for medium progress
+            'progress-high' => "#16a34a",    // Green for high progress
         ]);
+
+
 
         RedirectIfAuthenticated::redirectUsing(function($request){
             if ($request->is('admin/*')) {

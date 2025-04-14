@@ -193,6 +193,7 @@ Action::make('Distribution Items Report')
             ])
             ->modifyQueryUsing(fn($query)=> $query->limit(10))
             // ->poll('20s')
+            ->deferLoading()
             ;
     }
 }

@@ -12,6 +12,9 @@ use App\Exports\TransactionsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DistributionItemExport;
 use App\Exports\BarangayDistributionExport;
+use App\Exports\BarangayCropExport;
+use App\Exports\BarangayBeneficiaryExport;
+use App\Exports\BarangayTransactionsExport;
 
 class ReportController extends Controller
 {
@@ -83,5 +86,42 @@ public function exportCrops($distribution)
 
     $filename = 'Crops_' . $distributionTitle . '_' . now()->format('Y-m-d') . '.xlsx';
     return Excel::download(new CropExport($distribution), $filename);
+}
+public function exportBarangayTransactions($record)
+{
+    // Security check - ensure the barangay user can only access their own data
+    $barangayDistribution = \App\Models\BarangayDistribution::find($record);
+    if (!$barangayDistribution || $barangayDistribution->barangay_id !== auth()->user()->barangay_id) {
+        abort(403, 'Unauthorized access to barangay distribution data');
+    }
+
+    $filename = $barangayDistribution->distribution->title . ' Barangay Transactions-List ' . now()->format('Y-m-d') . '.xlsx';
+    return Excel::download(new BarangayTransactionsExport($record), $filename);
+}
+
+public function exportBarangayBeneficiaries($barangayDistribution, $filter)
+{
+    // Security check - ensure the barangay user can only access their own data
+    $barangayDist = \App\Models\BarangayDistribution::find($barangayDistribution);
+    if (!$barangayDist || $barangayDist->barangay_id !== auth()->user()->barangay_id) {
+        abort(403, 'Unauthorized access to barangay distribution data');
+    }
+
+    $distributionTitle = str_replace(' ', '_', $barangayDist->distribution->title . '_' . $barangayDist->barangay->name);
+    $filename = 'Barangay_Beneficiaries_' . $distributionTitle . '_' . $filter . '_' . now()->format('Y-m-d') . '.xlsx';
+    return Excel::download(new BarangayBeneficiaryExport($barangayDistribution, $filter), $filename);
+}
+
+public function exportBarangayCrops($barangayDistribution)
+{
+    // Security check - ensure the barangay user can only access their own data
+    $barangayDist = \App\Models\BarangayDistribution::find($barangayDistribution);
+    if (!$barangayDist || $barangayDist->barangay_id !== auth()->user()->barangay_id) {
+        abort(403, 'Unauthorized access to barangay distribution data');
+    }
+
+    $distributionTitle = str_replace(' ', '_', $barangayDist->distribution->title . '_' . $barangayDist->barangay->name);
+    $filename = 'Barangay_Crops_' . $distributionTitle . '_' . now()->format('Y-m-d') . '.xlsx';
+    return Excel::download(new BarangayCropExport($barangayDistribution), $filename);
 }
 }

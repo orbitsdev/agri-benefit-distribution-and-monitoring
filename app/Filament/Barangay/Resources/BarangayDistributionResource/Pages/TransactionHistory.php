@@ -185,7 +185,7 @@ class TransactionHistory extends Page implements HasForms, HasTable
                     ->label('View')
                     ->modalSubmitAction(false)
                     ->modalContent(fn (Model $record): View => view(
-                        'livewire.transaction-details',
+                        'livewire.barangay-transaction-details',
                         ['record' => $record],
                     ))
                     ->modalCancelAction(fn(StaticAction $action) => $action->label('Close'))
@@ -200,7 +200,9 @@ class TransactionHistory extends Page implements HasForms, HasTable
             ->striped()
             ->modifyQueryUsing(function ($query) {
                 // Filter transactions for the current barangay distribution
-                return $query->where('barangay_distribution_id', $this->record->id);
+                return $query
+                    ->where('barangay_distribution_id', $this->record->id)
+                    ->where('barangay_id', $this->record->barangay_id);
             });
     }
 }

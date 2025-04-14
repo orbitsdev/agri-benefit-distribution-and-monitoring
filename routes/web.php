@@ -37,6 +37,17 @@ Route::get('/export-beneficiaries/{distribution}/{filter}', [ReportController::c
     Route::get('/export-crops/{distribution}', [ReportController::class, 'exportCrops'])
     ->name('export.crops');
 
+    // Barangay-specific export routes
+    Route::get('/export-barangay-transactions/{record}', [ReportController::class, 'exportBarangayTransactions'])
+    ->name('export.barangay.transactions');
+
+    Route::get('/export-barangay-beneficiaries/{barangayDistribution}/{filter}', [ReportController::class, 'exportBarangayBeneficiaries'])
+    ->name('export.barangay.beneficiaries');
+
+    Route::get('/export-barangay-crops/{barangayDistribution}', [ReportController::class, 'exportBarangayCrops'])
+    ->name('export.barangay.crops');
+
+
     Route::post('/support/logout', function () {
         $user = Auth::user();
 
