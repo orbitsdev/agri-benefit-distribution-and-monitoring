@@ -5,15 +5,20 @@ use App\Livewire\Test;
 use App\Models\Support;
 use App\Models\Beneficiary;
 use App\Livewire\CodeFormPage;
-use App\Livewire\QrScannerPage;
+
 use App\Livewire\MemberDashboard;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Livewire\Staff\QrScannerPage;
 use App\Livewire\SupportNotAuthorize;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Staff\StaffDashboard;
+use App\Livewire\Staff\BeneficiaryList;
+use App\Livewire\Staff\TransactionList;
 use App\Http\Controllers\ReportController;
 use App\Livewire\ScannerSupportEnterCodePage;
+use App\Livewire\Staff\BarangayDistributionList;
 use App\Filament\Barangay\Pages\ListOfBeneficiaries;
 
 Route::get('/', function () {
@@ -68,9 +73,8 @@ Route::get('/export-beneficiaries/{distribution}/{filter}', [ReportController::c
                 return redirect('/barangay');
                 break;
             case User::MEMBER:
-                if (request()->route()->getName() !== 'support.dashboard') {
-                    return redirect()->route('support.dashboard');
-                }
+                // Direct access to staff dashboard
+                return redirect()->route('staff.dashboard');
                 break;
             default:
                 return view('dashboard');
@@ -80,53 +84,25 @@ Route::get('/export-beneficiaries/{distribution}/{filter}', [ReportController::c
     })->name('dashboard');
 
 
-    Route::middleware(['check.support.code'])->get('/support/dashboard', function () {
-        $user = Auth::user();
+    // Removed support code middleware - direct access for members
+    Route::get('/member-dashboard', MemberDashboard::class)->name('member.dashboard');
+    Route::get('/scan-qr', QrScannerPage::class)->name('qr-scan');
 
-        $support = Support::where('unique_code', $user->code)
-            ->whereHas('distribution', function ($query) use ($user) {
-                $query->where('barangay_id', $user->barangay_id);
-            })
-            ->first();
-
-        if (!$support) {
-            // Clear invalid code to prevent redirect loop
-            $user->update(['code' => null]);
-            return redirect()->route('support-login')->with('error', 'Invalid or missing support code.');
-        }
-
-        if ($support->enable_beneficiary_management && $support->enable_item_scanning) {
-            return redirect()->route('member.dashboard')->with('success', 'You have access to both Beneficiary Management and Scanning.');
-        }
-
-        if ($support->enable_beneficiary_management) {
-            return redirect()->route('member.dashboard');
-        }
-
-        if ($support->enable_item_scanning) {
-            return redirect()->route('qr-scan');
-        }
-
-        return redirect()->route('support-not-authorize')->with('error', 'No valid permissions assigned.');
+    // Keep these routes for backward compatibility
+    Route::get('/support/dashboard', function () {
+        return redirect()->route('member.dashboard');
     })->name('support.dashboard');
 
 
-    Route::middleware([ 'check.support.login'])->group(function () {
-        Route::get('/support/login', CodeFormPage::class)->name('support-login');
-    });
-
-
-    Route::middleware(['check.member.permissions'])->group(function () {
-        Route::get('/member-dashboard', MemberDashboard::class)->name('member.dashboard');
-    });
-
-
-    Route::middleware(['check.scanner.permissions'])->group(function () {
-        Route::get('/scan-qr', QrScannerPage::class)->name('qr-scan');
-    });
-
-
     Route::get('/support-not-authorize', SupportNotAuthorize::class)->name('support-not-authorize');
+
+    // Staff routes with proper namespace references
+    Route::get('/staff/dashboard', App\Livewire\Staff\StaffDashboard::class)->name('staff.dashboard');
+    Route::get('/staff/transactions', App\Livewire\Staff\TransactionList::class)->name('staff.transactions');
+    Route::get('/staff/beneficiaries/{distribution?}', App\Livewire\Staff\BeneficiaryList::class)->name('staff.beneficiaries');
+    Route::get('/staff/distributions', App\Livewire\Staff\BarangayDistributionList::class)->name('staff.distributions');
+    Route::get('/staff/distributions/{distribution}', App\Livewire\Staff\DistributionDetails::class)->name('staff.distribution.details');
+    Route::get('/staff/qr-scanner', App\Livewire\Staff\QrScannerPage::class)->name('staff.qr-scanner');
 
 
 

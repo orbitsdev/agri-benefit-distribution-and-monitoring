@@ -33,15 +33,7 @@
                     <div x-show="open" @click.away="open = false" x-transition
                          class="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5">
 
-                        <!-- Show Exit Support Mode Only If User Has a Support Code -->
-                        @if(Auth::user()->code)
-                            <form method="POST" action="{{ route('support.logout') }}">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                    {{ __('Exit Support Mode') }}
-                                </button>
-                            </form>
-                        @endif
+                        <!-- No longer need Exit Support Mode button as members have direct access -->
 
                         <!-- Regular Logout Button -->
                         <form method="POST" action="{{ route('logout') }}">
@@ -89,15 +81,7 @@
                 @endcan
             </div>
 
-            <!-- Show Exit Support Mode Only If User Has a Support Code -->
-            @if(Auth::user()->code)
-                <form method="POST" action="{{ route('support.logout') }}" class="mt-2">
-                    @csrf
-                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                        {{ __('Exit Support Mode') }}
-                    </button>
-                </form>
-            @endif
+            <!-- No longer need Exit Support Mode button as members have direct access -->
 
             <!-- Regular Logout Button -->
             <form method="POST" action="{{ route('logout') }}" class="mt-2">
