@@ -37,11 +37,11 @@ class BarangayPanelProvider extends PanelProvider
                 'primary' => '#1e40af',
             ])
             ->brandName(function(){
-                if(Auth::user()->barangay){
+                // Check if user is authenticated first to prevent null errors
+                if(Auth::check() && Auth::user()->barangay){
                     return 'Barangay '. Auth::user()->barangay->name. ' Agri Distribution System';
                 }
-                    return 'Agriculture Benefit Distribution and Monitoring';
-
+                return 'Agriculture Benefit Distribution and Monitoring';
             })
 
             ->discoverResources(in: app_path('Filament/Barangay/Resources'), for: 'App\\Filament\\Barangay\\Resources')
