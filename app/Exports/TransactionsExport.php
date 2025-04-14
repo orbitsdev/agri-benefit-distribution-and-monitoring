@@ -20,15 +20,10 @@ class TransactionsExport implements FromView
     public function view(): View
     {
         // Retrieve transactions for the given distribution ID
-        $transactions = Transaction::with([
-            'beneficiary',
-            'distribution',
-            'barangay',
-            'support',
-            'admin'
-        ])
-        ->where('distribution_id', $this->distributionId)
-        ->get();
+        $transactions = Transaction::with(['media'])
+            ->where('distribution_id', $this->distributionId)
+            ->orderBy('performed_at', 'desc')
+            ->get();
 
         return view('exports.transactions', compact('transactions'));
     }

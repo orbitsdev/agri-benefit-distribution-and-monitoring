@@ -283,7 +283,19 @@ class DistributionResource extends Resource
                     ->hidden(function (Model $record) {
                         return !$record->transactions()->exists();
                     }),
-                        DeleteAction::make()->color('gray')
+                        DeleteAction::make()->color('gray'),
+
+
+                        Tables\Actions\Action::make('Transcation Support')
+                    ->size(ActionSize::ExtraSmall)
+                    ->label('Transaction Report')
+                    ->icon('heroicon-s-arrow-down-tray')
+                    ->url(function (Model $record) {
+                        return route('export.transactions', ['record' => $record->id]);
+                    }, shouldOpenInNewTab: true)
+                    ->hidden(function (Model $record) {
+                        return !$record->transactions()->exists();
+                    }),
                 ]),
             ])
             ->bulkActions([
