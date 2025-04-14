@@ -23,6 +23,10 @@ class BarangayResource extends Resource
 
     protected static ?string $navigationIcon = 'hugeicons-city-01';
 
+    protected static ?string $navigationGroup = 'MANAGEMENT';
+
+    protected static ?string $navigationLabel = 'Barangay List';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -36,7 +40,7 @@ class BarangayResource extends Resource
                 SpatieMediaLibraryImageColumn::make('image')
                 ->defaultImageUrl(url('/images/placeholder-image.jpg'))
                 ->label('Profile')
-                ->toggleable(isToggledHiddenByDefault: false)
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->getStateUsing(function (Model $record): string {
                     return  $record->getFirstMediaUrl('image');
                 })
@@ -48,19 +52,19 @@ class BarangayResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('chairman_name')
                     ->searchable()->label('Chairman')
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('chairman_contact')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('head_name')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('head_contact')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
-              
+                    ->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
                 //
@@ -84,7 +88,7 @@ class BarangayResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+             
         ];
     }
 

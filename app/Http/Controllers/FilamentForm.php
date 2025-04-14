@@ -144,7 +144,7 @@ class FilamentForm extends Controller
                         ->image()
                         ->imageEditor(),
 
-                      
+
 
                 ]),
 

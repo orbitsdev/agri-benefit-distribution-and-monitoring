@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Models\Transaction;
+use App\Models\CropsToReceived;
 use App\Models\DistributionItem;
+use App\Models\BarangayDistribution;
 use App\Observers\BeneficiaryObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([BeneficiaryObserver::class])]
+// #[ObservedBy([BeneficiaryObserver::class])]
 class Beneficiary extends Model
 {
     // belongsTo relationship with DistributionItem
@@ -66,6 +68,22 @@ class Beneficiary extends Model
             $query->where('barangay_id', $barangayId);
         });
     }
+//     public function cropsToReceive()
+// {
+//     return $this->hasMany(CropsToReceived::class);
+// }
+public function cropsToReceive()
+{
+    return $this->hasOne(CropsToReceived::class);
+}
 
 
+
+
+// belonf to BarangayDistribution
+public function barangayDistribution()
+{
+    return $this->belongsTo(BarangayDistribution::class);
+
+}
 }

@@ -31,7 +31,8 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
-    protected static ?string $navigationLabel = 'Barangay Admin';
+    protected static ?string $navigationLabel = 'Barangay Access';
+    protected static ?string $navigationGroup = 'MANAGEMENT';
 
 
     public static function form(Form $form): Form
@@ -45,19 +46,14 @@ class UserResource extends Resource
         return $table
             ->columns([
              SpatieMediaLibraryImageColumn::make('image') ->defaultImageUrl(url('/images/placeholder-image.jpg'))->label('Profile')
-             ->toggleable(isToggledHiddenByDefault: false)
+             ->toggleable(isToggledHiddenByDefault: true)
              ,
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(isIndividual:true),
-                Tables\Columns\TextColumn::make('barangay.name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email')
+                    Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ,
-
-
-
                     Tables\Columns\TextColumn::make('role')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -67,6 +63,15 @@ class UserResource extends Resource
 
                         default => 'gray'
                     }),
+                Tables\Columns\TextColumn::make('barangay.name')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ,
+
+
+
+
+
 
                     ToggleColumn::make('is_active')->label('Active/Disabled')->alignCenter(),
 
@@ -81,8 +86,8 @@ class UserResource extends Resource
                 ->options(User::ROLE_OPTIONS)->searchable()->multiple(),
             ])
             ->actions([
-                    Tables\Actions\ViewAction::make()->button()->color('primary'),
                 ActionGroup::make([
+                    Tables\Actions\ViewAction::make()->color('primary'),
 
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make()->color('gray'),
@@ -101,7 +106,7 @@ class UserResource extends Resource
                     ->titlePrefixedWithLabel(false)
                     ,
             ])
-            ->defaultGroup('barangay.name')
+            // ->defaultGroup('barangay.name')
             ->modifyQueryUsing(fn (Builder $query) => $query->latest()->whereHas('barangay'))
             ;
     }

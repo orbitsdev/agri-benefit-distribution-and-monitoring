@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Crop;
 use App\Models\Item;
 use App\Models\Support;
 use App\Models\Barangay;
@@ -9,6 +10,7 @@ use App\Models\Beneficiary;
 use App\Models\Transaction;
 use App\Models\ImportFailure;
 use App\Models\DistributionItem;
+use App\Models\BarangayDistribution;
 use App\Observers\DistributionObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -175,5 +177,26 @@ public function beneficiaries()
 public function totalBeneficiaries(){
  return $this->beneficiaries()->count();
 }
+
+// revision
+
+
+public function barangay_distributions()
+{
+    return $this->hasMany(BarangayDistribution::class);
+
+}
+public function barangayDistributions()
+{
+    return $this->hasMany(BarangayDistribution::class);
+}
+
+// has many crops
+public function crops()
+{
+    return $this->hasMany(Crop::class);
+
+}
+
 
 }

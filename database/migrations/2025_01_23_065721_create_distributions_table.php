@@ -13,14 +13,16 @@ return new class extends Migration
     {
         Schema::create('distributions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade'); // Foreign key to barangays
+            // $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade'); // Foreign key to barangays
             $table->string('title'); // Title of the distribution
             $table->date('distribution_date'); // Distribution date
-            $table->string('location')->nullable(); // Venue or location of the distribution
             $table->text('description')->nullable(); // Short description of the distribution
             $table->string('code')->unique()->nullable(); // Unique and nullable distribution code
-            $table->enum('status', ['Planned', 'Ongoing', 'Completed', 'Canceled'])->default('Planned');
-            $table->boolean('is_locked')->default(false);
+            // $table->string('location')->nullable(); // Venue or location of the distribution
+            // $table->enum('status', ['Planned', 'Ongoing', 'Completed', 'Canceled'])->default('Planned');
+            // $table->boolean('is_locked')->default(false);
+            $table->boolean('is_disbursed')->default(false);
+            $table->boolean('is_completed')->default(false);
             $table->timestamps();
         });
     }

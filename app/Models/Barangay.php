@@ -8,6 +8,7 @@ use App\Models\SupportRole;
 use App\Models\Transaction;
 use App\Models\Distribution;
 use Spatie\MediaLibrary\HasMedia;
+use App\Models\BarangayDistribution;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -57,6 +58,11 @@ class Barangay extends Model implements HasMedia
     public function support_roles()
     {
         return $this->hasMany(SupportRole::class);
+    }
+
+    public function barangay_distributions()
+    {
+        return $this->hasMany(BarangayDistribution::class);
     }
 
 }
