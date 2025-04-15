@@ -18,18 +18,15 @@
                 </a>
             </div>
 
-            <!-- Scanner -->
+            <!-- SCANNER MODE -->
             @if(!$showCapture && !$transaction)
                 <div id="qr-scanner"
                      class="relative w-full h-64 sm:h-72 bg-black rounded-xl overflow-hidden shadow border border-gray-300"
                      wire:ignore>
-                    <!-- Placeholder while loading -->
                     <div id="scanner-placeholder"
                          class="absolute inset-0 z-10 flex items-center justify-center text-gray-300 text-sm bg-black">
                         Initializing camera...
                     </div>
-
-                    <!-- Scanner frame -->
                     <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
                         <div class="w-1/2 h-1/2 border-4 border-white rounded-sm"></div>
                     </div>
@@ -42,7 +39,7 @@
                 <p class="text-lg font-semibold text-gray-900 break-all">{{ $scannedCode }}</p>
             </div>
 
-            <!-- Beneficiary & Crop Details -->
+            <!-- Beneficiary Details -->
             @if($beneficiary)
                 <div class="mt-4 bg-gray-50 rounded-md border border-gray-200 p-4 shadow-sm">
                     <dl class="divide-y divide-gray-100">
@@ -62,7 +59,7 @@
                 </div>
             @endif
 
-            <!-- Buttons -->
+            <!-- Action Buttons -->
             <div class="mt-4 flex justify-center gap-3 flex-wrap">
                 {{ $this->confirmQrAction() }}
                 <button wire:click="resetScan"
@@ -71,15 +68,14 @@
                 </button>
             </div>
 
-            <!-- Capture Mode -->
+            <!-- CAPTURE MODE -->
             @if($showCapture)
                 <div class="mt-6 p-4 bg-white border border-gray-200 rounded-md shadow-sm">
                     <p class="text-sm text-gray-500">Take a picture as proof of claim:</p>
 
                     <div id="qr-capture"
                          class="w-full aspect-video bg-black rounded-lg overflow-hidden border border-gray-300 shadow-sm mt-2"
-                         wire:ignore>
-                    </div>
+                         wire:ignore></div>
 
                     <canvas id="captureCanvas" class="hidden"></canvas>
                     <img id="capturedImagePreview"
@@ -109,80 +105,71 @@
     <x-filament-actions::modals />
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
+    <!-- ✅ Camera Script (Scan + Capture Modes) -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            let currentCameraId = null;
             let html5QrCode = null;
+            let currentCameraId = null;
             let isScanning = false;
 
             const scannerId = 'qr-scanner';
             const captureId = 'qr-capture';
 
-            async function getBackCameraId() {
+            async function getCameraId() {
                 const devices = await Html5Qrcode.getCameras();
-                return devices.find(d => d.label.toLowerCase().includes('back'))?.id || devices[0]?.id;
+                return devices.find(d => d.label.toLowerCase().includes("back"))?.id || devices[0]?.id;
             }
 
-            async function startQrCodeScanner(targetElementId) {
+            async function startQrCodeScanner(containerId) {
                 if (isScanning) return;
                 isScanning = true;
 
                 try {
                     if (!currentCameraId) {
-                        currentCameraId = await getBackCameraId();
+                        currentCameraId = await getCameraId();
                     }
 
-                    if (!html5QrCode) {
-                        html5QrCode = new Html5Qrcode(targetElementId);
+                    if (html5QrCode) {
+                        await html5QrCode.stop().catch(() => {});
+                        html5QrCode.clear();
                     }
 
+                    html5QrCode = new Html5Qrcode(containerId);
                     await html5QrCode.start(
                         currentCameraId,
                         { fps: 10, qrbox: { width: 250, height: 250 } },
                         (decodedText) => {
-                            console.log("✅ Scanned:", decodedText);
-                            html5QrCode.stop();
+                            if (!isScanning) return;
                             isScanning = false;
+                            html5QrCode.stop();
                             Livewire.dispatch('handleScan', { code: decodedText });
+                            document.getElementById('scanner-placeholder')?.remove();
                         },
-                        (err) => {
-                            // Optional: console.log(err);
-                        }
+                        (err) => {}
                     );
-
-                    document.getElementById('scanner-placeholder')?.remove();
-                } catch (error) {
-                    console.error("❌ Error starting scanner:", error);
+                } catch (err) {
+                    console.error("Camera start error:", err);
                 }
             }
 
-            // Initial Scan on Load
+            // Initial scan on page load
             startQrCodeScanner(scannerId);
 
-            Livewire.on('restartScanning', async () => {
-                if (html5QrCode) {
-                    try { await html5QrCode.stop(); } catch (e) {}
-                    html5QrCode.clear();
-                }
+            // Restart scanner
+            Livewire.on('restartScanning', () => {
                 isScanning = false;
                 setTimeout(() => startQrCodeScanner(scannerId), 500);
             });
 
-            Livewire.on('startCaptureMode', async () => {
-                if (html5QrCode) {
-                    try { await html5QrCode.stop(); } catch (e) {}
-                    html5QrCode.clear();
-                }
+            // Switch to capture camera
+            Livewire.on('startCaptureMode', () => {
                 isScanning = false;
                 setTimeout(() => startQrCodeScanner(captureId), 500);
             });
 
             window.captureImage = function () {
                 const video = document.getElementById(captureId)?.querySelector("video");
-                if (!video) {
-                    alert("Camera not ready.");
-                    return;
-                }
+                if (!video) return alert("Camera not ready.");
 
                 const canvas = document.getElementById("captureCanvas");
                 const context = canvas.getContext("2d");
@@ -195,8 +182,6 @@
                 document.getElementById("capturedImagePreview").classList.remove("hidden");
                 document.getElementById("capturedImageData").value = imageData;
                 document.getElementById("uploadBtn").classList.remove("hidden");
-
-                console.log("📸 Captured Image");
             };
 
             window.submitCapturedImage = function () {
@@ -205,6 +190,5 @@
                 Livewire.dispatch("imageCaptured", { imageData });
             };
         });
-        </script>
-
+    </script>
 </x-support-layout>
