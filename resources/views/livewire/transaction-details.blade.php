@@ -1,7 +1,7 @@
 <div class="p-6 space-y-6 bg-gray-100">
     <!-- Image Section -->
     <div class="flex justify-center">
-        <a href="{{ $record->getImage() }}" target="_blank">
+        <a href="{{ $record->getImage() }}" target="_blank" rel="noopener noreferrer">
             <img src="{{ $record->getImage() }}" alt="Transaction Image"
                 class="w-full max-w-sm rounded-lg shadow-md bg-gray-200 dark:bg-gray-700 object-cover aspect-[4/3]">
         </a>
@@ -85,5 +85,5 @@
     </div>
 
     <!-- Back Button -->
-    
+
 </div>
