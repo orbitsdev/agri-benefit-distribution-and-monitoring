@@ -17,6 +17,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Actions\Concerns\InteractsWithActions;
+use Carbon\Carbon;
 
 class QrScannerPage extends Component implements HasForms, HasActions
 {
@@ -68,18 +69,22 @@ class QrScannerPage extends Component implements HasForms, HasActions
 
         // Check if already claimed
       // ✅ Check if already claimed
-if ($this->beneficiary->cropsToReceive->is_claimed) {
-    $dateClaimed = $this->beneficiary->cropsToReceive->date_claimed;
 
-    $this->dialog()->warning(
-        title: 'Already Claimed',
-        description: 'This benefit has already been claimed on ' .
-            ($dateClaimed ? $dateClaimed->format('F j, Y g:i A') : 'an earlier date')
-    );
 
-    $this->resetScan();
-    return;
-}
+      if ($this->beneficiary->cropsToReceive->is_claimed) {
+          $dateClaimed = $this->beneficiary->cropsToReceive->date_claimed;
+
+          $formattedDate = $dateClaimed ? Carbon::parse($dateClaimed)->format('F j, Y g:i A') : 'an earlier date';
+
+          $this->dialog()->warning(
+              title: 'Already Claimed',
+              description: "This benefit has already been claimed on {$formattedDate}."
+          );
+
+          $this->resetScan();
+          return;
+      }
+
 
 
         // Success Message
