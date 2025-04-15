@@ -111,68 +111,81 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const scannerElement = document.getElementById("qr-scanner");
-            const captureElement = document.getElementById("qr-capture");
-            const html5QrCode = new Html5Qrcode("qr-scanner");
+            let currentCameraId = null;
+            let html5QrCode = null;
             let isScanning = false;
 
-            async function startScanner() {
+            const scannerId = 'qr-scanner';
+            const captureId = 'qr-capture';
+
+            async function getBackCameraId() {
+                const devices = await Html5Qrcode.getCameras();
+                return devices.find(d => d.label.toLowerCase().includes('back'))?.id || devices[0]?.id;
+            }
+
+            async function startQrCodeScanner(targetElementId) {
                 if (isScanning) return;
                 isScanning = true;
 
                 try {
-                    const devices = await Html5Qrcode.getCameras();
-                    if (!devices.length) {
-                        console.error("No cameras found!");
-                        return;
+                    if (!currentCameraId) {
+                        currentCameraId = await getBackCameraId();
                     }
 
-                    const cameraId = devices.find(d => d.label.toLowerCase().includes("back"))?.id || devices[0].id;
+                    if (!html5QrCode) {
+                        html5QrCode = new Html5Qrcode(targetElementId);
+                    }
 
                     await html5QrCode.start(
-                        cameraId,
-                        { fps: 10, qrbox: 250 },
+                        currentCameraId,
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
                         (decodedText) => {
-                            console.log("✅ QR Code:", decodedText);
+                            console.log("✅ Scanned:", decodedText);
                             html5QrCode.stop();
                             isScanning = false;
                             Livewire.dispatch('handleScan', { code: decodedText });
-
-                            // Remove the placeholder
-                            document.getElementById('scanner-placeholder')?.remove();
                         },
-                        (errorMessage) => {}
+                        (err) => {
+                            // Optional: console.log(err);
+                        }
                     );
-                } catch (err) {
-                    console.error("Scanner error:", err);
+
+                    document.getElementById('scanner-placeholder')?.remove();
+                } catch (error) {
+                    console.error("❌ Error starting scanner:", error);
                 }
             }
 
-            startScanner();
+            // Initial Scan on Load
+            startQrCodeScanner(scannerId);
 
             Livewire.on('restartScanning', async () => {
-                try {
-                    await html5QrCode.stop();
-                } catch {}
+                if (html5QrCode) {
+                    try { await html5QrCode.stop(); } catch (e) {}
+                    html5QrCode.clear();
+                }
                 isScanning = false;
-                setTimeout(() => startScanner(), 500);
+                setTimeout(() => startQrCodeScanner(scannerId), 500);
             });
 
-            Livewire.on('startCaptureMode', () => {
+            Livewire.on('startCaptureMode', async () => {
+                if (html5QrCode) {
+                    try { await html5QrCode.stop(); } catch (e) {}
+                    html5QrCode.clear();
+                }
                 isScanning = false;
-                setTimeout(() => startScanner(), 500);
+                setTimeout(() => startQrCodeScanner(captureId), 500);
             });
 
             window.captureImage = function () {
-                const video = captureElement?.querySelector("video");
+                const video = document.getElementById(captureId)?.querySelector("video");
                 if (!video) {
-                    alert("Camera not ready for capture.");
+                    alert("Camera not ready.");
                     return;
                 }
 
                 const canvas = document.getElementById("captureCanvas");
                 const context = canvas.getContext("2d");
-
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -181,18 +194,17 @@
                 document.getElementById("capturedImagePreview").src = imageData;
                 document.getElementById("capturedImagePreview").classList.remove("hidden");
                 document.getElementById("capturedImageData").value = imageData;
-
                 document.getElementById("uploadBtn").classList.remove("hidden");
+
+                console.log("📸 Captured Image");
             };
 
             window.submitCapturedImage = function () {
                 const imageData = document.getElementById("capturedImageData").value;
-                if (!imageData) {
-                    alert("No image data found!");
-                    return;
-                }
+                if (!imageData) return alert("No image found!");
                 Livewire.dispatch("imageCaptured", { imageData });
             };
         });
-    </script>
+        </script>
+
 </x-support-layout>
