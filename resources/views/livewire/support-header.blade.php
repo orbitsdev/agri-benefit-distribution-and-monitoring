@@ -13,9 +13,9 @@
                 <a href="{{ route('staff.dashboard') }}" class="text-white hover:scale-105 transition-all px-3 py-2 rounded-md text-sm font-medium">
                     Dashboard
                 </a>
-                <a href="{{ route('staff.distributions') }}" class="text-white hover:scale-105 transition-all px-3 py-2 rounded-md text-sm font-medium">
+                {{-- <a href="{{ route('staff.dashboard') }}" class="text-white hover:scale-105 transition-all px-3 py-2 rounded-md text-sm font-medium">
                     Distributions
-                </a>
+                </a> --}}
                 <a href="{{ route('staff.qr-scanner') }}" class="text-white hover:scale-105 transition-all px-3 py-2 rounded-md text-sm font-medium">
                     QR Scanner
                 </a>
