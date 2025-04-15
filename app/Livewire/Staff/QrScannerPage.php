@@ -40,12 +40,14 @@ class QrScannerPage extends Component implements HasForms, HasActions
         $this->codeDetected = true;
         $this->isScanning = false;
 
+        // Find the beneficiary by their cropsToReceive unique code
         $this->beneficiary = Beneficiary::whereHas('cropsToReceive', function ($query) use ($code) {
             $query->where('unique_code', $code);
         })
         ->with(['cropsToReceive.crop', 'barangayDistribution.distribution'])
         ->first();
 
+        // Handle Invalid QR Code
         if (!$this->beneficiary) {
             $this->dialog()->error(
                 title: 'Invalid QR Code',
@@ -55,6 +57,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
             return;
         }
 
+        // Check if the beneficiary belongs to the staff's barangay
         if ($this->beneficiary->barangayDistribution->barangay_id !== Auth::user()->barangay_id) {
             $this->dialog()->error(
                 title: 'Access Denied',
@@ -64,17 +67,27 @@ class QrScannerPage extends Component implements HasForms, HasActions
             return;
         }
 
-        if ($this->beneficiary->cropsToReceive->is_claimed) {
-            $dateClaimed = $this->beneficiary->cropsToReceive->date_claimed;
-            $formattedDate = $dateClaimed ? Carbon::parse($dateClaimed)->format('F j, Y g:i A') : 'an earlier date';
-            $this->dialog()->warning(
-                title: 'Already Claimed',
-                description: "This benefit has already been claimed on {$formattedDate}."
-            );
-            $this->resetScan();
-            return;
-        }
+        // Check if already claimed
+      // ✅ Check if already claimed
 
+
+      if ($this->beneficiary->cropsToReceive->is_claimed) {
+          $dateClaimed = $this->beneficiary->cropsToReceive->date_claimed;
+
+          $formattedDate = $dateClaimed ? Carbon::parse($dateClaimed)->format('F j, Y g:i A') : 'an earlier date';
+
+          $this->dialog()->warning(
+              title: 'Already Claimed',
+              description: "This benefit has already been claimed on {$formattedDate}."
+          );
+
+          $this->resetScan();
+          return;
+      }
+
+
+
+        // Success Message
         $this->dialog()->success(
             title: 'Scan Successful',
             description: "Beneficiary found: {$this->beneficiary->first_name} {$this->beneficiary->last_name}"
@@ -84,39 +97,50 @@ class QrScannerPage extends Component implements HasForms, HasActions
     public function confirmClaim()
     {
         if ($this->beneficiary) {
-            DB::beginTransaction();
+            DB::beginTransaction(); // Start Transaction
 
             try {
+                // Get the crop to update inventory
                 $crop = $this->beneficiary->cropsToReceive->crop;
 
+                // Update crops to receive status
                 $this->beneficiary->cropsToReceive->is_claimed = true;
                 $this->beneficiary->cropsToReceive->date_claimed = now();
                 $this->beneficiary->cropsToReceive->save();
 
+                // Decrease the crop inventory using the helper method
                 $result = $crop->decreaseInventory();
+
                 if (!$result) {
                     throw new \Exception('Cannot decrease inventory. Stock limit reached or no stock available.');
                 }
 
+                // Record transaction
                 $this->transaction = Transaction::recordClaim($this->beneficiary, 'claim');
 
+                // Dispatch events to refresh other components
                 $this->dispatch('beneficiary-claimed', distribution: $this->beneficiary->barangay_distribution_id);
 
+                // Commit the transaction
                 DB::commit();
 
+                // Success Message
                 $this->dialog()->success(
                     title: 'Claim Confirmed',
                     description: "{$this->beneficiary->first_name} {$this->beneficiary->last_name} has successfully claimed the item."
                 );
 
+                // Switch to Image Capture Mode
                 $this->isScanning = false;
                 $this->showCapture = true;
 
+                // Dispatch event to restart scanner for image capture
                 $this->dispatch('startCaptureMode');
 
             } catch (\Exception $e) {
-                DB::rollBack();
-                report($e);
+                DB::rollBack(); // Rollback in case of error
+                report($e); // Log the error
+
                 $this->dialog()->error(
                     title: 'Error',
                     description: 'An error occurred while processing the claim. Please try again later. ' . $e->getMessage()
@@ -128,7 +152,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
     #[On('imageCaptured')]
     public function uploadImage(string $imageData = null)
     {
-        if (!$imageData || !str_starts_with($imageData, 'data:image')) {
+        if (!$imageData) {
             $this->dialog()->error(
                 title: 'Upload Failed',
                 description: 'No image data received!'
@@ -154,6 +178,9 @@ class QrScannerPage extends Component implements HasForms, HasActions
             $this->resetScan();
         }
     }
+
+
+
 
     public function skip()
     {
