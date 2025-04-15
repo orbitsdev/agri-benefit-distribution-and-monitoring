@@ -55,7 +55,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
             $this->resetScan();
             return;
         }
-        
+
         // Check if the beneficiary belongs to the staff's barangay
         if ($this->beneficiary->barangayDistribution->barangay_id !== Auth::user()->barangay_id) {
             $this->dialog()->error(
@@ -67,16 +67,20 @@ class QrScannerPage extends Component implements HasForms, HasActions
         }
 
         // Check if already claimed
-        if ($this->beneficiary->cropsToReceive->is_claimed) {
-            $this->dialog()->warning(
-                title: 'Already Claimed',
-                description: 'This benefit has already been claimed on ' . 
-                    ($this->beneficiary->cropsToReceive->date_claimed ? 
-                    $this->beneficiary->cropsToReceive->date_claimed->format('M d, Y h:i A') : 'an earlier date')
-            );
-            $this->resetScan();
-            return;
-        }
+      // ✅ Check if already claimed
+if ($this->beneficiary->cropsToReceive->is_claimed) {
+    $dateClaimed = $this->beneficiary->cropsToReceive->date_claimed;
+
+    $this->dialog()->warning(
+        title: 'Already Claimed',
+        description: 'This benefit has already been claimed on ' .
+            ($dateClaimed ? $dateClaimed->format('F j, Y g:i A') : 'an earlier date')
+    );
+
+    $this->resetScan();
+    return;
+}
+
 
         // Success Message
         $this->dialog()->success(
@@ -145,7 +149,7 @@ class QrScannerPage extends Component implements HasForms, HasActions
     {
         // Extract imageData from the event payload
         $imageData = $data['imageData'] ?? null;
-        
+
         if (!$imageData) {
             $this->dialog()->error(
                 title: 'Upload Failed',
@@ -171,10 +175,10 @@ class QrScannerPage extends Component implements HasForms, HasActions
                     title: 'Image Uploaded',
                     description: 'Proof of claim has been successfully uploaded.'
                 );
-                
+
                 // Dispatch event to update other components
                 $this->dispatch('beneficiary-claimed', distribution: $this->beneficiary->barangay_distribution_id);
-                
+
             } catch (\Exception $e) {
                 $this->dialog()->error(
                     title: 'Upload Error',
