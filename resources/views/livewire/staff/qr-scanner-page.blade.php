@@ -29,20 +29,40 @@
                         Initializing camera...
                     </div>
 
-                    <!-- Optional focus frame -->
+                    <!-- Scanner frame -->
                     <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
                         <div class="w-1/2 h-1/2 border-4 border-white rounded-sm"></div>
                     </div>
                 </div>
             @endif
 
-            <!-- Scanned Code Display -->
+            <!-- Scanned Code -->
             <div class="mt-4 text-center">
                 <p class="text-sm text-gray-500">Scanned Code:</p>
                 <p class="text-lg font-semibold text-gray-900 break-all">{{ $scannedCode }}</p>
             </div>
 
-            <!-- Action Buttons -->
+            <!-- Beneficiary & Crop Details -->
+            @if($beneficiary)
+                <div class="mt-4 bg-gray-50 rounded-md border border-gray-200 p-4 shadow-sm">
+                    <dl class="divide-y divide-gray-100">
+                        <div class="py-2 flex justify-between">
+                            <dt class="text-sm font-medium text-gray-600">Name</dt>
+                            <dd class="text-sm text-gray-900">
+                                {{ $beneficiary->first_name }} {{ $beneficiary->middle_name }} {{ $beneficiary->last_name }}
+                            </dd>
+                        </div>
+                        <div class="py-2 flex justify-between">
+                            <dt class="text-sm font-medium text-gray-600">Crop</dt>
+                            <dd class="text-sm text-gray-900">
+                                {{ $beneficiary->cropsToReceive->crop->name ?? 'N/A' }}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            @endif
+
+            <!-- Buttons -->
             <div class="mt-4 flex justify-center gap-3 flex-wrap">
                 {{ $this->confirmQrAction() }}
                 <button wire:click="resetScan"
@@ -118,7 +138,7 @@
                             isScanning = false;
                             Livewire.dispatch('handleScan', { code: decodedText });
 
-                            // Remove the placeholder once camera is active
+                            // Remove the placeholder
                             document.getElementById('scanner-placeholder')?.remove();
                         },
                         (errorMessage) => {}
@@ -131,16 +151,14 @@
             startScanner();
 
             Livewire.on('restartScanning', async () => {
-                console.log("🔁 Restarting scanner...");
                 try {
                     await html5QrCode.stop();
-                } catch (e) {}
+                } catch {}
                 isScanning = false;
                 setTimeout(() => startScanner(), 500);
             });
 
             Livewire.on('startCaptureMode', () => {
-                console.log("📸 Switching to capture mode...");
                 isScanning = false;
                 setTimeout(() => startScanner(), 500);
             });
