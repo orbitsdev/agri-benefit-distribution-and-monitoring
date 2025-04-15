@@ -150,29 +150,24 @@ class QrScannerPage extends Component implements HasForms, HasActions
     }
 
     #[On('imageCaptured')]
-public function uploadImage($data = [])
-{
-    $imageData = is_array($data) ? $data['imageData'] ?? null : null;
+    public function uploadImage(string $imageData = null)
+    {
+        if (!$imageData) {
+            $this->dialog()->error(
+                title: 'Upload Failed',
+                description: 'No image data received!'
+            );
+            return;
+        }
 
-    if (!$imageData) {
-        $this->dialog()->error(
-            title: 'Upload Failed',
-            description: 'No image data received!'
-        );
-        return;
-    }
+        $this->imageData = $imageData;
 
-    $this->imageData = $imageData;
-
-    if ($this->transaction) {
-        try {
-            // Convert Base64 to File
+        if ($this->transaction) {
             $image = str_replace('data:image/png;base64,', '', $imageData);
             $image = base64_decode($image);
             $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
             file_put_contents($tempFile, $image);
 
-            // Store Image in Media Library
             $this->transaction->addMedia($tempFile)->toMediaCollection('image');
 
             $this->dialog()->success(
@@ -181,16 +176,9 @@ public function uploadImage($data = [])
             );
 
             $this->resetScan();
-            $this->dispatch('restartScanning');
-
-        } catch (\Exception $e) {
-            $this->dialog()->error(
-                title: 'Upload Error',
-                description: 'Failed to process image: ' . $e->getMessage()
-            );
         }
     }
-}
+
 
 
 

@@ -178,10 +178,17 @@
             };
 
             window.submitCapturedImage = function () {
-                const imageData = document.getElementById("capturedImageData").value;
-                if (!imageData) return alert("No image to upload.");
-                Livewire.dispatch("imageCaptured", { imageData });
-            };
+    const imageData = document.getElementById("capturedImageData").value;
+
+    if (!imageData || !imageData.startsWith("data:image")) {
+        alert("No image captured! Please take a picture first.");
+        return;
+    }
+
+    // 🔥 FIX HERE: send string, NOT object
+    Livewire.dispatch("imageCaptured", imageData);
+};
+
         });
     </script>
 </x-support-layout>
