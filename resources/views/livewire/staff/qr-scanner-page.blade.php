@@ -18,18 +18,20 @@
                 </a>
             </div>
 
-            <!-- Scanner or Capture Mode -->
-            <div id="qr-reader"
-                 class="relative w-full h-64 sm:h-72 bg-black rounded-xl overflow-hidden shadow border border-gray-300"
-                 wire:ignore>
-                <div id="scanner-placeholder"
-                     class="absolute inset-0 z-10 flex items-center justify-center text-gray-300 text-sm bg-black">
-                    Initializing camera...
+            <!-- SCANNER MODE -->
+            @if(!$showCapture && !$transaction)
+                <div id="qr-reader"
+                     class="relative w-full h-64 sm:h-72 bg-black rounded-xl overflow-hidden shadow border border-gray-300"
+                     wire:ignore>
+                    <div id="scanner-placeholder"
+                         class="absolute inset-0 z-10 flex items-center justify-center text-gray-300 text-sm bg-black">
+                        Initializing camera...
+                    </div>
+                    <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+                        <div class="w-1/2 h-1/2 border-4 border-white rounded-sm"></div>
+                    </div>
                 </div>
-                <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-                    <div class="w-1/2 h-1/2 border-4 border-white rounded-sm"></div>
-                </div>
-            </div>
+            @endif
 
             <!-- Scanned Code -->
             <div class="mt-4 text-center">
@@ -66,7 +68,7 @@
                 </button>
             </div>
 
-            <!-- Capture Image Preview & Upload -->
+            <!-- CAPTURE MODE -->
             @if($showCapture)
                 <div class="mt-6 p-4 bg-white border border-gray-200 rounded-md shadow-sm">
                     <p class="text-sm text-gray-500">Take a picture as proof of claim:</p>
@@ -97,6 +99,7 @@
     </div>
 
     <x-filament-actions::modals />
+
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <script>
@@ -178,17 +181,13 @@
             };
 
             window.submitCapturedImage = function () {
-    const imageData = document.getElementById("capturedImageData").value;
-
-    if (!imageData || !imageData.startsWith("data:image")) {
-        alert("No image captured! Please take a picture first.");
-        return;
-    }
-
-    // 🔥 FIX HERE: send string, NOT object
-    Livewire.dispatch("imageCaptured", imageData);
-};
-
+                const imageData = document.getElementById("capturedImageData").value;
+                if (!imageData || !imageData.startsWith("data:image")) {
+                    alert("No image captured! Please take a picture first.");
+                    return;
+                }
+                Livewire.dispatch("imageCaptured", imageData);
+            };
         });
     </script>
 </x-support-layout>
