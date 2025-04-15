@@ -117,14 +117,10 @@
                         (decodedText) => {
                             if (!isScanning) return;
                             isScanning = false;
-                            html5QrCode.stop().then(() => {
-                                console.log("Scanner stopped");
-                            }).catch(console.error);
+                            html5QrCode.stop().then(() => console.log("Scanner stopped")).catch(console.error);
                             Livewire.dispatch('handleScan', { code: decodedText });
                         },
-                        (errorMessage) => {
-                            console.warn("QR Scan Error:", errorMessage);
-                        }
+                        (errorMessage) => console.warn("QR Scan Error:", errorMessage)
                     );
                 } catch (err) {
                     console.error("Scanner Error:", err);
@@ -177,18 +173,14 @@
                 document.getElementById("uploadBtn").classList.remove("hidden");
             };
 
-           window.submitCapturedImage = function () {
-    const imageData = document.getElementById("capturedImageData").value;
-
-    if (!imageData || !imageData.startsWith("data:image")) {
-        alert("No image captured! Please take a picture first.");
-        return;
-    }
-
-    // 🔥 FIX HERE: send string, NOT object
-    Livewire.dispatch("imageCaptured", imageData);
-};
-
+            window.submitCapturedImage = function () {
+                const imageData = document.getElementById("capturedImageData").value;
+                if (!imageData || !imageData.startsWith("data:image")) {
+                    alert("No image captured! Please take a picture first.");
+                    return;
+                }
+                Livewire.dispatch("imageCaptured", imageData);
+            };
         });
     </script>
 </x-support-layout>
