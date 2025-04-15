@@ -60,20 +60,20 @@ class Transaction extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('image')->singleFile();
-    }
 
+    }
     public function getCoverUrlAttribute(): ?string
     {
-        return $this->getImage();
+      return self::getImage();
     }
 
     public function getImage()
     {
-        if ($this->hasMedia('image')) {
+        if ($this->hasMedia('image')) { // ✅ Ensure it's fetching from the correct collection
             return $this->getFirstMediaUrl('image');
         }
 
-        return asset('images/placeholder-image.jpg');
+        return asset('images/placeholder-image.jpg'); // Default placeholder
     }
 
     // Scopes
