@@ -150,10 +150,9 @@ class QrScannerPage extends Component implements HasForms, HasActions
     }
 
     #[On('imageCaptured')]
-public function uploadImage($data)
+public function uploadImage($data = [])
 {
-    // Extract imageData from the event payload
-    $imageData = $data['imageData'] ?? null;
+    $imageData = is_array($data) ? $data['imageData'] ?? null : null;
 
     if (!$imageData) {
         $this->dialog()->error(
@@ -181,9 +180,8 @@ public function uploadImage($data)
                 description: 'Proof of claim has been successfully uploaded.'
             );
 
-            // Reset scan and restart the scanner
             $this->resetScan();
-            $this->dispatch('restartScanning'); // ✅ Automatically restart camera
+            $this->dispatch('restartScanning');
 
         } catch (\Exception $e) {
             $this->dialog()->error(
@@ -193,6 +191,7 @@ public function uploadImage($data)
         }
     }
 }
+
 
 
     public function skip()
