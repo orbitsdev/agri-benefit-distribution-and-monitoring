@@ -9,15 +9,14 @@
                 </svg>
                 <span>QR Scanner</span>
             </h2>
-            
+
             <a href="{{ route('staff.dashboard') }}" class="block text-center text-sm text-blue-600 hover:text-blue-800 mt-2">
                 BACK TO DASHBOARD
             </a>
 
-            <!-- Scanner Container -->
-            @if(!$beneficiary && !$transaction)
-            <div id="qr-reader" class="mt-4 w-full aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm">
-            </div>
+            <!-- SCANNER MODE -->
+            @if(!$showCapture && !$transaction)
+                <div id="qr-reader" class="mt-4 w-full aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm"></div>
             @endif
 
             <!-- Scanned Code Display -->
@@ -26,13 +25,43 @@
                 <p class="text-lg font-medium text-gray-900">{{ $scannedCode }}</p>
             </div>
 
-            <!-- Action Buttons -->
+            <!-- ACTION BUTTONS -->
             <div class="mt-5 flex items-center justify-center gap-4">
                 {{ $this->confirmQrAction() }}
                 <button wire:click="resetScan" class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
                     Reset
                 </button>
             </div>
+
+            <!-- CAPTURE MODE -->
+            @if($showCapture)
+                <div class="mt-6 p-4 bg-white border border-gray-200 rounded-md shadow">
+                    <p class="text-sm text-gray-500">Take a picture as proof of claim:</p>
+
+                    <div id="qr-reader" class="w-full aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm mt-2"></div>
+
+                    <!-- Hidden Canvas for Capturing -->
+                    <canvas id="captureCanvas" class="hidden"></canvas>
+
+                    <!-- Captured Image Preview -->
+                    <img id="capturedImagePreview" class="hidden mt-3 w-full rounded-md border border-gray-300" alt="Captured Image">
+
+                    <input type="hidden" id="capturedImageData">
+
+                    <!-- Buttons -->
+                    <div class="flex items-center gap-3 mt-4">
+                        <button onclick="captureImage()" id="takePictureBtn" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
+                            Take Picture
+                        </button>
+                        <button onclick="submitCapturedImage()" id="uploadBtn" class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 hidden">
+                            Confirm Upload
+                        </button>
+                        <button wire:click="skip" class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
+                            Skip
+                        </button>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -40,121 +69,68 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const scannerElement = document.getElementById("qr-reader");
-        let html5QrCode = new Html5Qrcode("qr-reader");
-        let isScanning = false;
+        document.addEventListener('DOMContentLoaded', function () {
+            const scannerElement = document.getElementById("qr-reader");
+            let html5QrCode = new Html5Qrcode("qr-reader");
+            let isScanning = false;
 
-        async function startScanner() {
-            if (isScanning) return;
-            isScanning = true;
+            async function startScanner() {
+                if (isScanning) return;
+                isScanning = true;
 
-            console.log("Starting QR Scanner...");
+                try {
+                    const devices = await Html5Qrcode.getCameras();
+                    if (!devices.length) {
+                        console.error("No cameras found!");
+                        return;
+                    }
 
-            try {
-                // Get available cameras
-                const devices = await Html5Qrcode.getCameras();
-                if (devices && devices.length === 0) {
-                    console.error("No cameras found!");
+                    const cameraId = devices.find(d => d.label.toLowerCase().includes("back"))?.id || devices[0].id;
+
+                    await html5QrCode.start(
+                        cameraId,
+                        { fps: 10, qrbox: 250 },
+                        (decodedText) => {
+                            console.log("✅ QR Code:", decodedText);
+                            html5QrCode.stop();
+                            isScanning = false;
+                            Livewire.dispatch('handleScan', { code: decodedText });
+                        },
+                        (errorMessage) => {}
+                    );
+                } catch (err) {
+                    console.error("Scanner error:", err);
+                }
+            }
+
+            // Start immediately
+            startScanner();
+
+            Livewire.on('restartScanning', async () => {
+                try {
+                    await html5QrCode.stop();
+                } catch {}
+                isScanning = false;
+                setTimeout(() => startScanner(), 500);
+            });
+
+            Livewire.on('startCaptureMode', () => {
+                isScanning = false;
+                setTimeout(() => startScanner(), 500);
+            });
+
+            window.captureImage = function () {
+                const scanner = document.getElementById("qr-reader");
+                const video = scanner?.querySelector("video");
+
+                if (!video) {
+                    alert("Camera not ready!");
                     return;
                 }
-                
-                // Try to use back camera first, then front camera, then first available
-                const cameraId = devices.find(device => device.label.toLowerCase().includes("back"))?.id || 
-                                 devices.find(device => device.label.toLowerCase().includes("rear"))?.id || 
-                                 devices[0].id;
-                
-                console.log("Using camera:", cameraId);
-                
-                // Start scanning
-                await html5QrCode.start(
-                    cameraId,
-                    { 
-                        fps: 10, 
-                        qrbox: 250
-                    },
-                    (decodedText) => {
-                        console.log("Scanned QR Code:", decodedText);
-                        html5QrCode.stop();
-                        isScanning = false;
-                        
-                        // Send the code to the Livewire component
-                        Livewire.dispatch('handleScan', { code: decodedText });
-                    },
-                    (errorMessage) => {}
-                );
-            } catch (err) {
-                console.error("QR scanner error:", err);
-                isScanning = false;
-            }
-        }
-        
-        // Initialize scanner if element exists
-        if (scannerElement) {
-            startScanner();
-        }
-        
-        // Listen for Livewire events
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.on('resetScanner', () => {
-                if (html5QrCode) {
-                    html5QrCode.stop().then(() => {
-                        console.log("Scanner stopped and reset");
-                        isScanning = false;
-                        setTimeout(() => {
-                            startScanner();
-                        }, 500);
-                    }).catch(err => {
-                        console.error("Error stopping scanner:", err);
-                        isScanning = false;
-                    });
-                }
-            });
-        });
 
-        // ✅ Restart scanner properly after confirmation/reset
-        Livewire.on('restartScanning', async function () {
-            console.log("🔄 Restarting scanner...");
-            isScanning = false;
-
-            try {
-                await html5QrCode.stop();
-                console.log("📴 Scanner fully stopped, restarting...");
-                setTimeout(() => startScanner(), 500);
-            } catch (err) {
-                console.error("❌ Error stopping scanner before restart:", err);
-                startScanner();
-            }
-        });
-
-        // ✅ Switch Scanner to Image Capture Mode (AFTER CLAIM CONFIRMATION)
-        Livewire.on('startCaptureMode', function () {
-            console.log("📸 Switching to Image Capture Mode...");
-            isScanning = false;
-
-            // ✅ Restart scanner to ensure camera is ready for picture capture
-            setTimeout(() => startScanner(), 500);
-        });
-
-        // ✅ Image Capture Function - Ensures Video Element Exists
-        window.captureImage = function () {
-            const scannerContainer = document.getElementById("qr-reader");
-            const video = scannerContainer?.querySelector("video");
-
-            if (!video) {
-                console.error("❌ No video element found. Ensure the scanner is running.");
-                alert("No camera detected! Please make sure the scanner is open and camera permissions are granted.");
-                return;
-            }
-
-            const canvas = document.getElementById("captureCanvas");
-            if (!canvas) {
-                console.error("❌ Capture canvas not found.");
-                return;
-            }
-
-            try {
+                const canvas = document.getElementById("captureCanvas");
                 const context = canvas.getContext("2d");
+
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -164,33 +140,18 @@
                 document.getElementById("capturedImagePreview").classList.remove("hidden");
                 document.getElementById("capturedImageData").value = imageData;
 
-                // ✅ Show the Upload button after capturing
                 document.getElementById("uploadBtn").classList.remove("hidden");
+            };
 
-                console.log("✅ Image Captured! Data:", imageData);
-            } catch (err) {
-                console.error("❌ Error capturing image:", err);
-                alert("Error capturing image: " + err.message);
-            }
-        };
+            window.submitCapturedImage = function () {
+                const imageData = document.getElementById("capturedImageData").value;
+                if (!imageData) {
+                    alert("No image data found!");
+                    return;
+                }
 
-        // ✅ Submit Captured Image
-        window.submitCapturedImage = function () {
-            const imageData = document.getElementById("capturedImageData").value;
-            if (!imageData) {
-                alert("No image captured! Please take a picture first.");
-                return;
-            }
-
-            console.log("🚀 Sending Captured Image to Livewire:", imageData); // Debugging
-
-            // ✅ Use Livewire.dispatch() for Livewire 3
-            Livewire.dispatch("imageCaptured", { imageData: imageData });
-        };
-
-        // Start the scanner when the page loads
-        startScanner();
-    });
+                Livewire.dispatch("imageCaptured", { imageData });
+            };
+        });
     </script>
-    @endpush
 </x-support-layout>
