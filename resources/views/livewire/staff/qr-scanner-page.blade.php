@@ -175,11 +175,11 @@
 
             window.submitCapturedImage = function () {
                 const imageData = document.getElementById("capturedImageData").value;
-                if (!imageData || !imageData.startsWith("data:image")) {
-                    alert("No image captured! Please take a picture first.");
-                    return;
-                }
-                Livewire.dispatch("imageCaptured", imageData);
+                if (!imageData) {
+        alert("No image captured! Please take a picture first.");
+        return;
+    }
+    Livewire.dispatch("imageCaptured", { imageData: imageData });
             };
         });
     </script>
