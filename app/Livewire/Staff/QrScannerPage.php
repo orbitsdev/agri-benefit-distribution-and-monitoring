@@ -150,50 +150,50 @@ class QrScannerPage extends Component implements HasForms, HasActions
     }
 
     #[On('imageCaptured')]
-    public function uploadImage($data)
-    {
-        // Extract imageData from the event payload
-        $imageData = $data['imageData'] ?? null;
+public function uploadImage($data)
+{
+    // Extract imageData from the event payload
+    $imageData = $data['imageData'] ?? null;
 
-        if (!$imageData) {
-            $this->dialog()->error(
-                title: 'Upload Failed',
-                description: 'No image data received!'
+    if (!$imageData) {
+        $this->dialog()->error(
+            title: 'Upload Failed',
+            description: 'No image data received!'
+        );
+        return;
+    }
+
+    $this->imageData = $imageData;
+
+    if ($this->transaction) {
+        try {
+            // Convert Base64 to File
+            $image = str_replace('data:image/png;base64,', '', $imageData);
+            $image = base64_decode($image);
+            $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+            file_put_contents($tempFile, $image);
+
+            // Store Image in Media Library
+            $this->transaction->addMedia($tempFile)->toMediaCollection('image');
+
+            $this->dialog()->success(
+                title: 'Image Uploaded',
+                description: 'Proof of claim has been successfully uploaded.'
             );
-            return;
-        }
 
-        $this->imageData = $imageData;
-
-        if ($this->transaction) {
-            try {
-                // Convert Base64 to File
-                $image = str_replace('data:image/png;base64,', '', $imageData);
-                $image = base64_decode($image);
-                $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
-                file_put_contents($tempFile, $image);
-
-                // Store Image in Media Library
-                $this->transaction->addMedia($tempFile)->toMediaCollection('image');
-
-                $this->dialog()->success(
-                    title: 'Image Uploaded',
-                    description: 'Proof of claim has been successfully uploaded.'
-                );
-
-                // Dispatch event to update other components
-                $this->dispatch('beneficiary-claimed', distribution: $this->beneficiary->barangay_distribution_id);
-
-            } catch (\Exception $e) {
-                $this->dialog()->error(
-                    title: 'Upload Error',
-                    description: 'Failed to process image: ' . $e->getMessage()
-                );
-            }
-
+            // Reset scan and restart the scanner
             $this->resetScan();
+            $this->dispatch('restartScanning'); // ✅ Automatically restart camera
+
+        } catch (\Exception $e) {
+            $this->dialog()->error(
+                title: 'Upload Error',
+                description: 'Failed to process image: ' . $e->getMessage()
+            );
         }
     }
+}
+
 
     public function skip()
     {
