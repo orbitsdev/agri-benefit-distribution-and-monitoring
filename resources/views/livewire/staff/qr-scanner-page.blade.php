@@ -18,20 +18,18 @@
                 </a>
             </div>
 
-            <!-- SCANNER MODE -->
-            @if(!$showCapture && !$transaction)
-                <div id="qr-scanner"
-                     class="relative w-full h-64 sm:h-72 bg-black rounded-xl overflow-hidden shadow border border-gray-300"
-                     wire:ignore>
-                    <div id="scanner-placeholder"
-                         class="absolute inset-0 z-10 flex items-center justify-center text-gray-300 text-sm bg-black">
-                        Initializing camera...
-                    </div>
-                    <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-                        <div class="w-1/2 h-1/2 border-4 border-white rounded-sm"></div>
-                    </div>
+            <!-- Scanner or Capture Mode -->
+            <div id="qr-reader"
+                 class="relative w-full h-64 sm:h-72 bg-black rounded-xl overflow-hidden shadow border border-gray-300"
+                 wire:ignore>
+                <div id="scanner-placeholder"
+                     class="absolute inset-0 z-10 flex items-center justify-center text-gray-300 text-sm bg-black">
+                    Initializing camera...
                 </div>
-            @endif
+                <div class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+                    <div class="w-1/2 h-1/2 border-4 border-white rounded-sm"></div>
+                </div>
+            </div>
 
             <!-- Scanned Code -->
             <div class="mt-4 text-center">
@@ -68,14 +66,10 @@
                 </button>
             </div>
 
-            <!-- CAPTURE MODE -->
+            <!-- Capture Image Preview & Upload -->
             @if($showCapture)
                 <div class="mt-6 p-4 bg-white border border-gray-200 rounded-md shadow-sm">
                     <p class="text-sm text-gray-500">Take a picture as proof of claim:</p>
-
-                    <div id="qr-capture"
-                         class="w-full aspect-video bg-black rounded-lg overflow-hidden border border-gray-300 shadow-sm mt-2"
-                         wire:ignore></div>
 
                     <canvas id="captureCanvas" class="hidden"></canvas>
                     <img id="capturedImagePreview"
@@ -105,7 +99,6 @@
     <x-filament-actions::modals />
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-    <!-- ✅ Camera Script (Scan + Capture Modes) -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const scannerElement = document.getElementById("qr-reader");
@@ -124,29 +117,25 @@
                         (decodedText) => {
                             if (!isScanning) return;
                             isScanning = false;
-
                             html5QrCode.stop().then(() => {
-                                console.log("📴 Scanner stopped");
+                                console.log("Scanner stopped");
                             }).catch(console.error);
-
                             Livewire.dispatch('handleScan', { code: decodedText });
                         },
                         (errorMessage) => {
-                            console.warn("⚠️ QR Scan Error:", errorMessage);
+                            console.warn("QR Scan Error:", errorMessage);
                         }
                     );
                 } catch (err) {
-                    console.error("❌ Scanner Error:", err);
+                    console.error("Scanner Error:", err);
                 }
             }
 
-            // Start with camera detection
             Html5Qrcode.getCameras().then(devices => {
                 if (!devices.length) {
-                    alert("❌ No camera detected.");
+                    alert("No camera detected.");
                     return;
                 }
-
                 currentCameraId = devices.find(d => d.label.toLowerCase().includes("back"))?.id || devices[0].id;
                 startScanner();
             });
@@ -170,14 +159,11 @@
             });
 
             window.captureImage = function () {
-                const scannerContainer = document.getElementById("qr-reader");
-                const video = scannerContainer?.querySelector("video");
-
+                const video = scannerElement?.querySelector("video");
                 if (!video) {
                     alert("Camera not ready!");
                     return;
                 }
-
                 const canvas = document.getElementById("captureCanvas");
                 const context = canvas.getContext("2d");
                 canvas.width = video.videoWidth;
@@ -189,8 +175,6 @@
                 document.getElementById("capturedImagePreview").classList.remove("hidden");
                 document.getElementById("capturedImageData").value = imageData;
                 document.getElementById("uploadBtn").classList.remove("hidden");
-
-                console.log("📸 Image Captured");
             };
 
             window.submitCapturedImage = function () {
@@ -200,5 +184,4 @@
             };
         });
     </script>
-
 </x-support-layout>
