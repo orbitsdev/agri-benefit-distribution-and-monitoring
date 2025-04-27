@@ -178,7 +178,7 @@
         <p class="ilonggo-small">
             The server ran out of energy... and budget.
         </p>
-        <img src="https://media.giphy.com/media/8YutMatqkTfSE/giphy.gif" alt="Crying Meme" style="width: 200px; margin-top: 15px; border-radius: 10px;">
+        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjBjbjUwZnFkZ2pmc2l0eGQydmY5em5seTNsYzV4MzZleTkzYmpxMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bC8EUWeuy5OIx6o7ul/giphy.gif" alt="Crying Meme" style="width: 200px; margin-top: 15px; border-radius: 10px;">
 
 
         <div class="digital-countdown">
