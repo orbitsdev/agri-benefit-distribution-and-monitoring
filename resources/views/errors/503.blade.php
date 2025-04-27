@@ -2,10 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>System Maintenance</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Base responsive styles */
+        * {
+            box-sizing: border-box;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            .time-separator {
+                margin: 0 -2px;
+            }
+            .balance {
+                padding: 8px 15px;
+            }
+            .btn {
+                display: block;
+                margin: 20px auto 0;
+                max-width: 200px;
+            }
+        }
         body {
             font-family: 'Nunito', sans-serif;
             background: #f7fafc;
@@ -13,17 +34,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            padding: 0 20px;
+            padding: 20px;
             text-align: center;
+            overflow-x: hidden;
         }
         .container {
+            width: 100%;
             max-width: 600px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 40px;
+            padding: 30px 20px;
+            margin: 15px auto;
         }
         h1 {
             color: #2d3748;
@@ -78,21 +102,22 @@
             align-items: center;
             margin: 30px 0;
             font-family: 'Courier New', monospace;
+            flex-wrap: wrap;
         }
         .time-unit {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0 5px;
+            margin: 5px;
         }
         .time-value {
             background-color: #ebf8ff;
             color: #2b6cb0;
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 4vw, 2rem);
             font-weight: 700;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 5px;
-            min-width: 60px;
+            min-width: 50px;
             text-align: center;
             box-shadow: 0 0 10px rgba(49, 130, 206, 0.3);
             font-family: 'Digital-7', 'Courier New', monospace;
@@ -153,7 +178,7 @@
             font-weight: 600;
         }
         .bayad-po {
-            font-size: 3.5rem;
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
             font-weight: 900;
             color: #3182ce;
             margin: 10px 0;
@@ -178,7 +203,7 @@
         <p class="ilonggo-small">
             The server ran out of energy... and budget.
         </p>
-        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjBjbjUwZnFkZ2pmc2l0eGQydmY5em5seTNsYzV4MzZleTkzYmpxMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bC8EUWeuy5OIx6o7ul/giphy.gif" alt="Crying Meme" style="width: 200px; margin-top: 15px; border-radius: 10px;">
+        <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjBjbjUwZnFkZ2pmc2l0eGQydmY5em5seTNsYzV4MzZleTkzYmpxMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bC8EUWeuy5OIx6o7ul/giphy.gif" alt="Crying Meme" style="max-width: 100%; width: 180px; margin-top: 15px; border-radius: 10px;">
 
 
         <div class="digital-countdown">
@@ -210,7 +235,7 @@
 
 
         <p class="contact">
-            If you need to restore service or have already made a payment, please contact the developer at <span class="highlight">orbitsdev@gmail.com</span>
+            If you need to restore service or have already made a payment, please contact the developer at <span class="highlight" style="word-break: break-all;">orbitsdev@gmail.com</span>
         </p>
 
         <a href="mailto:orbinobrian0506@gmail.com" class="btn">Contact Developer</a>
